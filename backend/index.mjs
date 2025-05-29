@@ -85,21 +85,16 @@ Options:
 `);
 }
 
-// Run as standalone if this file is executed directly
-if (import.meta.url === `file://${process.argv[1]}`) {
-  const args = process.argv.slice(2);
-  
-  if (args.includes('--server')) {
+const args = process.argv.slice(2);
+if (args.includes('--server')) {
     const portIndex = args.indexOf('--server') + 1;
     const port = (portIndex < args.length && !args[portIndex].startsWith('--')) 
-      ? parseInt(args[portIndex], 10) 
-      : 3000;
-    
+        ? parseInt(args[portIndex], 10) 
+        : 3000;
+
     createStandaloneApp(port);
-  } else if (args.includes('--help')) {
-    printUsage();
-  } else {
+} else {
     // Default behavior when run with no arguments
+    console.log(process.argv)
     printUsage();
-  }
 }
