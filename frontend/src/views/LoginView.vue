@@ -485,11 +485,9 @@ export default {
       this.cb = this.qs.get('cb') || this.qs.get('redirect_uri');
       this.state = this.qs.get('state');
       this.challenge = this.qs.get('challenge') || this.qs.get('code_challenge');
-      if ((!this._id && !this.cb) || (!this._id && !this.challenge)) {
-        window.location.href = "/account";
-      } else {
-        this.getLoginStatus(true);
-      }
+      // Always continue with the login flow, even without ID/challenge
+      // The backend will handle it appropriately
+      this.getLoginStatus(true);
     },
     async getLoginStatus(getinfo = false) {
       try {
@@ -502,7 +500,8 @@ export default {
         });
 
         if (res.status !== 200) {
-          window.location.href = "/account";
+          this.auth_state = 'login';
+          this.loading.action = null;
           return;
         }
 

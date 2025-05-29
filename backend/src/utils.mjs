@@ -105,13 +105,22 @@ export function clearCookie(res, name) {
 
 export async function lookupAppInfo(id) {
     try {
+        // If no ID is provided, default to the account app
+        if (!id) {
+            return {
+                id: ACCOUNT_APP_ID,
+                secret: "7B229E8C-4F29-4480-91E7-01AD0E3C2731",
+                name: process.env.ACCOUNT_APP_NAME || 'Account',
+            };
+        }
+        
         // these values are hardcoded into the login service code, and not the
         // db, since they are served up by the login service.. we don't want to
         // end up accidentally deleting the db and then not be able to admin
         // the db
         if (id == ADMIN_APP_ID) {
             return {
-                id:  ADMIN_APP_ID,
+                id: ADMIN_APP_ID,
                 secret: process.env.ADMIN_APP_SECRET,
                 name: process.env.ADMIN_APP_NAME || 'Login',
             };
@@ -119,7 +128,7 @@ export async function lookupAppInfo(id) {
 
         if (id == ACCOUNT_APP_ID) {
             return {
-                id:  ACCOUNT_APP_ID,
+                id: ACCOUNT_APP_ID,
                 secret: "7B229E8C-4F29-4480-91E7-01AD0E3C2731",
                 name: process.env.ACCOUNT_APP_NAME || 'Account',
             };
