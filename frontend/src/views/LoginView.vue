@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center sm:p-4 relative">
     <div v-if="auth_state === 'checking'" class="bg-white sm:rounded-xl sm:shadow-lg p-6 sm:p-8 w-full sm:max-w-md md:max-w-lg">
       <div class="flex justify-center py-6">
-        <div class="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+        <div class="w-8 h-8 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
       </div>
     </div>
 
@@ -15,7 +15,7 @@
       <div class="mb-4">
         <div @click="() => { auth_state = 'checking'; getLoginStatus() }" 
              class="flex items-center p-3 rounded-lg hover:bg-slate-50 transition cursor-pointer">
-          <div class="bg-indigo-500 text-white h-10 w-10 rounded-full flex items-center justify-center font-bold">
+          <div class="bg-cyan-500 text-white h-10 w-10 rounded-full flex items-center justify-center font-bold">
             {{(name || '').slice(0,1).toUpperCase()}}
           </div>
           <div class="ml-4">
@@ -61,14 +61,14 @@
             type="text" 
             id="token" 
             v-model="tfatoken"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
             required
           />
         </div>
         
         <button 
           type="submit"
-          class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg transition flex justify-center items-center"
+          class="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-medium py-2 px-4 rounded-lg transition flex justify-center items-center"
         >
           <span v-if="loading.action !== 'enter-tfa'">Submit</span>
           <div v-else class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -101,7 +101,7 @@
       
       <button 
         @click="gotoaccount"
-        class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg transition"
+        class="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-medium py-2 px-4 rounded-lg transition"
       >
         Go to your account
       </button>
@@ -115,13 +115,13 @@
       <div class="mb-6">
         <h2 class="text-xl font-bold text-center mb-4">Make sure you downloaded this app</h2>
         <p class="text-gray-600 mb-3">
-          Do not sign into <span class="font-bold text-indigo-600">{{appname}}</span> unless you downloaded it from Keyflow.
+          Do not sign into <span class="font-bold text-cyan-600">{{appname}}</span> unless you downloaded it from Keyflow.
         </p>
         <p class="text-gray-600 mb-3">
-          If you did download <span class="font-bold text-indigo-600">{{appname}}</span> from Keyflow, it is asking you to sign in again now because your previous session expired or there has been an important update.
+          If you did download <span class="font-bold text-cyan-600">{{appname}}</span> from Keyflow, it is asking you to sign in again now because your previous session expired or there has been an important update.
         </p>
         <p class="text-gray-600">
-          If you cannot confirm that you downloaded <span class="font-bold text-indigo-600">{{appname}}</span> from Keyflow, delete it now.
+          If you cannot confirm that you downloaded <span class="font-bold text-cyan-600">{{appname}}</span> from Keyflow, delete it now.
         </p>
       </div>
       
@@ -136,7 +136,7 @@
         
         <button 
           @click.prevent="confirmApp('confirmed')"
-          class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg transition flex justify-center items-center"
+          class="flex-1 bg-cyan-600 hover:bg-cyan-700 text-white font-medium py-2 px-4 rounded-lg transition flex justify-center items-center"
         >
           <span v-if="loading.action !== 'confirm-app'">Sign in</span>
           <div v-else class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -147,11 +147,11 @@
     <div v-else-if="auth_state === 'redirecting'" class="bg-white sm:rounded-xl sm:shadow-lg p-6 sm:p-8 w-full sm:max-w-md md:max-w-lg">
       <div class="text-center">
         <div class="flex justify-center mb-4">
-          <span class="mdi mdi-key-variant text-5xl text-indigo-500"></span>
+          <span class="mdi mdi-key-variant text-5xl text-cyan-500"></span>
         </div>
         <h2 class="text-xl font-medium text-gray-800 mb-4">Redirecting, please wait...</h2>
         <p class="text-gray-600">
-          <a :href="redirect_url" class="text-indigo-600 hover:text-indigo-800">
+          <a :href="redirect_url" class="text-cyan-600 hover:text-cyan-800">
             If this doesn't continue after a few seconds, click here to continue.
           </a>
         </p>
@@ -162,7 +162,7 @@
       <div class="text-center mb-6">
         <div class="flex justify-center mb-2">
           <img v-if="$config.appLogo" :src="$config.appLogo" alt="Logo" class="h-24 sm:h-28">
-          <span v-else class="mdi mdi-key-variant text-4xl sm:text-5xl" :class="$config.primaryColorClass || 'text-indigo-500'"></span>
+          <span v-else class="mdi mdi-key-variant text-4xl sm:text-5xl" :class="$config.primaryColorClass || 'text-cyan-500'"></span>
         </div>
         <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">
           {{ clientAppName || `Welcome to ${$config.appName}` }}
@@ -179,7 +179,7 @@
             id="email" 
             v-model="email"
             @input="error = ''"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
             required
             autocomplete="email"
           />
@@ -194,7 +194,7 @@
             id="password" 
             v-model="password"
             @input="error = ''"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
             required
             autocomplete="current-password"
           />
@@ -204,8 +204,7 @@
           ref="enterCredentialsBtn"
           type="submit"
           :disabled="!email || !password"
-          :class="[$config.primaryColorClass ? `bg-${$config.primaryColorClass} hover:bg-${$config.primaryColorClass.replace('-500', '-600')} hover:bg-${$config.primaryColorClass.replace('-600', '-700')}` : 'custom-primary-btn']"
-          class="w-full text-white font-medium py-2 px-4 rounded-lg transition flex justify-center items-center disabled:opacity-50 disabled:cursor-not-allowed"
+          class="cursor-pointer bg-cyan-500 hover:bg-cyan-600 transition-colors w-full text-white font-medium py-2 px-4 rounded-lg transition flex justify-center items-center disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <span v-if="loading.action !== 'enter-credentials'">Sign in</span>
           <div v-else class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -230,7 +229,7 @@
       
       <div class="text-center text-sm text-gray-600">
         Don't have an account? 
-        <router-link :to="'/create' + (qs.toString() ? `?${qs.toString()}` : '')" :class="$config.primaryColorClass ? `text-${$config.primaryColorClass} hover:text-${$config.primaryColorClass.replace('-500', '-700')} hover:text-${$config.primaryColorClass.replace('-600', '-800')}` : 'custom-primary-text'" class="font-semibold">
+        <router-link :to="'/create' + (qs.toString() ? `?${qs.toString()}` : '')" class="font-semibold text-cyan-500 hover:text-cyan-600">
           Sign up
         </router-link>
       </div>
@@ -275,7 +274,7 @@
       <div class="inline-flex items-center px-3 py-1 rounded-full bg-white/80 backdrop-blur-sm shadow-sm text-sm text-gray-600">
         <span class="mdi mdi-flash-outline text-yellow-500 text-lg mt-1"></span>
         <span>Powered by</span>
-        <a href="https://keyflow.io" target="_blank" rel="noopener" :class="$config.primaryColorClass ? `text-${$config.primaryColorClass}` : 'custom-primary-text'" class="font-medium ml-1 flex items-center hover:underline">
+        <a href="https://keyflow.io" target="_blank" rel="noopener"  class="font-medium ml-1 flex items-center hover:underline text-cyan-600">
           <span class="mdi mdi-key-variant text-xs mr-0.5"></span>
           Keyflow
         </a>
@@ -716,20 +715,6 @@ export default {
   width: 100%;
   height: 40px;
   cursor: pointer;
-}
-
-/* Custom primary color support */
-.custom-primary-btn {
-  background-color: var(--primary-color, #4f46e5);
-}
-.custom-primary-btn:hover {
-  background-color: var(--primary-color-hover, #4338ca);
-}
-.custom-primary-text {
-  color: var(--primary-color, #4f46e5);
-}
-.custom-primary-text:hover {
-  color: var(--primary-color-hover, #4338ca);
 }
 
 /* Mobile optimizations */

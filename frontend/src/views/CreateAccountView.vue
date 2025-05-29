@@ -3,8 +3,8 @@
     <div class="bg-white sm:rounded-xl sm:shadow-lg p-6 sm:p-8 w-full sm:max-w-md md:max-w-lg">
       <div class="text-center mb-6">
         <div class="flex justify-center mb-2">
-          <img v-if="$config.appLogo" :src="$config.appLogo" alt="Logo" class="h-12 sm:h-14">
-          <span v-else class="mdi mdi-key-variant text-4xl sm:text-5xl" :class="$config.primaryColorClass || 'text-indigo-500'"></span>
+          <img v-if="$config.appLogo" :src="$config.appLogo" alt="Logo" class="h-24 sm:h-28">
+          <span v-else class="mdi mdi-key-variant text-4xl sm:text-5xl" :class="$config.primaryColorClass || 'text-cyan-500'"></span>
         </div>
         <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">Create your account</h1>
         <p class="text-gray-500 mt-2">Join {{ clientAppName || $config.appName }} today</p>
@@ -21,7 +21,7 @@
               id="firstname" 
               v-model.trim="firstname"
               ref="firstname"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
               required
               autocomplete="given-name"
             />
@@ -35,7 +35,7 @@
               id="lastname" 
               v-model.trim="lastname"
               ref="lastname"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
               required
               autocomplete="family-name"
             />
@@ -51,7 +51,7 @@
             id="email" 
             v-model.trim="email"
             ref="email"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
             required
             autocomplete="email"
           />
@@ -67,7 +67,7 @@
               id="password" 
               v-model="password1"
               ref="password1"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
               required
               autocomplete="new-password"
               minlength="4"
@@ -82,7 +82,7 @@
               id="confirm-password" 
               v-model="password2"
               ref="password2"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
               required
               autocomplete="new-password"
               minlength="4"
@@ -92,8 +92,7 @@
         
         <button 
           type="submit"
-          :class="[$config.primaryColorClass ? `bg-${$config.primaryColorClass} hover:bg-${$config.primaryColorClass.replace('-500', '-600')} hover:bg-${$config.primaryColorClass.replace('-600', '-700')}` : 'custom-primary-btn']"
-          class="w-full text-white font-medium py-2 px-4 rounded-lg transition flex justify-center items-center mt-6"
+          class="w-full bg-cyan-500 hover:bg-cyan-600 text-white font-medium py-2 px-4 rounded-lg transition flex justify-center items-center"
         >
           <span v-if="!loading">Create account</span>
           <div v-else class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -102,7 +101,7 @@
       
       <div class="text-center mt-4 text-sm text-gray-600">
         Already have an account? 
-        <a :href="signInUrl" :class="$config.primaryColorClass ? `text-${$config.primaryColorClass} hover:text-${$config.primaryColorClass.replace('-500', '-700')} hover:text-${$config.primaryColorClass.replace('-600', '-800')}` : 'custom-primary-text'" class="font-semibold">
+        <a :href="signInUrl" class="font-semibold text-cyan-500 hover:text-cyan-600">
           Sign in
         </a>
       </div>
@@ -147,7 +146,7 @@
       <div class="inline-flex items-center px-3 py-1 rounded-full bg-white/80 backdrop-blur-sm shadow-sm text-sm text-gray-600">
         <span class="mdi mdi-flash-outline text-yellow-500 text-lg mt-1"></span>
         <span>Powered by</span>
-        <a href="https://keyflow.io" target="_blank" rel="noopener" :class="$config.primaryColorClass ? `text-${$config.primaryColorClass}` : 'custom-primary-text'" class="font-medium ml-1 flex items-center hover:underline">
+        <a href="https://keyflow.io" target="_blank" rel="noopener"  class="font-medium ml-1 flex items-center hover:underline text-cyan-600">
           <span class="mdi mdi-key-variant text-xs mr-0.5"></span>
           Keyflow
         </a>
@@ -323,19 +322,5 @@ export default {
 <style>
 .grecaptcha-badge {
   visibility: hidden;
-}
-
-/* Custom primary color support */
-.custom-primary-btn {
-  background-color: var(--primary-color, #4f46e5);
-}
-.custom-primary-btn:hover {
-  background-color: var(--primary-color-hover, #4338ca);
-}
-.custom-primary-text {
-  color: var(--primary-color, #4f46e5);
-}
-.custom-primary-text:hover {
-  color: var(--primary-color-hover, #4338ca);
 }
 </style>
