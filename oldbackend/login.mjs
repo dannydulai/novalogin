@@ -510,7 +510,7 @@ app.post("/api/login/pick-profile", async (req, res) => {
         }
 
         let good = false;
-        const profiles = await auth.getProfiles(cookII.userid);
+        const profiles = await auth.getProfiles(cookII.user_id);
         if (Array.isArray(profiles)) {
             for (const profile of profiles) {
                 if (profile.id == req.body.profileid) {
@@ -522,7 +522,7 @@ app.post("/api/login/pick-profile", async (req, res) => {
             return res.status(400).send({ status: "InvalidProfile" });
 
         } else {
-            throw "profiles is not an array for userid " + cookII.userid;
+            throw "profiles is not an array for user_id " + cookII.user_id;
         }
 
     } catch(e) {

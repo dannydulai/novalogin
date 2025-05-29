@@ -100,7 +100,7 @@ export default function (app, logger) {
 
         const cookII = { 
             v: LOGIN_COOKIE_VERSION,
-            userid: loginResponse.userid,
+            user_id: loginResponse.user_id,
             groups: loginResponse.groups,
             access_token: loginResponse.access_token,
             logout_token: loginResponse.logout_token,
@@ -122,7 +122,7 @@ export default function (app, logger) {
             sendEmailAlert({
                 id: 'login-success',
                 use_handlebars: true,
-                user_id: cookII.userid,
+                user_id: cookII.user_id,
                 location: cookII.temp.location
             });
         }
@@ -248,7 +248,7 @@ export default function (app, logger) {
             const resData = {};
 
             if (req.query?.info) {
-                const info = await db('users').select('email', 'firstname', 'lastname').where({ userid: cookII.userid }).first();
+                const info = await db('users').select('email', 'firstname', 'lastname').where({ user_id: cookII.user_id }).first();
                 resData.email = info.email;
                 resData.name  = `${info.firstname} ${info.lastname}`;
             }
@@ -411,7 +411,7 @@ export default function (app, logger) {
             sendEmailAlert({
                 id: 'login-success-tfa',
                 use_handlebars: true,
-                user_id: cookII.userid,
+                user_id: cookII.user_id,
                 location: cookII.temp.location
             });
             delete(cookII.temp.tfa);
@@ -490,7 +490,7 @@ export default function (app, logger) {
                     if (accountServerResponse.status != 'Success') {
                         cookII = undefined;
                     } else {
-                        cookII.userid =       accountServerResponse.userid;
+                        cookII.user_id =       accountServerResponse.user_id;
                         cookII.groups =       accountServerResponse.groups;
                         cookII.access_token = accountServerResponse.access_token;
                         cookII.logout_token = accountServerResponse.logout_token;
