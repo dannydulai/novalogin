@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center sm:p-4">
+  <div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center sm:p-4 relative">
     <div v-if="auth_state === 'checking'" class="bg-white sm:rounded-xl sm:shadow-lg p-6 sm:p-8 w-full sm:max-w-md md:max-w-lg">
       <div class="flex justify-center py-6">
         <div class="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
@@ -161,9 +161,12 @@
     <div v-else-if="auth_state === 'login'" class="bg-white sm:rounded-xl sm:shadow-lg p-6 sm:p-8 w-full sm:max-w-md md:max-w-lg">
       <div class="text-center mb-6">
         <div class="flex justify-center mb-2">
-          <span class="mdi mdi-key-variant text-4xl sm:text-5xl text-indigo-500"></span>
+          <img v-if="$config.appLogo" :src="$config.appLogo" alt="Logo" class="h-12 sm:h-14">
+          <span v-else class="mdi mdi-key-variant text-4xl sm:text-5xl" :class="$config.primaryColorClass || 'text-indigo-500'"></span>
         </div>
-        <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">Welcome to Keyflow</h1>
+        <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">
+          {{ clientAppName || `Welcome to ${$config.appName}` }}
+        </h1>
       </div>
       
       <form @submit.prevent="enterCredentials">
@@ -201,7 +204,8 @@
           ref="enterCredentialsBtn"
           type="submit"
           :disabled="!email || !password"
-          class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg transition flex justify-center items-center disabled:opacity-50 disabled:cursor-not-allowed"
+          :class="[$config.primaryColorClass ? `bg-${$config.primaryColorClass} hover:bg-${$config.primaryColorClass.replace('-500', '-600')} hover:bg-${$config.primaryColorClass.replace('-600', '-700')}` : 'custom-primary-btn']"
+          class="w-full text-white font-medium py-2 px-4 rounded-lg transition flex justify-center items-center disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <span v-if="loading.action !== 'enter-credentials'">Sign in</span>
           <div v-else class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -226,7 +230,7 @@
       
       <div class="text-center text-sm text-gray-600">
         Don't have an account? 
-        <router-link :to="'/create' + (qs.toString() ? `?${qs.toString()}` : '')" class="text-indigo-600 font-semibold hover:text-indigo-800">
+        <router-link :to="'/create' + (qs.toString() ? `?${qs.toString()}` : '')" :class="$config.primaryColorClass ? `text-${$config.primaryColorClass} hover:text-${$config.primaryColorClass.replace('-500', '-700')} hover:text-${$config.primaryColorClass.replace('-600', '-800')}` : 'custom-primary-text'" class="font-semibold">
           Sign up
         </router-link>
       </div>
@@ -265,10 +269,22 @@
         </div>
       </div>
     </div>
+    
+    <!-- Powered by Keyflow footer -->
+    <div v-if="!$config.hidePoweredBy" class="absolute bottom-2 w-full text-center">
+      <div class="inline-flex items-center px-3 py-1 rounded-full bg-white/80 backdrop-blur-sm shadow-sm text-xs text-gray-600">
+        <span>Powered by</span>
+        <a href="https://keyflow.io" target="_blank" rel="noopener" :class="$config.primaryColorClass ? `text-${$config.primaryColorClass}` : 'custom-primary-text'" class="font-medium ml-1 flex items-center hover:underline">
+          <span class="mdi mdi-key-variant text-xs mr-0.5"></span>
+          Keyflow
+        </a>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
+import config from '../config';
 export default {
   name: 'LoginView',
   data() {
@@ -288,6 +304,7 @@ export default {
       password: '',
       redirect_url: '',
       appname: '',
+      clientAppName: '',
       tfatoken: '',
       _nonce: null,
       qs: new URLSearchParams()
@@ -513,11 +530,12 @@ export default {
         }
 
         const data = await res.json();
-        const { state, email, name } = data;
+        const { state, email, name, clientAppName } = data;
 
         if (getinfo && email && name) {
           this.email = email;
           this.name = name;
+          this.clientAppName = clientAppName || '';
           this.auth_state = 'loggedin';
           return;
         }
@@ -697,6 +715,20 @@ export default {
   width: 100%;
   height: 40px;
   cursor: pointer;
+}
+
+/* Custom primary color support */
+.custom-primary-btn {
+  background-color: var(--primary-color, #4f46e5);
+}
+.custom-primary-btn:hover {
+  background-color: var(--primary-color-hover, #4338ca);
+}
+.custom-primary-text {
+  color: var(--primary-color, #4f46e5);
+}
+.custom-primary-text:hover {
+  color: var(--primary-color-hover, #4338ca);
 }
 
 /* Mobile optimizations */

@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import { fileURLToPath, URL } from 'node:url';
-import tailwindcss from '@tailwindcss/vite'
+import tailwindcss from '@tailwindcss/vite';
 
 
 // https://vitejs.dev/config/
@@ -10,6 +10,13 @@ export default defineConfig({
     tailwindcss(),
     vue()
   ],
+  define: {
+    // Make environment variables available to the client
+    'import.meta.env.APP_NAME': JSON.stringify(process.env.APP_NAME || 'KeyMaster'),
+    'import.meta.env.APP_LOGO': JSON.stringify(process.env.APP_LOGO || ''),
+    'import.meta.env.APP_PRIMARY_COLOR': JSON.stringify(process.env.APP_PRIMARY_COLOR || '#4f46e5'),
+    'import.meta.env.HIDE_POWERED_BY': JSON.stringify(process.env.HIDE_POWERED_BY || 'false'),
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))

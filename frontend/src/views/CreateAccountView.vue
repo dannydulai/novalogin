@@ -1,12 +1,13 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center sm:p-4">
+  <div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center sm:p-4 relative">
     <div class="bg-white sm:rounded-xl sm:shadow-lg p-6 sm:p-8 w-full sm:max-w-md md:max-w-lg">
       <div class="text-center mb-6">
         <div class="flex justify-center mb-2">
-          <span class="mdi mdi-key-variant text-4xl sm:text-5xl text-indigo-500"></span>
+          <img v-if="$config.appLogo" :src="$config.appLogo" alt="Logo" class="h-12 sm:h-14">
+          <span v-else class="mdi mdi-key-variant text-4xl sm:text-5xl" :class="$config.primaryColorClass || 'text-indigo-500'"></span>
         </div>
         <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">Create your account</h1>
-        <p class="text-gray-500 mt-2">Join Keyflow today</p>
+        <p class="text-gray-500 mt-2">Join {{ clientAppName || $config.appName }} today</p>
       </div>
       
       <form @submit.prevent="submit" class="space-y-4">
@@ -91,7 +92,8 @@
         
         <button 
           type="submit"
-          class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg transition flex justify-center items-center mt-6"
+          :class="[$config.primaryColorClass ? `bg-${$config.primaryColorClass} hover:bg-${$config.primaryColorClass.replace('-500', '-600')} hover:bg-${$config.primaryColorClass.replace('-600', '-700')}` : 'custom-primary-btn']"
+          class="w-full text-white font-medium py-2 px-4 rounded-lg transition flex justify-center items-center mt-6"
         >
           <span v-if="!loading">Create account</span>
           <div v-else class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -100,7 +102,7 @@
       
       <div class="text-center mt-4 text-sm text-gray-600">
         Already have an account? 
-        <a :href="signInUrl" class="text-indigo-600 font-semibold hover:text-indigo-800">
+        <a :href="signInUrl" :class="$config.primaryColorClass ? `text-${$config.primaryColorClass} hover:text-${$config.primaryColorClass.replace('-500', '-700')} hover:text-${$config.primaryColorClass.replace('-600', '-800')}` : 'custom-primary-text'" class="font-semibold">
           Sign in
         </a>
       </div>
@@ -139,10 +141,22 @@
         </div>
       </div>
     </div>
+    
+    <!-- Powered by Keyflow footer -->
+    <div v-if="!$config.hidePoweredBy" class="absolute bottom-2 w-full text-center">
+      <div class="inline-flex items-center px-3 py-1 rounded-full bg-white/80 backdrop-blur-sm shadow-sm text-xs text-gray-600">
+        <span>Powered by</span>
+        <a href="https://keyflow.io" target="_blank" rel="noopener" :class="$config.primaryColorClass ? `text-${$config.primaryColorClass}` : 'custom-primary-text'" class="font-medium ml-1 flex items-center hover:underline">
+          <span class="mdi mdi-key-variant text-xs mr-0.5"></span>
+          Keyflow
+        </a>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
+import config from '../config';
 export default {
   name: 'CreateAccountView',
   data() {
@@ -154,7 +168,8 @@ export default {
       lastname: '',
       status: null,
       loading: false,
-      qs: {}
+      qs: {},
+      clientAppName: ''
     }
   },
   computed: {
@@ -192,6 +207,7 @@ export default {
     this.email = this.qs.email || "";
     this.firstname = this.qs.fname || "";
     this.lastname = this.qs.lname || "";
+    this.clientAppName = this.qs.app_name || "";
 
     // Focus on the first empty field
     if (!this.firstname) this.$refs.firstname.focus();
@@ -306,5 +322,19 @@ export default {
 <style>
 .grecaptcha-badge {
   visibility: hidden;
+}
+
+/* Custom primary color support */
+.custom-primary-btn {
+  background-color: var(--primary-color, #4f46e5);
+}
+.custom-primary-btn:hover {
+  background-color: var(--primary-color-hover, #4338ca);
+}
+.custom-primary-text {
+  color: var(--primary-color, #4f46e5);
+}
+.custom-primary-text:hover {
+  color: var(--primary-color-hover, #4338ca);
 }
 </style>
