@@ -1,12 +1,12 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
-    <div v-if="auth_state === 'checking'" class="bg-white rounded-xl shadow-lg p-8 w-full max-w-md">
+  <div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center sm:p-4">
+    <div v-if="auth_state === 'checking'" class="bg-white sm:rounded-xl sm:shadow-lg p-6 sm:p-8 w-full sm:max-w-md md:max-w-lg">
       <div class="flex justify-center py-6">
         <div class="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
       </div>
     </div>
 
-    <div v-else-if="auth_state === 'loggedin'" class="bg-white rounded-xl shadow-lg p-8 w-full max-w-md">
+    <div v-else-if="auth_state === 'loggedin'" class="bg-white sm:rounded-xl sm:shadow-lg p-6 sm:p-8 w-full sm:max-w-md md:max-w-lg">
       <div class="text-center mb-6">
         <h1 class="text-3xl font-bold text-gray-800 mb-2">Welcome back!</h1>
         <p class="text-gray-600">Choose an account to continue</p>
@@ -44,7 +44,7 @@
       </div>
     </div>
 
-    <div v-else-if="auth_state === 'tfa'" class="bg-white rounded-xl shadow-lg p-8 w-full max-w-md">
+    <div v-else-if="auth_state === 'tfa'" class="bg-white sm:rounded-xl sm:shadow-lg p-6 sm:p-8 w-full sm:max-w-md md:max-w-lg">
       <div class="text-center mb-6">
         <h1 class="text-3xl font-bold text-gray-800 mb-2">Verification</h1>
         <p class="text-gray-600">Multi-factor protection</p>
@@ -90,7 +90,7 @@
       </div>
     </div>
 
-    <div v-else-if="auth_state === 'appforbidden'" class="bg-white rounded-xl shadow-lg p-8 w-full max-w-md">
+    <div v-else-if="auth_state === 'appforbidden'" class="bg-white sm:rounded-xl sm:shadow-lg p-6 sm:p-8 w-full sm:max-w-md md:max-w-lg">
       <div class="text-center mb-6">
         <h1 class="text-3xl font-bold text-gray-800 mb-2">Access Forbidden</h1>
       </div>
@@ -107,7 +107,7 @@
       </button>
     </div>
 
-    <div v-else-if="auth_state === 'confirmapp'" class="bg-white rounded-xl shadow-lg p-8 w-full max-w-md">
+    <div v-else-if="auth_state === 'confirmapp'" class="bg-white sm:rounded-xl sm:shadow-lg p-6 sm:p-8 w-full sm:max-w-md md:max-w-lg">
       <div class="text-center mb-6">
         <h1 class="text-3xl font-bold text-gray-800 mb-2">Welcome back!</h1>
       </div>
@@ -125,7 +125,7 @@
         </p>
       </div>
       
-      <div class="flex gap-3">
+      <div class="flex flex-col sm:flex-row gap-3">
         <button 
           @click.prevent="confirmApp('canceled')"
           class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg transition flex justify-center items-center"
@@ -144,7 +144,7 @@
       </div>
     </div>
 
-    <div v-else-if="auth_state === 'redirecting'" class="bg-white rounded-xl shadow-lg p-8 w-full max-w-md">
+    <div v-else-if="auth_state === 'redirecting'" class="bg-white sm:rounded-xl sm:shadow-lg p-6 sm:p-8 w-full sm:max-w-md md:max-w-lg">
       <div class="text-center">
         <div class="flex justify-center mb-4">
           <span class="mdi mdi-key-variant text-5xl text-indigo-500"></span>
@@ -158,12 +158,12 @@
       </div>
     </div>
 
-    <div v-else-if="auth_state === 'login'" class="bg-white rounded-xl shadow-lg p-8 w-full max-w-md">
+    <div v-else-if="auth_state === 'login'" class="bg-white sm:rounded-xl sm:shadow-lg p-6 sm:p-8 w-full sm:max-w-md md:max-w-lg">
       <div class="text-center mb-6">
         <div class="flex justify-center mb-2">
-          <span class="mdi mdi-key-variant text-5xl text-indigo-500"></span>
+          <span class="mdi mdi-key-variant text-4xl sm:text-5xl text-indigo-500"></span>
         </div>
-        <h1 class="text-3xl font-bold text-gray-800">Welcome to Keyflow</h1>
+        <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">Welcome to Keyflow</h1>
       </div>
       
       <form @submit.prevent="enterCredentials">
@@ -214,9 +214,9 @@
         </div>
       </form>
       
-      <div class="flex items-center my-6">
+      <div class="flex items-center my-5 sm:my-6">
         <hr class="flex-1 border-gray-200">
-        <span class="px-3 text-sm text-gray-500 uppercase font-bold">or</span>
+        <span class="px-2 sm:px-3 text-xs sm:text-sm text-gray-500 uppercase font-bold">or</span>
         <hr class="flex-1 border-gray-200">
       </div>
       
@@ -294,6 +294,16 @@ export default {
     };
   },
   mounted() {
+    // Set viewport height variable for mobile browsers
+    const setVh = () => {
+      let vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--vh', `${vh}px`);
+    };
+    
+    // Set initial value and update on resize
+    setVh();
+    window.addEventListener('resize', setVh);
+    
     const grepcaptchasrc = document.createElement('script');
     grepcaptchasrc.onload = () => { this.loadedGrecaptcha = true; };
     grepcaptchasrc.setAttribute('src', 'https://www.google.com/recaptcha/api.js?render=6LfrZMEUAAAAAFuz9l0Md9_yd8ueYhees004fcCi');
@@ -328,7 +338,7 @@ export default {
       if (typeof google !== 'undefined' && this.auth_state === 'login') {
         google.accounts.id.renderButton(
           document.getElementById("google-signin"),
-          { theme: "outline", size: "large", width: 400 }
+          { theme: "outline", size: "large", width: "100%" }
         );
         google.accounts.id.prompt();
       }
@@ -690,5 +700,29 @@ export default {
   width: 100%;
   height: 40px;
   cursor: pointer;
+}
+
+/* Mobile optimizations */
+@media (max-width: 640px) {
+  .min-h-screen {
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+  }
+  
+  input, button {
+    font-size: 16px; /* Prevents iOS zoom on input focus */
+  }
+  
+  /* Full height on mobile */
+  body, html {
+    height: 100%;
+  }
+}
+
+/* Fix for mobile viewport height issues */
+@supports (-webkit-touch-callout: none) {
+  .min-h-screen {
+    height: -webkit-fill-available;
+  }
 }
 </style>
