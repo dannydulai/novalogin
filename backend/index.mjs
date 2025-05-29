@@ -6,6 +6,7 @@
 import express from 'express';
 import path from 'path';
 import morgan from 'morgan';
+import db from './db.js';
 
 /**
  * Create and configure the login router
@@ -25,14 +26,31 @@ function createLoginRouter() {
 }
 
 /**
+ * Expire old codes in the database
+ */
+async function expireOldCodes() {
+  try {
+    await db.raw(`DELETE FROM codes WHERE expiration < NOW()`);
+    console.log('Expired old codes');
+  } catch (error) {
+    console.error('Error expiring old codes:', error);
+  }
+}
+
+/**
  * Setup Express application with security and logging configurations
  * @param {object} app - Express application
  * @param {object} options - Configuration options
  * @param {boolean} options.disableSecuritySettings - Disable security settings
  * @param {boolean} options.disableLogging - Disable request logging
+ * @param {boolean} options.disableCodeExpiration - Disable automatic code expiration
  */
 function setupApp(app, options = {}) {
-  const { disableSecuritySettings = false, disableLogging = false } = options;
+  const { 
+    disableSecuritySettings = false, 
+    disableLogging = false,
+    disableCodeExpiration = false
+  } = options;
   
   // Basic middleware
   app.use(express.json());
@@ -47,6 +65,18 @@ function setupApp(app, options = {}) {
   // Request logging
   if (!disableLogging) {
     app.use(morgan('[:date[clf]] - :remote-addr :remote-user :method :url HTTP/:http-version :status :res[content-length] - :response-time ms'));
+  }
+  
+  // Set up interval to expire old codes every minute
+  if (!disableCodeExpiration) {
+    // Run once immediately
+    expireOldCodes();
+    
+    // Then set up interval
+    const interval = setInterval(expireOldCodes, 60000); // 60000ms = 1 minute
+    
+    // Store the interval on the app for cleanup if needed
+    app.locals.codeExpirationInterval = interval;
   }
   
   return app;
