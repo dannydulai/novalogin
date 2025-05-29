@@ -14,7 +14,7 @@ import loginRoutes from './src/login.mjs';
  * @returns {object} Express router with all login routes
  */
 function createLoginRouter() {
-  const app = express();
+  const app = express.Router();
   const logger = console;
   
   // Initialize login routes
@@ -92,7 +92,7 @@ function createStandaloneApp(port = 3000, options = {}) {
   setupApp(app, options);
   
   // Mount the login router at /api/login
-  app.use('/api/login', createLoginRouter());
+  app.use(createLoginRouter());
   
   // Start the server if port is provided
   if (port) {
@@ -116,7 +116,7 @@ function registerWithApp(app, options = {}) {
   setupApp(app, options);
   
   // Mount the login router at /api/login
-  app.use('/api/login', createLoginRouter());
+  app.use(createLoginRouter());
 }
 
 // Export functions for both standalone use and importing as middleware
