@@ -184,7 +184,7 @@ export default function (app, logger) {
             if (!req.body.recaptcha) return res.status(400).send({ status: "BadRequest", field: "recaptcha" });
             if (!(await auth.validateRecaptcha(req.body.recaptcha))) return res.status(400).send({ status: "InvalidRecaptcha" });
 
-            if (!req.body.id) return res.status(400).send({ status: "BadRequest", field: "id" });
+            // Allow null ID - will default to account app
             const appinfo = await utils.lookupAppInfo(req.body.id);
             if (!appinfo) return res.status(400).send({ status: "InvalidApp" });
 
@@ -283,7 +283,7 @@ export default function (app, logger) {
             if (!req.body.recaptcha) return res.status(400).send({ status: "BadRequest", field: "recaptcha" });
             if (!(await auth.validateRecaptcha(req.body.recaptcha))) return res.status(400).send({ status: "InvalidRecaptcha" });
 
-            if (!req.body.id) return res.status(400).send({ status: "BadRequest", field: "id" });
+            // Allow null ID - will default to account app
             const appinfo = await utils.lookupAppInfo(req.body.id);
             if (!appinfo) return res.status(400).send({ status: "InvalidApp" });
 
@@ -346,14 +346,13 @@ export default function (app, logger) {
         try {
             // Required params
             if (!req.body.recaptcha) return res.status(400).send({ status: "BadRequest", field: "recaptcha" });
-            if (!req.body.id)        return res.status(400).send({ status: "BadRequest", field: "id" });
             if (!req.body.email)     return res.status(400).send({ status: "BadRequest", field: "email" });
             if (!req.body.password)  return res.status(400).send({ status: "BadRequest", field: "password" });
 
             // Validate recaptcha
             if (!(await auth.validateRecaptcha(req.body.recaptcha))) return res.status(400).send({ status: "InvalidRecaptcha" });
 
-            // Validate app
+            // Validate app - allow null ID which will default to account app
             const appinfo = await utils.lookupAppInfo(req.body.id);
             if (!appinfo) return res.status(400).send({ status: "InvalidApp" });
 
@@ -384,7 +383,7 @@ export default function (app, logger) {
             if (!req.body.recaptcha) return res.status(400).send({ status: "BadRequest", field: "recaptcha" });
             if (!(await auth.validateRecaptcha(req.body.recaptcha))) return res.status(400).send({ status: "InvalidRecaptcha" });
 
-            if (!req.body.id) return res.status(400).send({ status: "BadRequest", field: "id" });
+            // Allow null ID - will default to account app
             const appinfo = await utils.lookupAppInfo(req.body.id);
             if (!appinfo) return res.status(400).send({ status: "InvalidApp" });
 
@@ -430,7 +429,7 @@ export default function (app, logger) {
             if (!req.body.recaptcha) return res.status(400).send({ status: "BadRequest", field: "recaptcha" });
             if (!(await auth.validateRecaptcha(req.body.recaptcha))) return res.status(400).send({ status: "InvalidRecaptcha" });
 
-            if (!req.body.id) return res.status(400).send({ status: "BadRequest", field: "id" });
+            // Allow null ID - will default to account app
             const appinfo = await utils.lookupAppInfo(req.body.id);
             if (!appinfo) return res.status(400).send({ status: "InvalidApp" });
 
