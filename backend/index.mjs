@@ -76,27 +76,17 @@ Login System
 This is a modular login system that can be run standalone or integrated with an existing Express app.
 
 Usage:
-  - To run standalone: node backend/index.mjs --server [port]
+  - To run standalone: node backend/index.mjs
   - To import as a module: import { registerWithApp } from './backend/index.mjs'
 
 Options:
-  --server [port]  Start the standalone server (default port: 3000)
   --help           Show this help message
 `);
 }
 
 // Only run if this file is executed directly (not imported as a module)
-if (import.meta.url === `file://${process.argv[1]}`) {
-  const args = process.argv.slice(2);
-  if (args.includes('--server')) {
-    const portIndex = args.indexOf('--server') + 1;
-    const port = (portIndex < args.length && !args[portIndex].startsWith('--')) 
-      ? parseInt(args[portIndex], 10) 
-      : 3000;
-
-    createStandaloneApp(port);
-  } else {
-    // Default behavior when run with no arguments
-    createStandaloneApp();
-  }
+if (import.meta.url === `file://${process.argv[1]}` ||
+    (process.cwd() === process.argv[1] && process.argv.length === 2)
+) {
+    createStandaloneApp(process.env.PORT || 3000);
 }
