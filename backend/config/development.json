@@ -1,0 +1,18 @@
+{
+  "listen_port":           89,
+
+  "postgres-user":         "postgres",
+  "postgres-password":     "postgres",
+  "postgres_host":         "host.docker.internal",
+  "postgres_port":         5432,
+  "postgres_db":           "login",
+
+  "recaptcha_secret":      "SKIPCAPTCHA",
+  "session_secret":        "D8E55A3676BE92467F3A4A2C49C4FC30",
+
+  "account_server_url":    "https://accounts5.roonlabs.com",
+
+  "clood_dev_ports": {
+      "89": 89
+  }
+}

@@ -1,0 +1,134 @@
+.user-special-header {
+    @media (max-width: 768px) {
+        margin-top: 0.75rem;
+    }
+}
+
+
+
+.mainbody {
+    max-width: 768px;
+    margin: auto;
+
+    @media (max-width: 768px) {
+        padding: 0 1rem;
+    }
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+@keyframes loading {
+    0% {
+        transform: translateX(-50%);
+    }
+    100% {
+        transform: translateX(50%);
+    }
+}
+
+.error-message {
+    margin-top: 2em;
+    border-color: #f14668;
+    color: #cc0f35;
+    border-radius: 4px;
+    border-style: solid;
+    border-width: 0 0 0 4px;
+    padding: 1.25em 1.5em;
+    display: block;
+    background-color: #feecf0;
+}
+
+
+.skeleton {
+    display: inline-block;
+    width: 100%;
+    height: 20px;
+    background-color: #f0f0f0;
+    overflow: hidden;
+    position: relative;
+    border-radius: 4px;
+}
+
+.skeleton::before {
+    content: "";
+    position: absolute;
+    width: 50%;
+    height: 100%;
+    background-image: linear-gradient(90deg, rgba(240, 240, 240, 0), rgba(224, 224, 224, 0.5), rgba(240, 240, 240, 0));
+    animation: loading 1.5s infinite linear;
+}
+
+.box.special {
+    box-shadow: unset;
+    border: 2px solid #e5e7eb;
+}
+.box {
+    &.primary {
+        background-color: rgb(var(--color-3-bg)) !important;
+        color: white;
+    }
+    box-shadow: 0px 0px 3px 0px #dadce0;
+    /**border: 1px solid #dadce0;**/
+    padding: 1.4rem;
+    margin: 3rem 1rem;
+    border-radius: 2px;
+    
+    &.no-border {
+        box-shadow: unset;
+    }
+    &.no-bg {
+        background-color: unset;
+    }
+}
+button:disabled {
+    opacity: 0.75;
+    cursor: not-allowed;
+}
+button:hover, input:hover {
+    border-color: #b5b5b5;
+}
+
+button {
+    width: 100%;
+    color: white;
+    border-color: #dbdbdb;
+    border-width: 1px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    justify-content: center;
+    padding-bottom: calc(0.5em - 1px);
+    padding-left: 1em;
+    padding-right: 1em;
+    padding-top: calc(0.5em - 1px);
+    text-align: center;
+    white-space: nowrap;
+    height: 2.5em;
+    line-height: 1.5;
+    border-radius: 4px;
+    background-color: rgb(32, 57, 243);
+    font-size: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    &:focus {
+        outline: 2px solid rgba(var(--color-3-bg), 0.5);
+    }
+}
+
+a.action {
+    margin-top: 2rem;
+    color: rgb(var(--color-3-bg)) !important;
+    text-decoration: underline;
+    text-underline-offset: .15em;
+    font-size: 1rem;
+    font-weight: 700;
+    display: inline-block;
+}
+
+
+
+
+
