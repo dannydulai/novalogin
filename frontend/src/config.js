@@ -1,7 +1,7 @@
 // Application configuration from environment variables
 export default {
   // Application name displayed in the UI
-  appName: import.meta.env.APP_NAME || 'KeyMaster',
+  appName: import.meta.env.APP_NAME || 'KeyWizard',
   
   // Custom logo URL (if provided)
   appLogo: import.meta.env.APP_LOGO || '',
