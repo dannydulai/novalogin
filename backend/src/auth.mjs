@@ -70,7 +70,7 @@ export function getUAInfo(useragent) {
     return { browser, os, platform };
 }
 
-async function _login(opts) {
+async function _loginswitch(opts) {
     if (opts.email && opts.password) {
         return await loginEmailPassword(opts);
     } else if (opts.googleEmail && opts.googleId) {
@@ -91,7 +91,7 @@ export async function login(cookBI, useragent, appid, appname, ip, authinfo) {
 
         const location = await getLocation(ip);
 
-        const r = await _login({
+        const r = await _loginswitch({
             appid,
             appname,
             os,

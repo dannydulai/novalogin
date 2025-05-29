@@ -2,7 +2,7 @@ import "dotenv/config";
 import pino            from "pino";
 import pkceChallenge   from 'pkce-challenge';
 import cookieEncrypter from 'cookie-encrypter';
-import knex            from './db.js';
+import knex            from '../db.js';
 import fs              from 'fs';
 
 const logger = pino({ name: "account" });
@@ -112,7 +112,7 @@ export async function lookupAppInfo(id) {
         if (id == ADMIN_APP_ID) {
             return {
                 id:  ADMIN_APP_ID,
-                secret: process.env.ADMIN_APP_SECRET;
+                secret: process.env.ADMIN_APP_SECRET,
                 name: process.env.ADMIN_APP_NAME || 'Login',
             };
         }
