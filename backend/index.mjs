@@ -5,6 +5,7 @@
 
 import express from 'express';
 import path from 'path';
+import morgan from 'morgan';
 
 /**
  * Create and configure the login router
@@ -24,16 +25,44 @@ function createLoginRouter() {
 }
 
 /**
- * Create a standalone Express application with the login router
- * @param {number} port - Port to listen on
- * @returns {object} Express application
+ * Setup Express application with security and logging configurations
+ * @param {object} app - Express application
+ * @param {object} options - Configuration options
+ * @param {boolean} options.disableSecuritySettings - Disable security settings
+ * @param {boolean} options.disableLogging - Disable request logging
  */
-function createStandaloneApp(port = 3000) {
-  const app = express();
+function setupApp(app, options = {}) {
+  const { disableSecuritySettings = false, disableLogging = false } = options;
   
-  // Add middleware
+  // Basic middleware
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
+  
+  // Security settings
+  if (!disableSecuritySettings) {
+    app.disable('x-powered-by');
+    app.set('trust proxy', true);
+  }
+  
+  // Request logging
+  if (!disableLogging) {
+    app.use(morgan('[:date[clf]] - :remote-addr :remote-user :method :url HTTP/:http-version :status :res[content-length] - :response-time ms'));
+  }
+  
+  return app;
+}
+
+/**
+ * Create a standalone Express application with the login router
+ * @param {number} port - Port to listen on
+ * @param {object} options - Configuration options
+ * @returns {object} Express application
+ */
+function createStandaloneApp(port = 3000, options = {}) {
+  const app = express();
+  
+  // Setup app with security and logging
+  setupApp(app, options);
   
   // Mount the login router at /api/login
   app.use('/api/login', createLoginRouter());
@@ -52,8 +81,13 @@ function createStandaloneApp(port = 3000) {
  * Register the login routes to an existing Express application
  * @param {object} app - Express application
  * @param {object} options - Configuration options
+ * @param {boolean} options.disableSecuritySettings - Disable security settings
+ * @param {boolean} options.disableLogging - Disable request logging
  */
 function registerWithApp(app, options = {}) {
+  // Setup app with security and logging if not disabled
+  setupApp(app, options);
+  
   // Mount the login router at /api/login
   app.use('/api/login', createLoginRouter());
 }
@@ -62,7 +96,8 @@ function registerWithApp(app, options = {}) {
 export {
   createLoginRouter,
   createStandaloneApp,
-  registerWithApp
+  registerWithApp,
+  setupApp
 };
 
 /**
