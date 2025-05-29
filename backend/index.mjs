@@ -65,8 +65,41 @@ export {
   registerWithApp
 };
 
+/**
+ * Print usage information when run directly
+ */
+function printUsage() {
+  console.log(`
+Login System
+============
+
+This is a modular login system that can be run standalone or integrated with an existing Express app.
+
+Usage:
+  - To run standalone: node backend/index.mjs --server [port]
+  - To import as a module: import { registerWithApp } from './backend/index.mjs'
+
+Options:
+  --server [port]  Start the standalone server (default port: 3000)
+  --help           Show this help message
+`);
+}
+
 // Run as standalone if this file is executed directly
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const port = process.env.PORT || 3000;
-  createStandaloneApp(port);
+  const args = process.argv.slice(2);
+  
+  if (args.includes('--server')) {
+    const portIndex = args.indexOf('--server') + 1;
+    const port = (portIndex < args.length && !args[portIndex].startsWith('--')) 
+      ? parseInt(args[portIndex], 10) 
+      : 3000;
+    
+    createStandaloneApp(port);
+  } else if (args.includes('--help')) {
+    printUsage();
+  } else {
+    // Default behavior when run with no arguments
+    printUsage();
+  }
 }
