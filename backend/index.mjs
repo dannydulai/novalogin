@@ -31,7 +31,6 @@ function createLoginRouter() {
 async function expireOldCodes() {
   try {
     await db.raw(`DELETE FROM codes WHERE expiration < NOW()`);
-    console.log('Expired old codes');
   } catch (error) {
     console.error('Error expiring old codes:', error);
   }
