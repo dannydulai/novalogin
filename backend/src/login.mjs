@@ -5,7 +5,8 @@ import dotenv from 'dotenv';
 import { OAuth2Client } from 'google-auth-library';
 import twofactor from 'node-2fa';
 
-import * as auth from '../utils.mjs';
+import * as utils from './utils.mjs';
+import * as auth from './auth.mjs';
 import db from '../db.js';
 
 // Load environment variables
@@ -90,8 +91,8 @@ export default function (app, logger) {
      * Handle login process
      */
     async function doLogin(req, res, authinfo) {
-        const loginappinfo = await auth.lookupAppInfo(ACCOUNT_APP_ID);
-        const cookBI = auth.getCookie(req, COOKIE_NAME_BI);
+        const loginappinfo = await utils.lookupAppInfo(ACCOUNT_APP_ID);
+        const cookBI = utils.getCookie(req, COOKIE_NAME_BI);
 
         // Let's check if the user provided valid credentials, and then save the login session cookie.
         const loginResponse = await auth.login(cookBI, req.get('User-Agent'), loginappinfo.id, loginappinfo.name, requestIp.getClientIp(req), authinfo);
@@ -116,7 +117,7 @@ export default function (app, logger) {
             },
         };
         
-        auth.setCookie(res, COOKIE_NAME_BI, { v: LOGIN_COOKIE_VERSION, session: loginResponse.session });
+        utils.setCookie(res, COOKIE_NAME_BI, { v: LOGIN_COOKIE_VERSION, session: loginResponse.session });
         
         if (!cookII.temp.tfa.enabled) {
             sendEmailAlert({
@@ -135,11 +136,11 @@ export default function (app, logger) {
      */
     async function saveCookLI(_req, res, cookII) {
         if (cookII.temp) {
-            auth.setCookie(res, COOKIE_NAME_II, cookII, 'lax'); // Needs to be lax for navigations purposes
-            auth.clearCookie(res, COOKIE_NAME_LI);
+            utils.setCookie(res, COOKIE_NAME_II, cookII, 'lax'); // Needs to be lax for navigations purposes
+            utils.clearCookie(res, COOKIE_NAME_LI);
         } else {
-            auth.setCookie(res, COOKIE_NAME_LI, cookII, 'lax'); // Needs to be lax for navigations purposes
-            auth.clearCookie(res, COOKIE_NAME_II);
+            utils.setCookie(res, COOKIE_NAME_LI, cookII, 'lax'); // Needs to be lax for navigations purposes
+            utils.clearCookie(res, COOKIE_NAME_II);
         }
     }
 
@@ -148,15 +149,15 @@ export default function (app, logger) {
         try {
             if (req.query.logout_token || req.body.logout_token) {
                 await auth.logout({ logout_token: req.query.logout_token || req.body.logout_token });
-                auth.clearCookie(res, COOKIE_NAME_LI);
-                auth.clearCookie(res, COOKIE_NAME_II);
+                utils.clearCookie(res, COOKIE_NAME_LI);
+                utils.clearCookie(res, COOKIE_NAME_II);
                 return res.send();
             } else {
-                const cookLI = auth.getCookie(req, COOKIE_NAME_LI);
+                const cookLI = utils.getCookie(req, COOKIE_NAME_LI);
                 if (cookLI && cookLI.logout_token)
                     await auth.logout({ logout_token: cookLI.logout_token });
-                auth.clearCookie(res, COOKIE_NAME_LI);
-                auth.clearCookie(res, COOKIE_NAME_II);
+                utils.clearCookie(res, COOKIE_NAME_LI);
+                utils.clearCookie(res, COOKIE_NAME_II);
                 return res.send();
             }
         } catch (e) {
@@ -184,7 +185,7 @@ export default function (app, logger) {
             if (!(await auth.validateRecaptcha(req.body.recaptcha))) return res.status(400).send({ status: "InvalidRecaptcha" });
 
             if (!req.body.id) return res.status(400).send({ status: "BadRequest", field: "id" });
-            const appinfo = await auth.lookupAppInfo(req.body.id);
+            const appinfo = await utils.lookupAppInfo(req.body.id);
             if (!appinfo) return res.status(400).send({ status: "InvalidApp" });
 
             const ticket = await googleClient.verifyIdToken({
@@ -214,34 +215,34 @@ export default function (app, logger) {
     // Login status
     app.post("/api/login/status", async (req, res) => {
         try {
-            const appinfo = await auth.lookupAppInfo(req.body.id);
+            const appinfo = await utils.lookupAppInfo(req.body.id);
             if (!appinfo) return res.status(400).send("Bad Request (invalid id)");
 
             // BI is the browser identity stuff -- is so we can identify browsers that have logged in before
-            const cookBI = auth.getCookie(req, COOKIE_NAME_BI);
+            const cookBI = utils.getCookie(req, COOKIE_NAME_BI);
 
             // If no BI or BI is outdated, clear cookies and force login
             if (!cookBI || cookBI.v != LOGIN_COOKIE_VERSION) {
-                auth.clearCookie(res, COOKIE_NAME_BI);
-                auth.clearCookie(res, COOKIE_NAME_II);
-                auth.clearCookie(res, COOKIE_NAME_LI);
+                utils.clearCookie(res, COOKIE_NAME_BI);
+                utils.clearCookie(res, COOKIE_NAME_II);
+                utils.clearCookie(res, COOKIE_NAME_LI);
                 return res.send({ state: "login"});
             }
 
             // II is session state during login
-            const cookII = auth.getCookie(req, COOKIE_NAME_II) || auth.getCookie(req, COOKIE_NAME_LI);
+            const cookII = utils.getCookie(req, COOKIE_NAME_II) || utils.getCookie(req, COOKIE_NAME_LI);
 
             // If II is outdated, clear cookies and force login
             if (!cookII || cookII.v != LOGIN_COOKIE_VERSION) {
-                auth.clearCookie(res, COOKIE_NAME_II);
-                auth.clearCookie(res, COOKIE_NAME_LI);
+                utils.clearCookie(res, COOKIE_NAME_II);
+                utils.clearCookie(res, COOKIE_NAME_LI);
                 return res.send({ state: "login"});
             }
 
             // Make sure token is still OK
             if (!await auth.verify(cookII.access_token)) {
-                auth.clearCookie(res, COOKIE_NAME_II);
-                auth.clearCookie(res, COOKIE_NAME_LI);
+                utils.clearCookie(res, COOKIE_NAME_II);
+                utils.clearCookie(res, COOKIE_NAME_LI);
                 return res.send({ state: "login" });
             }
 
@@ -283,14 +284,14 @@ export default function (app, logger) {
             if (!(await auth.validateRecaptcha(req.body.recaptcha))) return res.status(400).send({ status: "InvalidRecaptcha" });
 
             if (!req.body.id) return res.status(400).send({ status: "BadRequest", field: "id" });
-            const appinfo = await auth.lookupAppInfo(req.body.id);
+            const appinfo = await utils.lookupAppInfo(req.body.id);
             if (!appinfo) return res.status(400).send({ status: "InvalidApp" });
 
-            const cookBI = auth.getCookie(req, COOKIE_NAME_BI);
+            const cookBI = utils.getCookie(req, COOKIE_NAME_BI);
             if (!cookBI) return res.status(400).send({ status: "BadRequest", field: COOKIE_NAME_BI });
 
             // Must have a cookLI
-            const cookII = auth.getCookie(req, COOKIE_NAME_II) || auth.getCookie(req, COOKIE_NAME_LI);
+            const cookII = utils.getCookie(req, COOKIE_NAME_II) || auth.getCookie(req, COOKIE_NAME_LI);
             if (!cookII) return res.status(400).send({ status: "BadRequest", field: "cookLI" });
 
             for (let group of appinfo.groups || []) {
@@ -353,7 +354,7 @@ export default function (app, logger) {
             if (!(await auth.validateRecaptcha(req.body.recaptcha))) return res.status(400).send({ status: "InvalidRecaptcha" });
 
             // Validate app
-            const appinfo = await auth.lookupAppInfo(req.body.id);
+            const appinfo = await utils.lookupAppInfo(req.body.id);
             if (!appinfo) return res.status(400).send({ status: "InvalidApp" });
 
             // doLogin sets the cookies necessary for the status route
@@ -384,19 +385,19 @@ export default function (app, logger) {
             if (!(await auth.validateRecaptcha(req.body.recaptcha))) return res.status(400).send({ status: "InvalidRecaptcha" });
 
             if (!req.body.id) return res.status(400).send({ status: "BadRequest", field: "id" });
-            const appinfo = await auth.lookupAppInfo(req.body.id);
+            const appinfo = await utils.lookupAppInfo(req.body.id);
             if (!appinfo) return res.status(400).send({ status: "InvalidApp" });
 
-            const cookBI = auth.getCookie(req, COOKIE_NAME_BI);
+            const cookBI = utils.getCookie(req, COOKIE_NAME_BI);
             if (!cookBI) return res.status(400).send({ status: "BadRequest", field: COOKIE_NAME_BI });
 
-            const cookII = auth.getCookie(req, COOKIE_NAME_II);
+            const cookII = utils.getCookie(req, COOKIE_NAME_II);
             if (!cookII) return res.status(400).send({ status: "BadRequest", field: COOKIE_NAME_II });
 
             if (req.body.tfa === 'goback') {
                 await auth.logout({ session: cookBI.session });
-                auth.clearCookie(res, COOKIE_NAME_LI);
-                auth.clearCookie(res, COOKIE_NAME_II);
+                utils.clearCookie(res, COOKIE_NAME_LI);
+                utils.clearCookie(res, COOKIE_NAME_II);
                 return res.status(200).send({ status: "LoggedOut" });
             }
 
@@ -430,11 +431,11 @@ export default function (app, logger) {
             if (!(await auth.validateRecaptcha(req.body.recaptcha))) return res.status(400).send({ status: "InvalidRecaptcha" });
 
             if (!req.body.id) return res.status(400).send({ status: "BadRequest", field: "id" });
-            const appinfo = await auth.lookupAppInfo(req.body.id);
+            const appinfo = await utils.lookupAppInfo(req.body.id);
             if (!appinfo) return res.status(400).send({ status: "InvalidApp" });
 
-            const cookBI = auth.getCookie(req, COOKIE_NAME_BI);
-            const cookII = auth.getCookie(req, COOKIE_NAME_II) || auth.getCookie(req, COOKIE_NAME_LI); // Could already be logged in, just approving different app
+            const cookBI = utils.getCookie(req, COOKIE_NAME_BI);
+            const cookII = utils.getCookie(req, COOKIE_NAME_II) || utils.getCookie(req, COOKIE_NAME_LI); // Could already be logged in, just approving different app
 
             if (!cookBI) return res.status(400).send({ status: "BadRequest", field: COOKIE_NAME_BI });
             if (!cookII) return res.status(400).send({ status: "BadRequest", field: COOKIE_NAME_II });

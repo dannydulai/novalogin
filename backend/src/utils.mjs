@@ -3,6 +3,7 @@ import pino            from "pino";
 import pkceChallenge   from 'pkce-challenge';
 import cookieEncrypter from 'cookie-encrypter';
 import knex            from './db.js';
+import fs              from 'fs';
 
 const logger = pino({ name: "account" });
 
@@ -14,6 +15,67 @@ export const LOGIN_COOKIE_VERSION = 1;
 
 const SESSION_SECRET = process.env.SESSION_SECRET;
 const COOKIE_DOMAIN  = process.env.COOKIE_DOMAIN;
+
+let badEmailDomains = null;
+export function genEmailKey(email) {
+  if (badEmailDomains === null) {
+      badEmailDomains = new Set(fs.readFileSync(path.join(path.dirname('.'), '/src/bad-email-domains.txt'), 'utf-8').split('\n'));
+  }
+
+  let emailCleaned = email.trim().toLowerCase();
+
+  if (emailCleaned.search(/[ \t\r\n\v]/) !== -1) return { success: false };
+
+  const parts = emailCleaned.split('@');
+  if (parts.length !== 2) return { success: false };
+  let user = parts[0];
+  let domain = parts[1];
+
+  if (domain.indexOf('.') === -1) return { success: false };
+  if (domain.indexOf('..') !== -1) return { success: false };
+  if (badEmailDomains.has(domain)) return { success: false };
+
+  user = user.replace(/\./g, '');
+  if (['gmail.com', 'googlemail.com', 'google.com'].includes(domain)) {
+    const plusIdx = user.indexOf('+');
+    if (plusIdx !== -1) user = user.substring(0, plusIdx);
+  } else if (domain === 'outlook.com') {
+    const plusIdx = user.indexOf('+');
+    if (plusIdx !== -1) user = user.substring(0, plusIdx);
+  }
+
+  if (user === '') return { success: false };
+
+  const emailKey = user + '@' + domain;
+
+  return {
+    success: true,
+    emailCleaned,
+    emailKey,
+  };
+}
+
+export function isValidEmail(email) {
+  if (email.endsWith(".delete")) return false;
+  if (email.endsWith(".fraud")) return false;
+  if (email.length < 7) return false;
+  if (email.length > 512) return false;
+  if (email.indexOf("@") === -1) return false;
+  if (email.search(/[ ;\\'"[\]{}()\r\n]/) !== -1) return false;
+  if (email.charAt(0) === '-') return false;
+
+  const parts = email.split("@");
+  if (parts.length !== 2) return false;
+  if (parts[0].length === 0) return false;
+  if (parts[1].indexOf(".") === -1) return false;
+  return true;
+}
+
+export function isValidPassword(password) {
+  if (password.length < 4) return false;
+  if (password.length > 512) return false;
+  return true;
+}
 
 export function getCookie(req, name) {
     let cookie = null;

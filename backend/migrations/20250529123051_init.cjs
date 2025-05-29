@@ -23,7 +23,8 @@ exports.up = async function(knex) {
             groups text[] DEFAULT '{}',
             tfa_enabled boolean DEFAULT false,
             tfa_secret text,
-            class text DEFAULT 'Normal'
+            class text DEFAULT 'Normal',
+            is_fraud boolean DEFAULT false
         );
 
         CREATE INDEX users_email_key_idx ON users(email_key);
