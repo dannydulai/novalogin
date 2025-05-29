@@ -161,7 +161,7 @@
     <div v-else-if="auth_state === 'login'" class="bg-white sm:rounded-xl sm:shadow-lg p-6 sm:p-8 w-full sm:max-w-md md:max-w-lg">
       <div class="text-center mb-6">
         <div class="flex justify-center mb-2">
-          <img v-if="$config.appLogo" :src="$config.appLogo" alt="Logo" class="h-12 sm:h-14">
+          <img v-if="$config.appLogo" :src="$config.appLogo" alt="Logo" class="h-24 sm:h-28">
           <span v-else class="mdi mdi-key-variant text-4xl sm:text-5xl" :class="$config.primaryColorClass || 'text-indigo-500'"></span>
         </div>
         <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">
@@ -272,7 +272,8 @@
     
     <!-- Powered by Keyflow footer -->
     <div v-if="!$config.hidePoweredBy" class="absolute bottom-2 w-full text-center">
-      <div class="inline-flex items-center px-3 py-1 rounded-full bg-white/80 backdrop-blur-sm shadow-sm text-xs text-gray-600">
+      <div class="inline-flex items-center px-3 py-1 rounded-full bg-white/80 backdrop-blur-sm shadow-sm text-sm text-gray-600">
+        <span class="mdi mdi-flash-outline text-yellow-500 text-lg mt-1"></span>
         <span>Powered by</span>
         <a href="https://keyflow.io" target="_blank" rel="noopener" :class="$config.primaryColorClass ? `text-${$config.primaryColorClass}` : 'custom-primary-text'" class="font-medium ml-1 flex items-center hover:underline">
           <span class="mdi mdi-key-variant text-xs mr-0.5"></span>
