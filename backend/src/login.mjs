@@ -12,15 +12,15 @@ import db from '../db.js';
 dotenv.config();
 
 // Environment variables
-const COOKIE_NAME_BI = process.env.COOKIE_NAME_BI || 'bi';
-const COOKIE_NAME_II = process.env.COOKIE_NAME_II || 'ii';
-const COOKIE_NAME_LI = process.env.COOKIE_NAME_LI || 'li';
+const COOKIE_NAME_BI       = process.env.COOKIE_NAME_BI || 'bi';
+const COOKIE_NAME_II       = process.env.COOKIE_NAME_II || 'ii';
+const COOKIE_NAME_LI       = process.env.COOKIE_NAME_LI || 'li';
 const LOGIN_COOKIE_VERSION = process.env.LOGIN_COOKIE_VERSION || '1';
-const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '';
-const COOKIE_DOMAIN = process.env.COOKIE_DOMAIN || '';
-const ADMIN_APP_ID = process.env.ADMIN_APP_ID || '';
-const ACCOUNT_APP_ID = process.env.ACCOUNT_APP_ID || '';
-const SESSION_SECRET = process.env.SESSION_SECRET || 'secret';
+const GOOGLE_CLIENT_ID     = process.env.GOOGLE_CLIENT_ID || '';
+const COOKIE_DOMAIN        = process.env.COOKIE_DOMAIN || '';
+const ADMIN_APP_ID         = process.env.ADMIN_APP_ID || '';
+const ACCOUNT_APP_ID       = process.env.ACCOUNT_APP_ID || '';
+const SESSION_SECRET       = process.env.SESSION_SECRET || 'secret';
 
 // Initialize Google OAuth client
 const googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
@@ -94,33 +94,33 @@ export default function (app, logger) {
         const cookBI = auth.getCookie(req, COOKIE_NAME_BI);
 
         // Let's check if the user provided valid credentials, and then save the login session cookie.
-        const accountServerResponse = await auth.login(cookBI, req.get('User-Agent'), loginappinfo.id, loginappinfo.name, requestIp.getClientIp(req), authinfo);
+        const loginResponse = await auth.login(cookBI, req.get('User-Agent'), loginappinfo.id, loginappinfo.name, requestIp.getClientIp(req), authinfo);
 
         if (accountServerResponse.status != 'Success') return { accountServerResponse };
 
         const cookII = { 
             v: LOGIN_COOKIE_VERSION,
-            userid: accountServerResponse.userid,
-            groups: accountServerResponse.groups,
-            access_token: accountServerResponse.access_token,
-            logout_token: accountServerResponse.logout_token,
-            session: accountServerResponse.session,
+            userid: loginResponse.userid,
+            groups: loginResponse.groups,
+            access_token: loginResponse.access_token,
+            logout_token: loginResponse.logout_token,
+            session: loginResponse.session,
             temp: {
-                id: req.query.id || req.body.id,
-                cb: req.query.cb || req.body.cb,
+                id:        req.query.id || req.body.id,
+                cb:        req.query.cb || req.body.cb,
                 challenge: req.query.challenge || req.body.challenge,
-                state: req.query.state || req.body.state,
-                email: req.query.email || req.body.email,
-                location: accountServerResponse.location,
-                tfa: accountServerResponse.tfa,
+                state:     req.query.state || req.body.state,
+                email:     req.query.email || req.body.email,
+                location:  loginResponse.location,
+                tfa:       loginResponse.tfa,
             },
         };
         
-        auth.setCookie(res, COOKIE_NAME_BI, { v: LOGIN_COOKIE_VERSION, session: accountServerResponse.session });
+        auth.setCookie(res, COOKIE_NAME_BI, { v: LOGIN_COOKIE_VERSION, session: loginResponse.session });
         
         if (!cookII.temp.tfa.enabled) {
             sendEmailAlert({
-                comm_id: 'login-success',
+                id: 'login-success',
                 use_handlebars: true,
                 user_id: cookII.userid,
                 location: cookII.temp.location
@@ -165,7 +165,7 @@ export default function (app, logger) {
         }
     });
 
-    // Logout endpoint (GET)
+    // Logout endpoint (GET) - DO NOT USE COOKIES
     app.get("/api/login/logout", async (req, res) => {
         try {
             if (!req.query.logout_token) return res.status(400).send({ status: "BadRequest", field: "logout_token" });
@@ -265,21 +265,6 @@ export default function (app, logger) {
                     resData.state = 'confirmapp';
                     resData.appname = appinfo.name;
                     return res.send(resData);
-                }
-            }
-
-            // App requires profile
-            if (!appinfo.skipprofile) {
-                const profiles = await auth.getProfiles(cookII.userid);
-
-                if (profiles.length == 1) {
-                    cookII.profileid = profiles[0].id;
-                    await saveCookLI(req, res, cookII);
-                } else {
-                    // Profile not picked yet
-                    if (!cookII.profileid || !profiles.find(p => p.id === cookII.profileid)) {
-                        return res.send({ state: 'profile', profiles, ...resData });
-                    }
                 }
             }
 
@@ -424,7 +409,7 @@ export default function (app, logger) {
             }
 
             sendEmailAlert({
-                comm_id: 'login-success-tfa',
+                id: 'login-success-tfa',
                 use_handlebars: true,
                 user_id: cookII.userid,
                 location: cookII.temp.location
@@ -475,54 +460,6 @@ export default function (app, logger) {
                 }
                 return res.send({ status: "Canceled", redirect: url });
             }
-        } catch(e) {
-            logger.error(e);
-            return res.status(500).send({ status: "ServerError" });
-        }
-    });
-
-    // Pick profile
-    app.post("/api/login/pick-profile", async (req, res) => {
-        try {
-            if (!req.body.recaptcha) return res.status(400).send({ status: "BadRequest", field: "recaptcha" });
-            if (!(await auth.validateRecaptcha(req.body.recaptcha))) return res.status(400).send({ status: "InvalidRecaptcha" });
-
-            if (!req.body.id) return res.status(400).send({ status: "BadRequest", field: "id" });
-            const appinfo = await auth.lookupAppInfo(req.body.id);
-            if (!appinfo) return res.status(400).send({ status: "InvalidApp" });
-
-            const cookBI = auth.getCookie(req, COOKIE_NAME_BI);
-            if (!cookBI) return res.status(400).send({ status: "BadRequest", field: COOKIE_NAME_BI });
-
-            const cookII = auth.getCookie(req, COOKIE_NAME_II) || auth.getCookie(req, COOKIE_NAME_LI);
-            if (!cookII) return res.status(400).send({ status: "BadRequest", field: COOKIE_NAME_II });
-
-            if (!req.body.profileid) return res.status(400).send({ status: "BadRequest", field: "profileid" });
-
-            // "goback"
-            if (req.body.profileid == "goback") {
-                await auth.logout({ session: cookBI.session });
-                auth.clearCookie(res, COOKIE_NAME_LI);
-                auth.clearCookie(res, COOKIE_NAME_II);
-                return res.status(200).send({ status: "LoggedOut" });
-            }
-
-            let good = false;
-            const profiles = await auth.getProfiles(cookII.userid);
-            if (Array.isArray(profiles)) {
-                for (const profile of profiles) {
-                    if (profile.id == req.body.profileid) {
-                        cookII.profileid = profile.id;
-                        await saveCookLI(req, res, cookII);
-                        return res.send({ status: "Success" });
-                    }
-                }
-                return res.status(400).send({ status: "InvalidProfile" });
-
-            } else {
-                throw "profiles is not an array for userid " + cookII.userid;
-            }
-
         } catch(e) {
             logger.error(e);
             return res.status(500).send({ status: "ServerError" });
