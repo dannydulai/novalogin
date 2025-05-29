@@ -3,8 +3,8 @@
  * Can be used standalone or imported into an existing Express application
  */
 
-const express = require('express');
-const path = require('path');
+import express from 'express';
+import path from 'path';
 
 /**
  * Create and configure the login router
@@ -59,14 +59,14 @@ function registerWithApp(app, options = {}) {
 }
 
 // Export functions for both standalone use and importing as middleware
-module.exports = {
+export {
   createLoginRouter,
   createStandaloneApp,
   registerWithApp
 };
 
 // Run as standalone if this file is executed directly
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   const port = process.env.PORT || 3000;
   createStandaloneApp(port);
 }
