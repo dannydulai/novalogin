@@ -1,4 +1,607 @@
+import pkceChallenge from 'pkce-challenge';
+import axios from 'axios';
+import requestIp from 'request-ip';
+import dotenv from 'dotenv';
+import { OAuth2Client } from 'google-auth-library';
+import twofactor from 'node-2fa';
 
+import * as auth from '../utils.mjs';
+import db from '../db.js';
+
+// Load environment variables
+dotenv.config();
+
+// Environment variables
+const COOKIE_NAME_BI = process.env.COOKIE_NAME_BI || 'bi';
+const COOKIE_NAME_II = process.env.COOKIE_NAME_II || 'ii';
+const COOKIE_NAME_LI = process.env.COOKIE_NAME_LI || 'li';
+const LOGIN_COOKIE_VERSION = process.env.LOGIN_COOKIE_VERSION || '1';
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '';
+const COOKIE_DOMAIN = process.env.COOKIE_DOMAIN || '';
+const ADMIN_APP_ID = process.env.ADMIN_APP_ID || '';
+const ACCOUNT_APP_ID = process.env.ACCOUNT_APP_ID || '';
+const SESSION_SECRET = process.env.SESSION_SECRET || 'secret';
+
+// Initialize Google OAuth client
+const googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
+
+/**
+ * Placeholder for email alert functionality
+ * @param {Object} opts - Email options
+ */
+async function sendEmailAlert(opts) {
+    try {
+        console.log(`[EMAIL ALERT] Would send email with options:`, JSON.stringify(opts, null, 2));
+    } catch (e) {
+        console.error('Error sending email alert:', e);
+    }
+}
 
 export default function (app, logger) {
+
+    /**
+     * Generate a code exchange for authentication
+     */
+    async function generateCodeExchange(challenge, exchangeInfo, url, state) {
+        try {
+            const code = (await db.raw(`INSERT INTO codes ( challenge, value ) VALUES ( :challenge, :value ) RETURNING code`, { 
+                challenge, 
+                value: JSON.stringify(exchangeInfo) 
+            })).rows[0].code;
+
+            if (url.indexOf("?") == -1)
+                url += "?code=" + code;
+            else
+                url += "&code=" + code;
+
+            if (state)
+                url += "&state=" + encodeURIComponent(state);
+
+            return url;
+
+        } catch (e) {
+            logger.error(e);
+            return null;
+        }
+    }
+
+    /**
+     * Get code exchange information
+     */
+    async function getCodeExchange(code, opts) {
+        try {
+            if (opts.verifier)
+                return JSON.parse((await db.raw(`DELETE FROM codes WHERE code = :code AND challenge = :challenge RETURNING value`, { 
+                    code, 
+                    challenge: "PKCE-" + pkceChallenge.generateChallenge(opts.verifier) 
+                })).rows[0].value);
+            else
+                return JSON.parse((await db.raw(`DELETE FROM codes WHERE code = :code AND challenge = :challenge RETURNING value`, { 
+                    code, 
+                    challenge: "APPSECRET-" + opts.client_secret 
+                })).rows[0].value);
+        } catch (e) {
+            logger.error(e);
+            return null;
+        }
+    }
+
+    /**
+     * Handle login process
+     */
+    async function doLogin(req, res, authinfo) {
+        const loginappinfo = await auth.lookupAppInfo(ACCOUNT_APP_ID);
+        const cookBI = auth.getCookie(req, COOKIE_NAME_BI);
+
+        // Let's check if the user provided valid credentials, and then save the login session cookie.
+        const accountServerResponse = await auth.login(cookBI, req.get('User-Agent'), loginappinfo.id, loginappinfo.name, requestIp.getClientIp(req), authinfo);
+
+        if (accountServerResponse.status != 'Success') return { accountServerResponse };
+
+        const cookII = { 
+            v: LOGIN_COOKIE_VERSION,
+            userid: accountServerResponse.userid,
+            groups: accountServerResponse.groups,
+            access_token: accountServerResponse.access_token,
+            logout_token: accountServerResponse.logout_token,
+            session: accountServerResponse.session,
+            temp: {
+                id: req.query.id || req.body.id,
+                cb: req.query.cb || req.body.cb,
+                challenge: req.query.challenge || req.body.challenge,
+                state: req.query.state || req.body.state,
+                email: req.query.email || req.body.email,
+                location: accountServerResponse.location,
+                tfa: accountServerResponse.tfa,
+            },
+        };
+        
+        auth.setCookie(res, COOKIE_NAME_BI, { v: LOGIN_COOKIE_VERSION, session: accountServerResponse.session });
+        
+        if (!cookII.temp.tfa.enabled) {
+            sendEmailAlert({
+                comm_id: 'login-success',
+                use_handlebars: true,
+                user_id: cookII.userid,
+                location: cookII.temp.location
+            });
+        }
+        
+        return { accountServerResponse, cookBI, cookII };
+    }
+
+    /**
+     * Save login cookie
+     */
+    async function saveCookLI(_req, res, cookII) {
+        if (cookII.temp) {
+            auth.setCookie(res, COOKIE_NAME_II, cookII, 'lax'); // Needs to be lax for navigations purposes
+            auth.clearCookie(res, COOKIE_NAME_LI);
+        } else {
+            auth.setCookie(res, COOKIE_NAME_LI, cookII, 'lax'); // Needs to be lax for navigations purposes
+            auth.clearCookie(res, COOKIE_NAME_II);
+        }
+    }
+
+    // Logout endpoint (POST)
+    app.post("/api/login/logout", async (req, res) => {
+        try {
+            if (req.query.logout_token || req.body.logout_token) {
+                await auth.logout({ logout_token: req.query.logout_token || req.body.logout_token });
+                auth.clearCookie(res, COOKIE_NAME_LI);
+                auth.clearCookie(res, COOKIE_NAME_II);
+                return res.send();
+            } else {
+                const cookLI = auth.getCookie(req, COOKIE_NAME_LI);
+                if (cookLI && cookLI.logout_token)
+                    await auth.logout({ logout_token: cookLI.logout_token });
+                auth.clearCookie(res, COOKIE_NAME_LI);
+                auth.clearCookie(res, COOKIE_NAME_II);
+                return res.send();
+            }
+        } catch (e) {
+            logger.error(e);
+            return res.status(500).send("Server Error");
+        }
+    });
+
+    // Logout endpoint (GET)
+    app.get("/api/login/logout", async (req, res) => {
+        try {
+            if (!req.query.logout_token) return res.status(400).send({ status: "BadRequest", field: "logout_token" });
+            await auth.logout({ logout_token: req.query.logout_token });
+            return res.send();
+        } catch (e) {
+            logger.error(e);
+            return res.status(500).send("Server Error");
+        }
+    });
+
+    // Google callback
+    app.post("/api/login/gcb", async (req, res) => {
+        try {
+            if (!req.body.recaptcha) return res.status(400).send({ status: "BadRequest", field: "recaptcha" });
+            if (!(await auth.validateRecaptcha(req.body.recaptcha))) return res.status(400).send({ status: "InvalidRecaptcha" });
+
+            if (!req.body.id) return res.status(400).send({ status: "BadRequest", field: "id" });
+            const appinfo = await auth.lookupAppInfo(req.body.id);
+            if (!appinfo) return res.status(400).send({ status: "InvalidApp" });
+
+            const ticket = await googleClient.verifyIdToken({
+                idToken: req.body.id_token,
+                audience: GOOGLE_CLIENT_ID,
+            });
+
+            const payload = ticket.getPayload();
+            const { email, sub } = payload;
+
+            if (!email) return res.status(400).send({ status: "InvalidEmail" });
+            if (!sub)   return res.status(400).send({ status: "BadRequest" });
+
+            const { accountServerResponse, cookII } = await doLogin(req, res, { googleEmail: email, googleId: sub });
+
+            if (accountServerResponse.status === 'NotFound') return res.status(400).send({ status: "NotFound" });
+            if (accountServerResponse.status != 'Success')   return res.status(400).send({ status: "ServerError" });
+
+            await saveCookLI(req, res, cookII);
+            return res.status(200).send();
+        } catch (e) {
+            logger.error(e);
+            return res.status(500).send({status: "ServerError"});
+        }
+    });
+
+    // Login status
+    app.post("/api/login/status", async (req, res) => {
+        try {
+            const appinfo = await auth.lookupAppInfo(req.body.id);
+            if (!appinfo) return res.status(400).send("Bad Request (invalid id)");
+
+            // BI is the browser identity stuff -- is so we can identify browsers that have logged in before
+            const cookBI = auth.getCookie(req, COOKIE_NAME_BI);
+
+            // If no BI or BI is outdated, clear cookies and force login
+            if (!cookBI || cookBI.v != LOGIN_COOKIE_VERSION) {
+                auth.clearCookie(res, COOKIE_NAME_BI);
+                auth.clearCookie(res, COOKIE_NAME_II);
+                auth.clearCookie(res, COOKIE_NAME_LI);
+                return res.send({ state: "login"});
+            }
+
+            // II is session state during login
+            const cookII = auth.getCookie(req, COOKIE_NAME_II) || auth.getCookie(req, COOKIE_NAME_LI);
+
+            // If II is outdated, clear cookies and force login
+            if (!cookII || cookII.v != LOGIN_COOKIE_VERSION) {
+                auth.clearCookie(res, COOKIE_NAME_II);
+                auth.clearCookie(res, COOKIE_NAME_LI);
+                return res.send({ state: "login"});
+            }
+
+            // Make sure token is still OK
+            if (!await auth.verify(cookII.access_token)) {
+                auth.clearCookie(res, COOKIE_NAME_II);
+                auth.clearCookie(res, COOKIE_NAME_LI);
+                return res.send({ state: "login" });
+            }
+
+            const resData = {};
+
+            if (req.query?.info) {
+                const info = await db('users').select('email', 'firstname', 'lastname').where({ userid: cookII.userid }).first();
+                resData.email = info.email;
+                resData.name  = `${info.firstname} ${info.lastname}`;
+            }
+
+            // TFA applied to login yet
+            if (cookII.temp?.tfa?.enabled) {
+                resData.state = 'tfa';
+                return res.send(resData);
+            }
+
+            // App requires confirmation from user
+            if (appinfo.login_callback) {
+                if (!cookII.confirmed?.[appinfo.id]) {
+                    resData.state = 'confirmapp';
+                    resData.appname = appinfo.name;
+                    return res.send(resData);
+                }
+            }
+
+            // App requires profile
+            if (!appinfo.skipprofile) {
+                const profiles = await auth.getProfiles(cookII.userid);
+
+                if (profiles.length == 1) {
+                    cookII.profileid = profiles[0].id;
+                    await saveCookLI(req, res, cookII);
+                } else {
+                    // Profile not picked yet
+                    if (!cookII.profileid || !profiles.find(p => p.id === cookII.profileid)) {
+                        return res.send({ state: 'profile', profiles, ...resData });
+                    }
+                }
+            }
+
+            // DONE
+            return res.send({ state: 'loggedin', ...resData});
+        } catch (e) {
+            console.log(e);
+            return res.status(500).send({ state: 'ServerError' });
+        }
+    });
+
+    // Setup token
+    app.post("/api/login/setup-token", async (req, res) => {
+        try {
+            if (!req.body.recaptcha) return res.status(400).send({ status: "BadRequest", field: "recaptcha" });
+            if (!(await auth.validateRecaptcha(req.body.recaptcha))) return res.status(400).send({ status: "InvalidRecaptcha" });
+
+            if (!req.body.id) return res.status(400).send({ status: "BadRequest", field: "id" });
+            const appinfo = await auth.lookupAppInfo(req.body.id);
+            if (!appinfo) return res.status(400).send({ status: "InvalidApp" });
+
+            const cookBI = auth.getCookie(req, COOKIE_NAME_BI);
+            if (!cookBI) return res.status(400).send({ status: "BadRequest", field: COOKIE_NAME_BI });
+
+            // Must have a cookLI
+            const cookII = auth.getCookie(req, COOKIE_NAME_II) || auth.getCookie(req, COOKIE_NAME_LI);
+            if (!cookII) return res.status(400).send({ status: "BadRequest", field: "cookLI" });
+
+            for (let group of appinfo.groups || []) {
+                if ((cookII.groups || []).indexOf(group) == -1) {
+                    return res.status(403).send({ status: "AppForbidden", name: appinfo.name });
+                }
+            }
+
+            if (appinfo.login_callback) {
+                if (!cookII.confirmed?.[appinfo.id]) {
+                    return res.status(400).send({ status: "AppNotConfirmed" });
+                } else if (!req.query.challenge && !req.body.challenge) {
+                    return res.status(400).send({ status: "BadRequest", field: "challenge" });
+                } else {
+                    delete cookII.temp;
+                    await saveCookLI(req, res, cookII);
+                    const url = await generateCodeExchange("PKCE-" + (req.query.challenge || req.body.challenge), { cookII, appinfo, ua: req.get('User-Agent') }, appinfo.login_callback, req.query.state || req.body.state);
+                    return res.send({ status: "Success", redirect: url });
+                }
+
+            } else if (req.body.id === ADMIN_APP_ID) {
+                delete cookII.temp;
+                await saveCookLI(req, res, cookII);
+                return res.send({ status: 'Success', redirect: '/admin' });
+
+            } else if (req.body.id === ACCOUNT_APP_ID) {
+                delete cookII.temp;
+                await saveCookLI(req, res, cookII);
+                let redirect = req.query.cb || req.body.cb || '/account';
+                if (!redirect.startsWith('/')) redirect = '/account';
+                return res.send({ status: 'Success', redirect });
+
+            } else {
+                // web app, just generate exchange and redirect them back to the login callback
+                if (!req.query.cb && !req.body.cb) {
+                    res.status(400).send({ status: "BadRequest", field: "cb" });
+                    return true;
+                }
+                delete cookII.temp;
+                await saveCookLI(req, res, cookII);
+                const url = await generateCodeExchange("APPSECRET-" + appinfo.secret, { cookII, appinfo, ua: req.get('User-Agent') }, req.query.cb || req.body.cb, req.query.state || req.body.state);
+                return res.send({ status: 'Success', redirect: url });
+            }
+        } catch (e) {
+            console.log(e);
+            return res.status(500).send();
+        }
+    });
+
+    // Enter credentials
+    app.post("/api/login/enter-credentials", async (req, res) => {
+        try {
+            // Required params
+            if (!req.body.recaptcha) return res.status(400).send({ status: "BadRequest", field: "recaptcha" });
+            if (!req.body.id)        return res.status(400).send({ status: "BadRequest", field: "id" });
+            if (!req.body.email)     return res.status(400).send({ status: "BadRequest", field: "email" });
+            if (!req.body.password)  return res.status(400).send({ status: "BadRequest", field: "password" });
+
+            // Validate recaptcha
+            if (!(await auth.validateRecaptcha(req.body.recaptcha))) return res.status(400).send({ status: "InvalidRecaptcha" });
+
+            // Validate app
+            const appinfo = await auth.lookupAppInfo(req.body.id);
+            if (!appinfo) return res.status(400).send({ status: "InvalidApp" });
+
+            // doLogin sets the cookies necessary for the status route
+            const { accountServerResponse, cookBI, cookII } = await doLogin(req, res, { email: req.body.email, password: req.body.password });
+
+            // Login Failed
+            if (accountServerResponse.status != 'Success') {
+                if (accountServerResponse.status === 'NotFound') {
+                    return res.status(401).send({ status: 'NotFound' });
+                } else {
+                    return res.status(401).send({ status: 'Unauthorized' });
+                }
+                // Login Succeeded
+            } else {
+                await saveCookLI(req, res, cookII);
+                return res.send({ status: 'Success' });
+            }
+        } catch (e) {
+            logger.error(e);
+            return res.status(500).send({status: 'ServerError'});
+        }
+    });
+
+    // Enter TFA
+    app.post("/api/login/enter-tfa", async (req, res) => {
+        try {
+            if (!req.body.recaptcha) return res.status(400).send({ status: "BadRequest", field: "recaptcha" });
+            if (!(await auth.validateRecaptcha(req.body.recaptcha))) return res.status(400).send({ status: "InvalidRecaptcha" });
+
+            if (!req.body.id) return res.status(400).send({ status: "BadRequest", field: "id" });
+            const appinfo = await auth.lookupAppInfo(req.body.id);
+            if (!appinfo) return res.status(400).send({ status: "InvalidApp" });
+
+            const cookBI = auth.getCookie(req, COOKIE_NAME_BI);
+            if (!cookBI) return res.status(400).send({ status: "BadRequest", field: COOKIE_NAME_BI });
+
+            const cookII = auth.getCookie(req, COOKIE_NAME_II);
+            if (!cookII) return res.status(400).send({ status: "BadRequest", field: COOKIE_NAME_II });
+
+            if (req.body.tfa === 'goback') {
+                await auth.logout({ session: cookBI.session });
+                auth.clearCookie(res, COOKIE_NAME_LI);
+                auth.clearCookie(res, COOKIE_NAME_II);
+                return res.status(200).send({ status: "LoggedOut" });
+            }
+
+            // no tfa needed!
+            if (!cookII.temp?.tfa.secret) return res.send();
+
+            if (!twofactor.verifyToken(cookII.temp?.tfa.secret, req.body.tfa)) {
+                console.log("token failed to validate", cookII.temp?.tfa.secret, req.body.tfa);
+                return res.status(400).send({ status: "BadToken" });
+            }
+
+            sendEmailAlert({
+                comm_id: 'login-success-tfa',
+                use_handlebars: true,
+                user_id: cookII.userid,
+                location: cookII.temp.location
+            });
+            delete(cookII.temp.tfa);
+            saveCookLI(req, res, cookII);
+            return res.send();
+        } catch (e) {
+            logger.error(e);
+            return res.status(500).send({ status: "ServerError" });
+        }
+    });
+
+    // Confirm app
+    app.post("/api/login/confirm-app", async (req, res) => {
+        try {
+            if (!req.body.recaptcha) return res.status(400).send({ status: "BadRequest", field: "recaptcha" });
+            if (!(await auth.validateRecaptcha(req.body.recaptcha))) return res.status(400).send({ status: "InvalidRecaptcha" });
+
+            if (!req.body.id) return res.status(400).send({ status: "BadRequest", field: "id" });
+            const appinfo = await auth.lookupAppInfo(req.body.id);
+            if (!appinfo) return res.status(400).send({ status: "InvalidApp" });
+
+            const cookBI = auth.getCookie(req, COOKIE_NAME_BI);
+            const cookII = auth.getCookie(req, COOKIE_NAME_II) || auth.getCookie(req, COOKIE_NAME_LI); // Could already be logged in, just approving different app
+
+            if (!cookBI) return res.status(400).send({ status: "BadRequest", field: COOKIE_NAME_BI });
+            if (!cookII) return res.status(400).send({ status: "BadRequest", field: COOKIE_NAME_II });
+
+            if (!appinfo.login_callback) return res.status(400).send({ status: "AppRequestNoConfirm" });
+
+            // mobile/desktop app, we need to confirm the user is allowed to connect the app
+            if (req.body.confirmapp_result === 'confirmed') {
+                cookII.confirmed = cookII.confirmed || {};
+                cookII.confirmed[appinfo.id] = true;
+                await saveCookLI(req, res, cookII);
+                return res.send({ status: "Success" });
+
+            } else {
+                delete cookII.confirmed?.[appinfo.id];
+                await saveCookLI(req, res, cookII);
+
+                let url = appinfo.login_callback;
+                if (url.indexOf("?") == -1) {
+                    url += "?error=access_denied";
+                } else {
+                    url += "&error=access_denied";
+                }
+                return res.send({ status: "Canceled", redirect: url });
+            }
+        } catch(e) {
+            logger.error(e);
+            return res.status(500).send({ status: "ServerError" });
+        }
+    });
+
+    // Pick profile
+    app.post("/api/login/pick-profile", async (req, res) => {
+        try {
+            if (!req.body.recaptcha) return res.status(400).send({ status: "BadRequest", field: "recaptcha" });
+            if (!(await auth.validateRecaptcha(req.body.recaptcha))) return res.status(400).send({ status: "InvalidRecaptcha" });
+
+            if (!req.body.id) return res.status(400).send({ status: "BadRequest", field: "id" });
+            const appinfo = await auth.lookupAppInfo(req.body.id);
+            if (!appinfo) return res.status(400).send({ status: "InvalidApp" });
+
+            const cookBI = auth.getCookie(req, COOKIE_NAME_BI);
+            if (!cookBI) return res.status(400).send({ status: "BadRequest", field: COOKIE_NAME_BI });
+
+            const cookII = auth.getCookie(req, COOKIE_NAME_II) || auth.getCookie(req, COOKIE_NAME_LI);
+            if (!cookII) return res.status(400).send({ status: "BadRequest", field: COOKIE_NAME_II });
+
+            if (!req.body.profileid) return res.status(400).send({ status: "BadRequest", field: "profileid" });
+
+            // "goback"
+            if (req.body.profileid == "goback") {
+                await auth.logout({ session: cookBI.session });
+                auth.clearCookie(res, COOKIE_NAME_LI);
+                auth.clearCookie(res, COOKIE_NAME_II);
+                return res.status(200).send({ status: "LoggedOut" });
+            }
+
+            let good = false;
+            const profiles = await auth.getProfiles(cookII.userid);
+            if (Array.isArray(profiles)) {
+                for (const profile of profiles) {
+                    if (profile.id == req.body.profileid) {
+                        cookII.profileid = profile.id;
+                        await saveCookLI(req, res, cookII);
+                        return res.send({ status: "Success" });
+                    }
+                }
+                return res.status(400).send({ status: "InvalidProfile" });
+
+            } else {
+                throw "profiles is not an array for userid " + cookII.userid;
+            }
+
+        } catch(e) {
+            logger.error(e);
+            return res.status(500).send({ status: "ServerError" });
+        }
+    });
+
+    // Token endpoint
+    app.get("/api/login/token", async (req, res) => {
+        if (!req.query.code)     return res.status(400).send("Bad Request (missing code)");
+        if (!req.query.verifier && !req.query.secret) return res.status(400).send("Bad Request (missing verifier/secret)");
+        await ssotoken(req, res, req.query.code, req.query.verifier, req.query.secret);
+    });
+
+    /**
+     * SSO token exchange
+     */
+    async function ssotoken(req, res, code, verifier, client_secret) {
+        try {
+            const result = await getCodeExchange(code, { ...(client_secret && { client_secret }), ...(!client_secret && { verifier }) });
+            if (result && result.cookII && result.appinfo) {
+                let { cookII, appinfo, ua } = result;
+
+                if (appinfo.login_callback) {
+                    const accountServerResponse = await auth.login({ session: cookII.session }, ua, appinfo.id, appinfo.name, requestIp.getClientIp(req), {
+                        token: cookII.access_token,
+                        session: cookII.session,
+                    });
+                    if (accountServerResponse.status != 'Success') {
+                        cookII = undefined;
+                    } else {
+                        cookII.userid =       accountServerResponse.userid;
+                        cookII.groups =       accountServerResponse.groups;
+                        cookII.access_token = accountServerResponse.access_token;
+                        cookII.logout_token = accountServerResponse.logout_token;
+                    }
+                }
+
+                if (cookII) {
+                    cookII = { ...cookII };
+                    delete(cookII.session);
+                    return res.status(200).send(cookII);
+                }
+            }
+        } catch (e) {
+            logger.error(e);
+        }
+        return res.status(404).send("Not found");
+    }
+
+    // Apple callback - disabled for now
+    /*
+    app.post("/api/login/acb", async (req, res) => {
+        try {
+            if (!req.body.recaptcha) return res.status(400).send({ status: "BadRequest", field: "recaptcha" });
+            if (!(await auth.validateRecaptcha(req.body.recaptcha))) return res.status(400).send({ status: "InvalidRecaptcha" });
+            if (!req.body.id_token) return res.status(400).send({ status: "BadRequest", field: "code" });
+            if (!req.body.nonce) return res.status(400).send({ status: "BadRequest", field: "nonce" });
+
+            const id_token = req.body.id_token;
+
+            // Verify JWT
+            const {
+                sub,
+            } = await auth.verifyAppleIdToken(id_token, 'com.roon.website.signin', req.body.nonce);
+
+            const { accountServerResponse, cookII } = await doLogin(req, res, { association: { association_id: sub }});
+            if (accountServerResponse.status === 'NotFound')     {
+                return res.status(200).send({status: 'NotFound'});
+            } else if (accountServerResponse.status != 'Success') {
+                return res.status(200).send({status: accountServerResponse.status});
+            } else {
+                // Success
+                await saveCookLI(req, res, cookII);
+                return res.status(200).send({status: 'Success'});
+            }
+        } catch (e) {
+            console.log(e);
+            return res.status(500).send({status: 'ServerError'});
+        }
+    });
+    */
 }

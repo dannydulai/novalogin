@@ -7,22 +7,20 @@ import express from 'express';
 import path from 'path';
 import morgan from 'morgan';
 import db from './db.js';
+import loginRoutes from './src/login.mjs';
 
 /**
  * Create and configure the login router
  * @returns {object} Express router with all login routes
  */
 function createLoginRouter() {
-  const router = express.Router();
-
-  // Define routes
-  router.get('/status', (req, res) => {
-    res.json({ status: 'ok' });
-  });
-
-  // Add more routes here
-
-  return router;
+  const app = express();
+  const logger = console;
+  
+  // Initialize login routes
+  loginRoutes(app, logger);
+  
+  return app;
 }
 
 /**
