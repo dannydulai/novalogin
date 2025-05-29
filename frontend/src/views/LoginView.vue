@@ -226,9 +226,9 @@
       
       <div class="text-center text-sm text-gray-600">
         Don't have an account? 
-        <a :href="createUrl" class="text-indigo-600 font-semibold hover:text-indigo-800">
+        <router-link :to="'/create' + (qs.toString() ? `?${qs.toString()}` : '')" class="text-indigo-600 font-semibold hover:text-indigo-800">
           Sign up
-        </a>
+        </router-link>
       </div>
 
       <div v-if="error" 
@@ -359,9 +359,6 @@ export default {
     ///}
   },
   computed: {
-    createUrl() {
-      return '/create' + (this.qs.toString() ? `?${this.qs.toString()}` : '');
-    },
   },
   watch: {
     auth_state(val) {
