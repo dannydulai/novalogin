@@ -7,9 +7,13 @@ import db from '../db.js';
 import config from './config.mjs';
 import * as utils from './utils.mjs';
 import * as auth from './auth.mjs';
+import account2fa from './account2fa.mjs';
 
 
 export default function(app, logger) {
+    // Initialize 2FA routes
+    account2fa(app, logger);
+    
     // Get account information endpoint
     app.post("/api/account/info", async (req, res) => {
         try {
