@@ -194,8 +194,8 @@ async function _createUser(req, {
                     user_id: user.user_id,
                     ip: requestIp.getClientIp(req),
                     location: await auth.getLocation(requestIp.getClientIp(req)),
-                    appid: ACCOUNT_APP_ID,
-                    appname: 'Account',
+                    appid: config.ACCOUNT_APP_ID,
+                    appname: config.ACCOUNT_APP_NAME,
                     os,
                     browser,
                 });
