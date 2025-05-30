@@ -316,9 +316,10 @@
                       <button 
                         v-if="!isCurrentSession(session)"
                         @click="terminateSession(session)" 
-                        class="text-red-600 hover:text-red-800 text-sm"
+                        class="text-red-600 hover:text-red-800"
+                        title="Terminate session"
                       >
-                        Terminate
+                        <span class="mdi mdi-close-circle"></span>
                       </button>
                     </div>
                   </li>
@@ -498,9 +499,7 @@ export default {
     
     // Check if a session is the current one
     isCurrentSession(session) {
-      // Logic to determine if this is the current session
-      // This would typically compare the session token with the one in the cookie
-      return session.session_token === this.currentSessionToken;
+      return session.is_current === true;
     },
     
     // Format association type for display

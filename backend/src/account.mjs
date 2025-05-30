@@ -56,7 +56,8 @@ export default function(app, logger) {
                     'data'
                 );
 
-            // Get active sessions
+            // Get active sessions and mark the current one
+            const { session } = utils.getCookie(req, config.COOKIE_NAME_LI);
             const sessions = await db('token_info')
                 .join('tokens', 'token_info.token_id', 'tokens.token_id')
                 .where({ 'token_info.user_id': user_id })
@@ -71,7 +72,11 @@ export default function(app, logger) {
                     'token_info.browser',
                     'token_info.created',
                     'token_info.logout_token'
-                );
+                )
+                .then(sessions => sessions.map(s => ({
+                    ...s,
+                    is_current: s.session_token === session
+                })));
 
             return res.status(200).send({
                 status: "Success",
