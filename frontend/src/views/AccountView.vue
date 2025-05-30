@@ -88,145 +88,70 @@
             </div>
           </div>
 
-          <!-- Update Account Section -->
+          <!-- Edit button for account info -->
           <div class="bg-white shadow rounded-lg overflow-hidden mb-6">
-            <div class="px-6 py-5 border-b border-gray-200">
-              <h2 class="text-lg font-medium text-gray-900">Update Account</h2>
+            <div class="px-6 py-5 border-b border-gray-200 flex justify-between items-center">
+              <h2 class="text-lg font-medium text-gray-900">Account Settings</h2>
+              <button 
+                @click="openEditModal" 
+                class="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-cyan-600 bg-cyan-50 hover:bg-cyan-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500"
+              >
+                <span class="mdi mdi-pencil mr-1.5"></span>
+                Edit
+              </button>
             </div>
             <div class="p-6">
-              <form @submit.prevent="updateAccount">
-                <div class="space-y-4">
+              <div class="space-y-4">
+                <!-- Two-Factor Authentication Toggle -->
+                <div class="flex items-center justify-between">
                   <div>
-                    <label for="firstname" class="block text-sm font-medium text-gray-700">First Name</label>
-                    <input 
-                      type="text" 
-                      id="firstname" 
-                      v-model="accountForm.firstname" 
-                      class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm"
-                    />
+                    <p class="text-sm font-medium text-gray-700">Two-Factor Authentication</p>
+                    <p class="text-xs text-gray-500 mt-1">Add an extra layer of security to your account</p>
                   </div>
-                  <div>
-                    <label for="lastname" class="block text-sm font-medium text-gray-700">Last Name</label>
+                  <div class="relative inline-block w-12 h-6 transition duration-200 ease-in-out rounded-full cursor-pointer">
                     <input 
-                      type="text" 
-                      id="lastname" 
-                      v-model="accountForm.lastname" 
-                      class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm"
+                      type="checkbox" 
+                      id="tfa-toggle" 
+                      class="absolute w-6 h-6 opacity-0 cursor-pointer"
+                      :checked="user.tfa_enabled"
+                      @change="toggleTFA"
                     />
-                  </div>
-                  <div>
-                    <button 
-                      type="submit" 
-                      class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-cyan-600 hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500"
-                      :disabled="updateAccountLoading"
+                    <label 
+                      for="tfa-toggle" 
+                      class="block h-6 overflow-hidden rounded-full cursor-pointer"
+                      :class="user.tfa_enabled ? 'bg-cyan-500' : 'bg-gray-300'"
                     >
-                      <span v-if="!updateAccountLoading">Update Account</span>
-                      <div v-else class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    </button>
+                      <span 
+                        class="block h-6 w-6 rounded-full transform transition-transform duration-200 ease-in-out bg-white shadow-md"
+                        :class="user.tfa_enabled ? 'translate-x-6' : 'translate-x-0'"
+                      ></span>
+                    </label>
                   </div>
                 </div>
-              </form>
+                
+                <!-- Security Links -->
+                <div class="bg-gray-50 rounded-lg p-4 mt-4">
+                  <p class="text-sm text-gray-600 mb-3">
+                    Manage your account security by updating your email or password. These changes require verification of your current credentials.
+                  </p>
+                  <div class="flex flex-col sm:flex-row gap-3">
+                    <a href="/change-email" class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-cyan-700 bg-cyan-100 hover:bg-cyan-200">
+                      <span class="mdi mdi-email-edit-outline mr-1.5"></span>
+                      Change Email
+                    </a>
+                    <a href="/change-password" class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-cyan-700 bg-cyan-100 hover:bg-cyan-200">
+                      <span class="mdi mdi-lock-reset mr-1.5"></span>
+                      Change Password
+                    </a>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
         <!-- Right column - Security, Sessions, Linked Accounts -->
         <div class="lg:col-span-2 space-y-6">
-          <!-- Security Section -->
-          <div class="bg-white shadow rounded-lg overflow-hidden">
-            <div class="px-6 py-5 border-b border-gray-200">
-              <h2 class="text-lg font-medium text-gray-900">Security</h2>
-            </div>
-            <div class="p-6">
-              <!-- Change Email -->
-              <div class="mb-6 pb-6 border-b border-gray-200">
-                <h3 class="text-base font-medium text-gray-900 mb-3">Change Email</h3>
-                <form @submit.prevent="changeEmail">
-                  <div class="space-y-4">
-                    <div>
-                      <label for="new-email" class="block text-sm font-medium text-gray-700">New Email</label>
-                      <input 
-                        type="email" 
-                        id="new-email" 
-                        v-model="emailForm.newEmail" 
-                        class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label for="current-password-email" class="block text-sm font-medium text-gray-700">Current Password</label>
-                      <input 
-                        type="password" 
-                        id="current-password-email" 
-                        v-model="emailForm.currentPassword" 
-                        class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <button 
-                        type="submit" 
-                        class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-cyan-600 hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500"
-                        :disabled="changeEmailLoading"
-                      >
-                        <span v-if="!changeEmailLoading">Change Email</span>
-                        <div v-else class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      </button>
-                    </div>
-                  </div>
-                </form>
-              </div>
-
-              <!-- Change Password -->
-              <div>
-                <h3 class="text-base font-medium text-gray-900 mb-3">Change Password</h3>
-                <form @submit.prevent="changePassword">
-                  <div class="space-y-4">
-                    <div>
-                      <label for="current-password" class="block text-sm font-medium text-gray-700">Current Password</label>
-                      <input 
-                        type="password" 
-                        id="current-password" 
-                        v-model="passwordForm.currentPassword" 
-                        class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label for="new-password" class="block text-sm font-medium text-gray-700">New Password</label>
-                      <input 
-                        type="password" 
-                        id="new-password" 
-                        v-model="passwordForm.newPassword" 
-                        class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label for="confirm-password" class="block text-sm font-medium text-gray-700">Confirm New Password</label>
-                      <input 
-                        type="password" 
-                        id="confirm-password" 
-                        v-model="passwordForm.confirmPassword" 
-                        class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <button 
-                        type="submit" 
-                        class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-cyan-600 hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500"
-                        :disabled="changePasswordLoading"
-                      >
-                        <span v-if="!changePasswordLoading">Change Password</span>
-                        <div v-else class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      </button>
-                    </div>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
 
           <!-- Linked Accounts Section -->
           <div class="bg-white shadow rounded-lg overflow-hidden">
@@ -335,6 +260,67 @@
       </div>
     </main>
 
+    <!-- Edit Account Modal -->
+    <div 
+      v-if="showEditModal" 
+      class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity flex items-center justify-center p-4 z-50"
+      @click.self="showEditModal = false"
+    >
+      <div 
+        class="bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:max-w-lg sm:w-full"
+        @click.stop
+      >
+        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+          <h3 class="text-lg font-medium text-gray-900">Edit Account Information</h3>
+          <button 
+            @click="showEditModal = false" 
+            class="text-gray-400 hover:text-gray-500"
+          >
+            <span class="mdi mdi-close text-xl"></span>
+          </button>
+        </div>
+        <form @submit.prevent="updateAccount">
+          <div class="p-6 space-y-4">
+            <div>
+              <label for="modal-firstname" class="block text-sm font-medium text-gray-700">First Name</label>
+              <input 
+                type="text" 
+                id="modal-firstname" 
+                v-model="accountForm.firstname" 
+                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm"
+              />
+            </div>
+            <div>
+              <label for="modal-lastname" class="block text-sm font-medium text-gray-700">Last Name</label>
+              <input 
+                type="text" 
+                id="modal-lastname" 
+                v-model="accountForm.lastname" 
+                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm"
+              />
+            </div>
+          </div>
+          <div class="px-6 py-4 bg-gray-50 flex justify-end space-x-3">
+            <button 
+              type="button" 
+              @click="showEditModal = false"
+              class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500"
+            >
+              Cancel
+            </button>
+            <button 
+              type="submit" 
+              class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-cyan-600 hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 flex items-center"
+              :disabled="updateAccountLoading"
+            >
+              <span v-if="!updateAccountLoading">Save Changes</span>
+              <div v-else class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <!-- Success notification -->
     <div 
       v-if="notification.show" 
@@ -380,20 +366,13 @@ export default {
         firstname: '',
         lastname: ''
       },
-      emailForm: {
-        newEmail: '',
-        currentPassword: ''
-      },
-      passwordForm: {
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: ''
-      },
+      
+      // Modal state
+      showEditModal: false,
       
       // Loading states
       updateAccountLoading: false,
-      changeEmailLoading: false,
-      changePasswordLoading: false,
+      tfaLoading: false,
       
       // Notification
       notification: {
@@ -516,6 +495,14 @@ export default {
       return 'mdi-account-circle text-blue-500';
     },
     
+    // Open edit modal
+    openEditModal() {
+      // Make sure form has current values
+      this.accountForm.firstname = this.user.firstname || '';
+      this.accountForm.lastname = this.user.lastname || '';
+      this.showEditModal = true;
+    },
+    
     // Account update methods
     async updateAccount() {
       this.updateAccountLoading = true;
@@ -541,6 +528,7 @@ export default {
         
         if (data.status === 'Success') {
           this.showNotification('Account information updated successfully');
+          this.showEditModal = false;
           this.fetchAccountInfo(); // Refresh data
         } else {
           throw new Error(data.status || 'Failed to update account');
@@ -552,23 +540,18 @@ export default {
       }
     },
     
-    async changeEmail() {
-      if (!this.emailForm.newEmail || !this.emailForm.currentPassword) {
-        this.error = 'Please fill in all fields';
-        return;
-      }
-      
-      this.changeEmailLoading = true;
+    // Toggle Two-Factor Authentication
+    async toggleTFA() {
+      this.tfaLoading = true;
       
       try {
-        const response = await fetch('/api/account/change-email', {
+        const response = await fetch('/api/account/toggle-tfa', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            newEmail: this.emailForm.newEmail,
-            currentPassword: this.emailForm.currentPassword
+            enabled: !this.user.tfa_enabled
           })
         });
         
@@ -580,64 +563,15 @@ export default {
         const data = await response.json();
         
         if (data.status === 'Success') {
-          this.showNotification('Email updated successfully');
-          this.emailForm.newEmail = '';
-          this.emailForm.currentPassword = '';
+          this.showNotification(`Two-factor authentication ${!this.user.tfa_enabled ? 'enabled' : 'disabled'} successfully`);
           this.fetchAccountInfo(); // Refresh data
         } else {
-          throw new Error(data.status || 'Failed to update email');
+          throw new Error(data.status || 'Failed to update two-factor authentication');
         }
       } catch (error) {
         this.error = error.message;
       } finally {
-        this.changeEmailLoading = false;
-      }
-    },
-    
-    async changePassword() {
-      if (!this.passwordForm.currentPassword || !this.passwordForm.newPassword || !this.passwordForm.confirmPassword) {
-        this.error = 'Please fill in all password fields';
-        return;
-      }
-      
-      if (this.passwordForm.newPassword !== this.passwordForm.confirmPassword) {
-        this.error = 'New passwords do not match';
-        return;
-      }
-      
-      this.changePasswordLoading = true;
-      
-      try {
-        const response = await fetch('/api/account/change-password', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            currentPassword: this.passwordForm.currentPassword,
-            newPassword: this.passwordForm.newPassword
-          })
-        });
-        
-        if (response.status === 401) {
-          window.location.href = '/login';
-          return;
-        }
-        
-        const data = await response.json();
-        
-        if (data.status === 'Success') {
-          this.showNotification('Password changed successfully');
-          this.passwordForm.currentPassword = '';
-          this.passwordForm.newPassword = '';
-          this.passwordForm.confirmPassword = '';
-        } else {
-          throw new Error(data.status || 'Failed to change password');
-        }
-      } catch (error) {
-        this.error = error.message;
-      } finally {
-        this.changePasswordLoading = false;
+        this.tfaLoading = false;
       }
     },
     
