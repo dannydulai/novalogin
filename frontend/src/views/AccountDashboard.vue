@@ -332,7 +332,6 @@ export default {
       
       // Loading states
       updateAccountLoading: false,
-      tfaLoading: false
     };
   },
   computed: {
@@ -498,43 +497,11 @@ export default {
     
     // Toggle Two-Factor Authentication
     async toggleTFA() {
-      this.tfaLoading = true;
-      
-      try {
-        const response = await fetch('/api/account/toggle-tfa', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            enabled: !this.user.tfa_enabled
-          })
-        });
-        
-        if (response.status === 401) {
-          window.location.href = '/login';
-          return;
-        }
-        
-        const data = await response.json();
-        
-        if (data.status === 'Success') {
-          // Redirect to the Edit2FAView with appropriate action
-          if (!this.user.tfa_enabled) {
+        if (!this.user.tfa_enabled) {
             this.$router.push('/account/edit-2fa');
-          } else {
-            this.$router.push('/account/edit-2fa?action=remove');
-          }
-          return;
         } else {
-          throw new Error(data.status || 'Failed to update two-factor authentication');
+            this.$router.push('/account/edit-2fa?action=remove');
         }
-      } catch (error) {
-        this.error = error.message;
-        this.showNotification(this.error, 'error');
-      } finally {
-        this.tfaLoading = false;
-      }
     },
     
     // Session management
