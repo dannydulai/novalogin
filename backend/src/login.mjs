@@ -264,7 +264,7 @@ export default function (app, logger) {
             if (!cookBI) return res.status(400).send({ status: "BadRequest", field: config.COOKIE_NAME_BI });
 
             // Must have a cookLI
-            const cookII = utils.getCookie(req, config.COOKIE_NAME_II) || auth.getCookie(req, config.COOKIE_NAME_LI);
+            const cookII = utils.getCookie(req, config.COOKIE_NAME_II) || utils.getCookie(req, config.COOKIE_NAME_LI);
             if (!cookII) return res.status(400).send({ status: "BadRequest", field: "cookLI" });
 
             for (let group of appinfo.groups || []) {
