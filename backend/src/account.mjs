@@ -14,17 +14,6 @@ const COOKIE_NAME_LI = process.env.COOKIE_NAME_LI || 'li';
 const LOGIN_COOKIE_VERSION = process.env.LOGIN_COOKIE_VERSION || '1';
 const ACCOUNT_APP_ID = process.env.ACCOUNT_APP_ID;
 
-/**
- * Placeholder for email alert functionality
- * @param {Object} opts - Email options
- */
-async function sendEmailAlert(opts) {
-    try {
-        console.log(`[EMAIL ALERT] Would send email with options:`, JSON.stringify(opts, null, 2));
-    } catch (e) {
-        console.error('Error sending email alert:', e);
-    }
-}
 
 export default function(app, logger) {
     // Create account endpoint
@@ -95,7 +84,7 @@ async function createUser(req, {
 
         // Send welcome email
         setTimeout(() => {
-            sendEmailAlert({
+            utils.sendEmailAlert({
                 use_handlebars: true,
                 user_id: user_id
             });

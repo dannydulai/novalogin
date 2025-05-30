@@ -26,17 +26,6 @@ const SESSION_SECRET       = process.env.SESSION_SECRET || 'secret';
 // Initialize Google OAuth client
 const googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
 
-/**
- * Placeholder for email alert functionality
- * @param {Object} opts - Email options
- */
-async function sendEmailAlert(opts) {
-    try {
-        console.log(`[EMAIL ALERT] Would send email with options:`, JSON.stringify(opts, null, 2));
-    } catch (e) {
-        console.error('Error sending email alert:', e);
-    }
-}
 
 export default function (app, logger) {
 
@@ -120,7 +109,7 @@ export default function (app, logger) {
         utils.setCookie(res, COOKIE_NAME_BI, { v: LOGIN_COOKIE_VERSION, session: loginResponse.session });
         
         if (!cookII.temp.tfa.enabled) {
-            sendEmailAlert({
+            utils.sendEmailAlert({
                 id: 'login-success',
                 use_handlebars: true,
                 user_id: cookII.user_id,
@@ -408,7 +397,7 @@ export default function (app, logger) {
                 return res.status(400).send({ status: "BadToken" });
             }
 
-            sendEmailAlert({
+            utils.sendEmailAlert({
                 id: 'login-success-tfa',
                 use_handlebars: true,
                 user_id: cookII.user_id,

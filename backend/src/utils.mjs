@@ -109,6 +109,18 @@ export function isValidPassword(password) {
   return true;
 }
 
+/**
+ * Placeholder for email alert functionality
+ * @param {Object} opts - Email options
+ */
+export async function sendEmailAlert(opts) {
+    try {
+        console.log(`[EMAIL ALERT] Would send email with options:`, JSON.stringify(opts, null, 2));
+    } catch (e) {
+        console.error('Error sending email alert:', e);
+    }
+}
+
 export function getCookie(req, name) {
     let cookie = null;
     try { cookie = JSON.parse(cookieEncrypter.decryptCookie(req.cookies[name], { key: SESSION_SECRET })); } catch { }
