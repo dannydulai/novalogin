@@ -8,6 +8,8 @@ import path from 'path';
 import morgan from 'morgan';
 import db from './db.js';
 import loginRoutes from './src/login.mjs';
+import accountRoutes from './src/account.mjs';
+import adminRoutes from './src/admin.mjs';
 
 /**
  * Create and configure the login router
@@ -19,6 +21,8 @@ function createLoginRouter() {
   
   // Initialize login routes
   loginRoutes(app, logger);
+  accountRoutes(app, logger);
+  adminRoutes(app, logger);
   
   return app;
 }
