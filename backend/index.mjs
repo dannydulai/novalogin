@@ -6,6 +6,9 @@
 import express from 'express';
 import path from 'path';
 import morgan from 'morgan';
+import pino from 'pino';
+import cookieParser from 'cookie-parser';
+import multer from 'multer';
 import db from './db.js';
 import config from './src/config.mjs';
 import loginRoutes from './src/login.mjs';
@@ -18,7 +21,7 @@ import adminRoutes from './src/admin.mjs';
  */
 function createLoginRouter() {
   const app = express.Router();
-  const logger = console;
+  const logger = pino({ name: "login" });
   
   // Initialize login routes
   loginRoutes(app, logger);
@@ -42,24 +45,23 @@ async function insertDefaultApps() {
     // Insert account app
     await db('apps')
       .insert({
-        id: config.ACCOUNT_APP_ID,
+        app_id: config.ACCOUNT_APP_ID,
         name: config.ACCOUNT_APP_NAME,
         secret: config.ACCOUNT_APP_SECRET
       })
-      .onConflict('id')
+      .onConflict('app_id')
       .ignore();
 
     // Insert admin app
     await db('apps')
       .insert({
-        id: config.ADMIN_APP_ID,
+        app_id: config.ADMIN_APP_ID,
         name: config.ADMIN_APP_NAME,
         secret: config.ADMIN_APP_SECRET
       })
-      .onConflict('id')
+      .onConflict('app_id')
       .ignore();
 
-    console.log('Default apps inserted successfully');
   } catch (error) {
     console.error('Error inserting default apps:', error);
     throw error; // Re-throw to stop application startup
@@ -93,13 +95,20 @@ async function setupApp(app, options = {}) {
   } = options;
   
   // Basic middleware
+  app.use(cookieParser());
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
+  app.use(multer().none());
   
   // Security settings
   if (!disableSecuritySettings) {
     app.disable('x-powered-by');
     app.set('trust proxy', true);
+    app.use((req, res, next) => {
+        res.header('x-frame-options', 'DENY');
+        // XXX CORS
+        next();
+    });
   }
   
   // Request logging

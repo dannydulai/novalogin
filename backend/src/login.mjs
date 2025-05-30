@@ -72,7 +72,7 @@ export default function (app, logger) {
         // Let's check if the user provided valid credentials, and then save the login session cookie.
         const loginResponse = await auth.login(cookBI, req.get('User-Agent'), loginappinfo.id, loginappinfo.name, requestIp.getClientIp(req), authinfo);
 
-        if (accountServerResponse.status != 'Success') return { accountServerResponse };
+        if (loginResponse.status != 'Success') return { loginResponse };
 
         const cookII = { 
             v: config.LOGIN_COOKIE_VERSION,
@@ -103,7 +103,7 @@ export default function (app, logger) {
             });
         }
         
-        return { accountServerResponse, cookBI, cookII };
+        return { loginResponse, cookBI, cookII };
     }
 
     /**
@@ -156,7 +156,6 @@ export default function (app, logger) {
     // Google callback
     app.post("/api/login/gcb", async (req, res) => {
         try {
-            if (!req.body.recaptcha) return res.status(400).send({ status: "BadRequest", field: "recaptcha" });
             if (!(await auth.validateRecaptcha(req.body.recaptcha))) return res.status(400).send({ status: "InvalidRecaptcha" });
 
             // Allow null ID - will default to account app
@@ -174,10 +173,10 @@ export default function (app, logger) {
             if (!email) return res.status(400).send({ status: "InvalidEmail" });
             if (!sub)   return res.status(400).send({ status: "BadRequest" });
 
-            const { accountServerResponse, cookII } = await doLogin(req, res, { googleEmail: email, googleId: sub });
+            const { loginResponse, cookII } = await doLogin(req, res, { googleEmail: email, googleId: sub });
 
-            if (accountServerResponse.status === 'NotFound') return res.status(400).send({ status: "NotFound" });
-            if (accountServerResponse.status != 'Success')   return res.status(400).send({ status: "ServerError" });
+            if (loginResponse.status === 'NotFound') return res.status(400).send({ status: "NotFound" });
+            if (loginResponse.status != 'Success')   return res.status(400).send({ status: "ServerError" });
 
             await saveCookLI(req, res, cookII);
             return res.status(200).send();
@@ -216,8 +215,8 @@ export default function (app, logger) {
 
             // Make sure token is still OK
             if (!await auth.verify(cookII.access_token)) {
-                utils.clearCookie(res, COOKIE_NAME_II);
-                utils.clearCookie(res, COOKIE_NAME_LI);
+                utils.clearCookie(res, config.COOKIE_NAME_II);
+                utils.clearCookie(res, config.COOKIE_NAME_LI);
                 return res.send({ state: "login" });
             }
 
@@ -255,7 +254,6 @@ export default function (app, logger) {
     // Setup token
     app.post("/api/login/setup-token", async (req, res) => {
         try {
-            if (!req.body.recaptcha) return res.status(400).send({ status: "BadRequest", field: "recaptcha" });
             if (!(await auth.validateRecaptcha(req.body.recaptcha))) return res.status(400).send({ status: "InvalidRecaptcha" });
 
             // Allow null ID - will default to account app
@@ -320,7 +318,6 @@ export default function (app, logger) {
     app.post("/api/login/enter-credentials", async (req, res) => {
         try {
             // Required params
-            if (!req.body.recaptcha) return res.status(400).send({ status: "BadRequest", field: "recaptcha" });
             if (!req.body.email)     return res.status(400).send({ status: "BadRequest", field: "email" });
             if (!req.body.password)  return res.status(400).send({ status: "BadRequest", field: "password" });
 
@@ -332,11 +329,11 @@ export default function (app, logger) {
             if (!appinfo) return res.status(400).send({ status: "InvalidApp" });
 
             // doLogin sets the cookies necessary for the status route
-            const { accountServerResponse, cookBI, cookII } = await doLogin(req, res, { email: req.body.email, password: req.body.password });
+            const { loginResponse, cookBI, cookII } = await doLogin(req, res, { email: req.body.email, password: req.body.password });
 
             // Login Failed
-            if (accountServerResponse.status != 'Success') {
-                if (accountServerResponse.status === 'NotFound') {
+            if (loginResponse.status != 'Success') {
+                if (loginResponse.status === 'NotFound') {
                     return res.status(401).send({ status: 'NotFound' });
                 } else {
                     return res.status(401).send({ status: 'Unauthorized' });
@@ -355,7 +352,6 @@ export default function (app, logger) {
     // Enter TFA
     app.post("/api/login/enter-tfa", async (req, res) => {
         try {
-            if (!req.body.recaptcha) return res.status(400).send({ status: "BadRequest", field: "recaptcha" });
             if (!(await auth.validateRecaptcha(req.body.recaptcha))) return res.status(400).send({ status: "InvalidRecaptcha" });
 
             // Allow null ID - will default to account app
@@ -370,8 +366,8 @@ export default function (app, logger) {
 
             if (req.body.tfa === 'goback') {
                 await auth.logout({ session: cookBI.session });
-                utils.clearCookie(res, COOKIE_NAME_LI);
-                utils.clearCookie(res, COOKIE_NAME_II);
+                utils.clearCookie(res, config.COOKIE_NAME_LI);
+                utils.clearCookie(res, config.COOKIE_NAME_II);
                 return res.status(200).send({ status: "LoggedOut" });
             }
 
@@ -401,7 +397,6 @@ export default function (app, logger) {
     // Confirm app
     app.post("/api/login/confirm-app", async (req, res) => {
         try {
-            if (!req.body.recaptcha) return res.status(400).send({ status: "BadRequest", field: "recaptcha" });
             if (!(await auth.validateRecaptcha(req.body.recaptcha))) return res.status(400).send({ status: "InvalidRecaptcha" });
 
             // Allow null ID - will default to account app
@@ -458,17 +453,17 @@ export default function (app, logger) {
                 let { cookII, appinfo, ua } = result;
 
                 if (appinfo.login_callback) {
-                    const accountServerResponse = await auth.login({ session: cookII.session }, ua, appinfo.id, appinfo.name, requestIp.getClientIp(req), {
+                    const loginResponse = await auth.login({ session: cookII.session }, ua, appinfo.id, appinfo.name, requestIp.getClientIp(req), {
                         token: cookII.access_token,
                         session: cookII.session,
                     });
-                    if (accountServerResponse.status != 'Success') {
+                    if (loginResponse.status != 'Success') {
                         cookII = undefined;
                     } else {
-                        cookII.user_id =       accountServerResponse.user_id;
-                        cookII.groups =       accountServerResponse.groups;
-                        cookII.access_token = accountServerResponse.access_token;
-                        cookII.logout_token = accountServerResponse.logout_token;
+                        cookII.user_id =       loginResponse.user_id;
+                        cookII.groups =       loginResponse.groups;
+                        cookII.access_token = loginResponse.access_token;
+                        cookII.logout_token = loginResponse.logout_token;
                     }
                 }
 
@@ -488,7 +483,6 @@ export default function (app, logger) {
     /*
     app.post("/api/login/acb", async (req, res) => {
         try {
-            if (!req.body.recaptcha) return res.status(400).send({ status: "BadRequest", field: "recaptcha" });
             if (!(await auth.validateRecaptcha(req.body.recaptcha))) return res.status(400).send({ status: "InvalidRecaptcha" });
             if (!req.body.id_token) return res.status(400).send({ status: "BadRequest", field: "code" });
             if (!req.body.nonce) return res.status(400).send({ status: "BadRequest", field: "nonce" });

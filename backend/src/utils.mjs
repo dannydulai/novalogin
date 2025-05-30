@@ -121,8 +121,9 @@ export function getCookie(req, name) {
 
 export function setCookie(res, name, value, sameSite = 'strict') {
     if (config.NODE_ENV !== 'production') {
-        logger.warn({message: 'Running not in production mode, secure not set on cookie'});
+        logger.warn({message: 'Running not in production mode, secure not set on cookie' });
     }
+
     res.cookie(name, cookieEncrypter.encryptCookie(JSON.stringify(value), { key: config.SESSION_SECRET }),
         {
             sameSite,

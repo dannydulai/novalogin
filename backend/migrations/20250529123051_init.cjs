@@ -63,7 +63,7 @@ exports.up = async function(knex) {
         CREATE TABLE apps (
             app_id uuid PRIMARY KEY NOT NULL DEFAULT uuid_generate_v4(),
             secret uuid DEFAULT uuid_generate_v4(),
-            login_callback text NOT NULL,
+            login_callback text,
             name text NOT NULL,
             oidc boolean DEFAULT false,
             groups text[] dEFAULT '{}'

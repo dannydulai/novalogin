@@ -13,7 +13,7 @@ import {
 
 const logger = pino({ name: "account" });
 
-export async function saveTFA(userid, secret) {
+export async function saveTFA(user_id, secret) {
     try {
         throw "NotImplementedError";
         return (r.status == "Success");
@@ -84,16 +84,16 @@ async function _loginswitch(opts) {
     }
 }
 
-/** Checks user credentials and returns their userId or null if invalid */
-export async function login(cookBI, useragent, appid, appname, ip, authinfo) {
+/** Checks user credentials and returns their user_Id or null if invalid */
+export async function login(cookBI, useragent, app_id, app_name, ip, authinfo) {
     try {
         const { browser, os } = getUAInfo(useragent);
 
         const location = await getLocation(ip);
 
         const r = await _loginswitch({
-            appid,
-            appname,
+            app_id,
+            app_name,
             os,
             browser,
             ip,
@@ -106,7 +106,7 @@ export async function login(cookBI, useragent, appid, appname, ip, authinfo) {
             return { ...r, location };
         }
         if (!r.user_id || !r.access_token || !r.logout_token) {
-            logger.error(r, "Success returned for login, but did not return userid, access_token, or logout_token");
+            logger.error(r, "Success returned for login, but did not return user_id, access_token, or logout_token");
             return { status: "UnexpectedError" };
         }
 
@@ -173,13 +173,13 @@ async function loginEmailPassword({
   session,
   ip,
   location,
-  appid,
-  appname,
+  app_id,
+  app_name,
   os,
   browser,
   onSuccess
 }) {
-    let userid        = null;
+    let user_id        = null;
     const tfa         = {};
 
     session = session ?? uuidv4();
@@ -209,8 +209,8 @@ async function loginEmailPassword({
             .first();
 
         if (!user) throw 'NotFound';
-        userid = user.user_id;
-        const dbPasswd = user.passwd.trim();
+        user_id = user.user_id;
+        const dbPasswd = user.password.trim();
 
         if (password !== null && !await bcrypt.compare(password, dbPasswd)) {
             throw 'Unauthorized';
@@ -223,11 +223,11 @@ async function loginEmailPassword({
             email,
             groups: user.groups,
             session,
-            userid,
+            user_id,
             ip,
             location,
-            appid,
-            appname,
+            app_id,
+            app_name,
             os,
             browser,
             tfa,
@@ -261,8 +261,8 @@ async function loginGoogle({
   session,
   ip,
   location,
-  appid,
-  appname,
+  app_id,
+  app_name,
   os,
   browser
 }) {
@@ -273,8 +273,8 @@ async function loginGoogle({
             session,
             ip,
             location,
-            appid,
-            appname,
+            app_id,
+            app_name,
             os,
             browser
         });
@@ -290,8 +290,8 @@ async function loginGoogle({
             session,
             ip,
             location,
-            appid,
-            appname,
+            app_id,
+            app_name,
             os,
             browser,
             onSuccess: async (txn, user_id) => {
@@ -331,8 +331,8 @@ async function loginAssociation({
   session,
   ip,
   location,
-  appid,
-  appname,
+  app_id,
+  app_name,
   os,
   browser,
 }) {
@@ -371,11 +371,11 @@ async function loginAssociation({
       groups: user.groups,
       email,
       session,
-      userid,
+      user_id,
       ip,
       location,
-      appid,
-      appname,
+      app_id,
+      app_name,
       os,
       browser,
       tfa,
@@ -405,8 +405,8 @@ async function loginToken({
   token,
   ip,
   location,
-  appid,
-  appname,
+  app_id,
+  app_name,
   os,
   browser,
   session,
@@ -420,7 +420,7 @@ async function loginToken({
     const user = await txn('users')
       .leftJoin('token_info', 'users.user_id', 'token_info.user_id')
       .select(
-        'users.userid',
+        'users.user_id',
         'email',
         'groups',
         'is_fraud',
@@ -437,7 +437,7 @@ async function loginToken({
 
     if (session !== user.session_token) {
       logger.warn(
-        `userid:${user_id}/${email} trying to login with session ${session} but token ${token} is for session ${user.session_token}`
+        `user_id:${user_id}/${email} trying to login with session ${session} but token ${token} is for session ${user.session_token}`
       );
       throw 'InvalidRequest';
     }
@@ -447,11 +447,11 @@ async function loginToken({
       groups: user.groups,
       email,
       session,
-      userid,
+      user_id,
       ip,
       location,
-      appid,
-      appname,
+      app_id,
+      app_name,
       os,
       browser,
       tfa,
@@ -484,8 +484,8 @@ async function _login({
   user_id,
   ip,
   location,
-  appid,
-  appname,
+  app_id,
+  app_name,
   os,
   browser,
   tfa,
@@ -509,8 +509,8 @@ async function _login({
       user_id,
       ip,
       location,
-      appid,
-      appname,
+      app_id,
+      app_name,
       os,
       browser,
       session_token: session,
@@ -522,7 +522,7 @@ async function _login({
 
     const userTfa = await txn("users")
       .select("tfa_enabled", "tfa_secret")
-      .where({ userid: userid })
+      .where({ user_id: user_id })
       .first();
 
     if (!userTfa) throw "UnexpectedError";
