@@ -311,20 +311,11 @@ export default {
     };
   },
   mounted() {
-    // Set viewport height variable for mobile browsers
-    const setVh = () => {
-      let vh = window.innerHeight * 0.01;
-      document.documentElement.style.setProperty('--vh', `${vh}px`);
-    };
-    
-    // Set initial value and update on resize
-    setVh();
-    window.addEventListener('resize', setVh);
-    
-    const grepcaptchasrc = document.createElement('script');
-    grepcaptchasrc.onload = () => { this.loadedGrecaptcha = true; };
-    grepcaptchasrc.setAttribute('src', 'https://www.google.com/recaptcha/api.js?render=6LfrZMEUAAAAAFuz9l0Md9_yd8ueYhees004fcCi');
-    document.head.appendChild(grepcaptchasrc);
+    this.loadedGrecaptcha = true;
+    //const grepcaptchasrc = document.createElement('script');
+    //grepcaptchasrc.onload = () => { this.loadedGrecaptcha = true; };
+    //grepcaptchasrc.setAttribute('src', 'https://www.google.com/recaptcha/api.js?render=xxx');
+    //document.head.appendChild(grepcaptchasrc);
 
     // Pick out any params
     this.mapQSToState();
@@ -490,9 +481,10 @@ export default {
     },
     async recaptcha(action) {
       while (!this.loadedGrecaptcha) await new Promise(r => setTimeout(r, 100));
+        return null
       const p = new Promise((resolve, reject) => {
         grecaptcha.ready(() => {
-          grecaptcha.execute("6LfrZMEUAAAAAFuz9l0Md9_yd8ueYhees004fcCi", { action })
+          grecaptcha.execute("xxx", { action })
             .then(r => {
               resolve(r);
             })

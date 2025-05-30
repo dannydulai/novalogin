@@ -50,7 +50,7 @@ async function createUser(req, {
     lastname,
     email,
     password,
-    referralcode
+    referral_code
 }) {
     try {
         // Validate user input
@@ -65,7 +65,7 @@ async function createUser(req, {
             lastname,
             email,
             password,
-            referralcode
+            referral_code
         });
 
         if (status !== "Success") {
@@ -103,7 +103,7 @@ async function _createUser(req, {
     lastname,
     email,
     password,
-    referralcode
+    referral_code
 }) {
     try {
         const { emailCleaned: validatedEmail, emailKey, success } = utils.genEmailKey(email);
@@ -112,15 +112,15 @@ async function _createUser(req, {
         }
 
         let user_id = uuidv4();
-        let newReferralCode = utils.getReferralCode();
+        let new_referral_code = utils.getReferralCode();
 
         while (true) {
             const txn = await db.transaction();
             try {
                 let referrer = null;
 
-                if (referralcode) {
-                    const result = await txn.raw("SELECT firstname, user_id FROM users WHERE referralcode = ?", [referralcode]);
+                if (referral_code) {
+                    const result = await txn.raw("SELECT firstname, user_id FROM users WHERE referral_code = ?", [referral_code]);
                     if (result.rowCount === 0) {
                         await txn.commit();
                         return { status: "ReferralNotFound" };
@@ -131,10 +131,10 @@ async function _createUser(req, {
 
                 const [user] = (await txn.raw(
                     `INSERT INTO users (
-                        user_id, email, email_key, referralcode, password, 
+                        user_id, email, email_key, referral_code, password,
                         firstname, lastname, log
                     ) VALUES (
-                        :user_id, :email, :email_key, :referralcode, :password, 
+                        :user_id, :email, :email_key, :referral_code, :password,
                         :firstname, :lastname, :log
                     ) RETURNING *`,
                     {
@@ -143,7 +143,7 @@ async function _createUser(req, {
                         lastname,
                         email: validatedEmail,
                         email_key: emailKey,
-                        referralcode: newReferralCode,
+                        referral_code: new_referral_code,
                         password: await bcrypt.hash(password, await bcrypt.genSalt()),
                         log: `Created: ${new Date().toISOString()}`
                     }
@@ -152,14 +152,14 @@ async function _createUser(req, {
                 const session_token = uuidv4();
                 const logout_token = uuidv4();
                 const access_token = uuidv4();
-                
+               
                 const [token] = (await txn.raw(`
-                    INSERT INTO tokens (token_id, user_id, expiration) 
+                    INSERT INTO tokens (token_id, user_id, expiration)
                     VALUES (:access_token, :user_id, now() + interval '1000 year')
                     RETURNING *;
-                `, { 
-                    access_token, 
-                    user_id: user.user_id 
+                `, {
+                    access_token,
+                    user_id: user.user_id
                 })).rows;
 
                 const { os, browser } = auth.getUAInfo(req.get('User-Agent'));
@@ -224,7 +224,7 @@ async function _createUser(req, {
                 }
 
                 if (e.constraint === "referral_code_idx") {
-                    newReferralCode = utils.getReferralCode();
+                    new_referral_code = utils.getReferralCode();
                     continue;
                 }
 

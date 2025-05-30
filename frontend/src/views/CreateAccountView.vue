@@ -266,10 +266,10 @@ export default {
         
         // Add referral code if present
         if (this.qs.r) {
-          formData.append('referralcode', this.qs.r);
+          formData.append('referral_code', this.qs.r);
         }
 
-        const response = await fetch("/api/createaccount", {
+        const response = await fetch("/api/account/create", {
           method: "POST",
           body: formData
         });
@@ -308,8 +308,9 @@ export default {
       }
       
       return new Promise((resolve, reject) => {
+          return null
         grecaptcha.ready(() => {
-          grecaptcha.execute("6LfrZMEUAAAAAFuz9l0Md9_yd8ueYhees004fcCi", { action })
+          grecaptcha.execute("xxx", { action })
             .then(resolve)
             .catch(reject);
         });
