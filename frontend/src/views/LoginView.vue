@@ -528,6 +528,13 @@ export default {
           this.email = email;
           this.name = name;
           this.clientAppName = clientAppName || '';
+          
+          // If no app ID is provided, go directly to account page
+          if (!this._id) {
+            window.location.href = '/account';
+            return;
+          }
+          
           this.auth_state = 'loggedin';
           return;
         }
