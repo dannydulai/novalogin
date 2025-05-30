@@ -519,13 +519,13 @@ export default {
         const data = await response.json();
         
         if (data.status === 'Success') {
-          if (data.redirect) {
-            this.$router.push(data.redirect);
-            return;
+          // Redirect to the Edit2FAView with appropriate action
+          if (!this.user.tfa_enabled) {
+            this.$router.push('/account/edit-2fa');
+          } else {
+            this.$router.push('/account/edit-2fa?action=remove');
           }
-          
-          this.showNotification(`Two-factor authentication ${!this.user.tfa_enabled ? 'enabled' : 'disabled'} successfully`);
-          this.fetchAccountInfo(); // Refresh data
+          return;
         } else {
           throw new Error(data.status || 'Failed to update two-factor authentication');
         }

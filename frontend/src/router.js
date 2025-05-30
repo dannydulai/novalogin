@@ -36,14 +36,9 @@ const routes = [
         component: () => import('./views/ChangePasswordView.vue')
       },
       {
-        path: 'setup-2fa',
-        name: 'setup-2fa',
-        component: () => import('./views/Setup2FAView.vue')
-      },
-      {
-        path: 'disable-2fa',
-        name: 'disable-2fa',
-        component: () => import('./views/Disable2FAView.vue')
+        path: 'edit-2fa',
+        name: 'edit-2fa',
+        component: () => import('./views/Edit2FAView.vue')
       }
     ]
   },
