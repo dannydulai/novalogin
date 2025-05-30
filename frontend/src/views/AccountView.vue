@@ -9,7 +9,7 @@
         </div>
         <button 
           @click="logout" 
-          class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+          class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 cursor-pointer"
         >
           <span class="mdi mdi-logout-variant mr-2"></span>
           Sign Out
@@ -48,7 +48,7 @@
               <h2 class="text-lg font-medium text-gray-900">Account Information</h2>
               <button 
                 @click="openEditModal" 
-                class="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-cyan-600 bg-cyan-50 hover:bg-cyan-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500"
+                class="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-cyan-600 bg-cyan-50 hover:bg-cyan-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 cursor-pointer"
               >
                 <span class="mdi mdi-pencil mr-1.5"></span>
                 Edit
@@ -80,7 +80,7 @@
                     <code class="text-sm bg-gray-100 px-2 py-1 rounded">{{ user.referral_code }}</code>
                     <button 
                       @click="copyToClipboard(user.referral_code)" 
-                      class="ml-2 text-cyan-600 hover:text-cyan-800"
+                      class="ml-2 text-cyan-600 hover:text-cyan-800 cursor-pointer"
                       title="Copy to clipboard"
                     >
                       <span class="mdi mdi-content-copy"></span>
@@ -178,7 +178,7 @@
                     </div>
                     <button 
                       @click="unlinkAccount(association)" 
-                      class="text-red-600 hover:text-red-800"
+                      class="text-red-600 hover:text-red-800 cursor-pointer"
                       title="Unlink account"
                     >
                       <span class="mdi mdi-link-off"></span>
@@ -194,14 +194,14 @@
               <div class="mt-6 grid grid-cols-1 gap-3">
                 <button 
                   @click="linkGoogleAccount" 
-                  class="flex items-center justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                  class="flex items-center justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 cursor-pointer"
                 >
                   <span class="mdi mdi-google text-lg mr-2"></span>
                   Link Google Account
                 </button>
                 <button 
                   @click="linkAppleAccount" 
-                  class="flex items-center justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                  class="flex items-center justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 cursor-pointer"
                 >
                   <span class="mdi mdi-apple text-lg mr-2"></span>
                   Link Apple Account
@@ -241,7 +241,7 @@
                       <button 
                         v-if="!isCurrentSession(session)"
                         @click="terminateSession(session)" 
-                        class="text-red-600 hover:text-red-800"
+                        class="text-red-600 hover:text-red-800 cursor-pointer"
                         title="Terminate session"
                       >
                         <span class="mdi mdi-close-circle"></span>
@@ -274,7 +274,7 @@
           <h3 class="text-lg font-medium text-gray-900">Edit Account Information</h3>
           <button 
             @click="showEditModal = false" 
-            class="text-gray-400 hover:text-gray-500"
+            class="text-gray-400 hover:text-gray-500 cursor-pointer"
           >
             <span class="mdi mdi-close text-xl"></span>
           </button>
@@ -304,13 +304,13 @@
             <button 
               type="button" 
               @click="showEditModal = false"
-              class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500"
+              class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 cursor-pointer"
             >
               Cancel
             </button>
             <button 
               type="submit" 
-              class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-cyan-600 hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 flex items-center"
+              class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-cyan-600 hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 flex items-center cursor-pointer"
               :disabled="updateAccountLoading"
             >
               <span v-if="!updateAccountLoading">Save Changes</span>
