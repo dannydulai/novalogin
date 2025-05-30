@@ -8,22 +8,14 @@ import config from './config.mjs';
 import * as utils from './utils.mjs';
 import * as auth from './auth.mjs';
 
+// Authentication middleware
+const requireAuth = auth.verifyAuthMiddleware;
+
 
 export default function(app, logger) {
 
-    app.post("/api/account/session", async (req, res) => {
+    app.post("/api/account/session", requireAuth, async (req, res) => {
         try {
-            const { user_id, access_token } = utils.getCookie(req, config.COOKIE_NAME_LI);
-            if (!user_id || !access_token) {
-                return res.status(401).send({ status: "Unauthorized" });
-            }
-
-            // Verify the access token
-            const email = await auth.verify(access_token);
-            if (!email) {
-                return res.status(401).send({ status: "Unauthorized" });
-            }
-
             await auth.logout({
                 logout_token: req.body.logout_token,
                 session_token: req.body.session_token,
@@ -38,18 +30,9 @@ export default function(app, logger) {
 
     
     // Get account information endpoint
-    app.post("/api/account/info", async (req, res) => {
+    app.post("/api/account/info", requireAuth, async (req, res) => {
         try {
-            const { user_id, access_token } = utils.getCookie(req, config.COOKIE_NAME_LI);
-            if (!user_id || !access_token) {
-                return res.status(401).send({ status: "Unauthorized" });
-            }
-
-            // Verify the access token
-            const email = await auth.verify(access_token);
-            if (!email) {
-                return res.status(401).send({ status: "Unauthorized" });
-            }
+            const { user_id } = req.auth;
 
             // Get user information
             const user = await db('users')

@@ -8,23 +8,15 @@ import * as utils from './utils.mjs';
 import * as auth from './auth.mjs';
 
 export default function(app, logger) {
+    // Authentication middleware
+    const requireAuth = auth.verifyAuthMiddleware;
     /**
      * Prepare for adding 2FA to an account
      * Generates a secret and QR code
      */
-    app.post("/api/account/tfa/add-prep", async (req, res) => {
+    app.post("/api/account/tfa/add-prep", requireAuth, async (req, res) => {
         try {
-            // Verify the user is authenticated
-            const { user_id, access_token } = utils.getCookie(req, config.COOKIE_NAME_LI);
-            if (!user_id || !access_token) {
-                return res.status(401).send({ status: "Unauthorized" });
-            }
-
-            // Verify the access token
-            const email = await auth.verify(access_token);
-            if (!email) {
-                return res.status(401).send({ status: "Unauthorized" });
-            }
+            const { user_id, email } = req.auth;
 
             // Get user information
             const user = await db('users')
@@ -65,7 +57,7 @@ export default function(app, logger) {
      * Add 2FA to an account
      * Verifies the token and saves the secret
      */
-    app.post("/api/account/tfa/add", async (req, res) => {
+    app.post("/api/account/tfa/add", requireAuth, async (req, res) => {
         try {
             if (!req.body.secret) {
                 return res.status(400).send({ status: "BadRequest", field: "secret" });
@@ -75,17 +67,7 @@ export default function(app, logger) {
                 return res.status(400).send({ status: "BadRequest", field: "token" });
             }
 
-            // Verify the user is authenticated
-            const { user_id, access_token } = utils.getCookie(req, config.COOKIE_NAME_LI);
-            if (!user_id || !access_token) {
-                return res.status(401).send({ status: "Unauthorized" });
-            }
-
-            // Verify the access token
-            const email = await auth.verify(access_token);
-            if (!email) {
-                return res.status(401).send({ status: "Unauthorized" });
-            }
+            const { user_id, email } = req.auth;
 
             // Get user information
             const user = await db('users')
@@ -139,23 +121,13 @@ export default function(app, logger) {
      * Remove 2FA from an account
      * Verifies the token and removes the secret
      */
-    app.post("/api/account/tfa/remove", async (req, res) => {
+    app.post("/api/account/tfa/remove", requireAuth, async (req, res) => {
         try {
             if (!req.body.token) {
                 return res.status(400).send({ status: "BadRequest", field: "token" });
             }
 
-            // Verify the user is authenticated
-            const { user_id, access_token } = utils.getCookie(req, config.COOKIE_NAME_LI);
-            if (!user_id || !access_token) {
-                return res.status(401).send({ status: "Unauthorized" });
-            }
-
-            // Verify the access token
-            const email = await auth.verify(access_token);
-            if (!email) {
-                return res.status(401).send({ status: "Unauthorized" });
-            }
+            const { user_id } = req.auth;
 
             // Get user information
             const user = await db('users')

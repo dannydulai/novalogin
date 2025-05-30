@@ -144,6 +144,51 @@ export async function logout(opts) {
     }
 }
 
+/**
+ * Verify user authentication from cookie
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object|null} User info if authenticated, null if not (and sends 401)
+ */
+export async function verifyAuthMiddleware(req, res, next) {
+    try {
+        const cookieLI = req.cookies[config.COOKIE_NAME_LI];
+        if (!cookieLI) {
+            return res.status(401).send({ status: "Unauthorized", message: "No authentication cookie" });
+        }
+        
+        let cookieData;
+        try {
+            cookieData = JSON.parse(cookieEncrypter.decryptCookie(cookieLI, { key: config.SESSION_SECRET }));
+        } catch (e) {
+            return res.status(401).send({ status: "Unauthorized", message: "Invalid authentication cookie" });
+        }
+        
+        if (!cookieData.user_id || !cookieData.access_token) {
+            return res.status(401).send({ status: "Unauthorized", message: "Incomplete authentication data" });
+        }
+        
+        // Verify the access token
+        const email = await verify(cookieData.access_token);
+        if (!email) {
+            return res.status(401).send({ status: "Unauthorized", message: "Invalid access token" });
+        }
+        
+        // Add auth info to request object
+        req.auth = {
+            user_id: cookieData.user_id,
+            access_token: cookieData.access_token,
+            email,
+            session: cookieData.session
+        };
+        
+        next();
+    } catch (err) {
+        logger.error(err, "Authentication middleware error");
+        return res.status(500).send({ status: "ServerError" });
+    }
+}
+
 export async function validateRecaptcha(
     recaptcha
 ) {
