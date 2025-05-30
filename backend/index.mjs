@@ -13,6 +13,7 @@ import db from './db.js';
 import config from './src/config.mjs';
 import loginRoutes from './src/login.mjs';
 import accountRoutes from './src/account.mjs';
+import account2faRoutes from './src/account2fa.mjs';
 import adminRoutes from './src/admin.mjs';
 
 /**
@@ -26,6 +27,7 @@ function createLoginRouter() {
   // Initialize login routes
   loginRoutes(app, logger);
   accountRoutes(app, logger);
+  account2faRoutes(app, logger);
   adminRoutes(app, logger);
   
   return app;
