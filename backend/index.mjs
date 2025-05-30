@@ -7,6 +7,7 @@ import express from 'express';
 import path from 'path';
 import morgan from 'morgan';
 import db from './db.js';
+import config from './src/config.mjs';
 import loginRoutes from './src/login.mjs';
 import accountRoutes from './src/account.mjs';
 import adminRoutes from './src/admin.mjs';
@@ -28,6 +29,43 @@ function createLoginRouter() {
 }
 
 /**
+ * Insert default apps into the database
+ */
+async function insertDefaultApps() {
+  try {
+    // Check if required environment variables are defined
+    if (!config.ACCOUNT_APP_ID || !config.ADMIN_APP_ID) {
+      throw new Error('ACCOUNT_APP_ID and ADMIN_APP_ID environment variables must be defined');
+    }
+
+    // Insert account app
+    await db('apps')
+      .insert({
+        id: config.ACCOUNT_APP_ID,
+        name: config.ACCOUNT_APP_NAME,
+        description: 'Account management application'
+      })
+      .onConflict('id')
+      .ignore();
+
+    // Insert admin app
+    await db('apps')
+      .insert({
+        id: config.ADMIN_APP_ID,
+        name: config.ADMIN_APP_NAME,
+        description: 'Administration application'
+      })
+      .onConflict('id')
+      .ignore();
+
+    console.log('Default apps inserted successfully');
+  } catch (error) {
+    console.error('Error inserting default apps:', error);
+    throw error; // Re-throw to stop application startup
+  }
+}
+
+/**
  * Expire old codes in the database
  */
 async function expireOldCodes() {
@@ -46,7 +84,7 @@ async function expireOldCodes() {
  * @param {boolean} options.disableLogging - Disable request logging
  * @param {boolean} options.disableCodeExpiration - Disable automatic code expiration
  */
-function setupApp(app, options = {}) {
+async function setupApp(app, options = {}) {
   const { 
     disableSecuritySettings = false, 
     disableLogging = false,
@@ -67,6 +105,9 @@ function setupApp(app, options = {}) {
   if (!disableLogging) {
     app.use(morgan('[:date[clf]] - :remote-addr :remote-user :method :url HTTP/:http-version :status :res[content-length] - :response-time ms'));
   }
+  
+  // Insert default apps into the database
+  await insertDefaultApps();
   
   // Set up interval to expire old codes every minute
   if (!disableCodeExpiration) {
