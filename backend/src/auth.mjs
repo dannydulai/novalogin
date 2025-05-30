@@ -1,10 +1,10 @@
-import 'dotenv/config';
 import axios            from "axios";
 import pino             from "pino";
 import { UAParser }     from 'ua-parser-js';
 import { v4 as uuidv4 } from 'uuid';
 import bcrypt           from 'bcrypt';
 import db               from '../db.js';
+import config           from './config.mjs';
 import {
     isValidEmail,
     isValidPassword,
@@ -37,9 +37,9 @@ export async function verify(access_token) {
 
 export async function getLocation(ip) {
     let location = 'Unknown';
-    if (process.env.GEOIP_SERVICE_URL) {
+    if (config.GEOIP_SERVICE_URL) {
         try {
-            const geoip = (await axios.get(GEOIP_SERVICE_URL, { params: { ip } })).data;
+            const geoip = (await axios.get(config.GEOIP_SERVICE_URL, { params: { ip } })).data;
             if (!geoip.country) {
                 location = 'Unknown';
             } else {
@@ -134,10 +134,10 @@ export async function validateRecaptcha(
     recaptcha
 ) {
     try {
-        if (process.env.RECAPTCHA_SECRET == "SKIPCAPTCHA")
+        if (config.RECAPTCHA_SECRET == "SKIPCAPTCHA")
             return true;
 
-        const res = await axios.post(`https://www.google.com/recaptcha/api/siteverify?response=${recaptcha}&secret=${process.env.RECAPTCHA_SECRET}`)
+        const res = await axios.post(`https://www.google.com/recaptcha/api/siteverify?response=${recaptcha}&secret=${config.RECAPTCHA_SECRET}`)
 
         const {
             action,

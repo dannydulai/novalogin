@@ -1,18 +1,12 @@
-import 'dotenv/config';
 import axios from 'axios';
 import bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
 import requestIp from 'request-ip';
 import db from '../db.js';
 
+import config from './config.mjs';
 import * as utils from './utils.mjs';
 import * as auth from './auth.mjs';
-
-// Environment variables
-const COOKIE_NAME_BI = process.env.COOKIE_NAME_BI || 'bi';
-const COOKIE_NAME_LI = process.env.COOKIE_NAME_LI || 'li';
-const LOGIN_COOKIE_VERSION = process.env.LOGIN_COOKIE_VERSION || '1';
-const ACCOUNT_APP_ID = process.env.ACCOUNT_APP_ID;
 
 
 export default function(app, logger) {
@@ -33,12 +27,12 @@ export default function(app, logger) {
             }
 
             const cookieBI = {
-                v: LOGIN_COOKIE_VERSION,
+                v: config.LOGIN_COOKIE_VERSION,
                 session: cookieLI.session,
             };
 
-            utils.setCookie(res, COOKIE_NAME_BI, cookieBI);
-            utils.setCookie(res, COOKIE_NAME_LI, cookieLI);
+            utils.setCookie(res, config.COOKIE_NAME_BI, cookieBI);
+            utils.setCookie(res, config.COOKIE_NAME_LI, cookieLI);
 
             return res.status(200).send({ status });
         } catch (e) {
@@ -211,7 +205,7 @@ async function _createUser(req, {
                 });
 
                 const cookieLI = {
-                    v: LOGIN_COOKIE_VERSION,
+                    v: config.LOGIN_COOKIE_VERSION,
                     user_id: user.user_id,
                     session: session_token,
                     groups: [],

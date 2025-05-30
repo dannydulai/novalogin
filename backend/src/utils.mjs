@@ -1,22 +1,14 @@
-import "dotenv/config";
 import pino             from "pino";
 import pkceChallenge    from 'pkce-challenge';
 import cookieEncrypter  from 'cookie-encrypter';
 import knex             from '../db.js';
 import fs               from 'fs';
+import path             from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { UAParser }     from 'ua-parser-js';
+import config           from './config.mjs';
 
 const logger = pino({ name: "account" });
-
-export const ACCOUNT_APP_ID       = process.env.ACCOUNT_APP_ID;
-export const ADMIN_APP_ID         = process.env.ADMIN_APP_ID;
-export const GOOGLE_CLIENT_ID     = process.env.GOOGLE_CLIENT_ID;
-export const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
-export const LOGIN_COOKIE_VERSION = 1;
-
-const SESSION_SECRET = process.env.SESSION_SECRET;
-const COOKIE_DOMAIN  = process.env.COOKIE_DOMAIN;
 
 export function getUAInfo(useragent) {
     let browser = 'Unknown';
@@ -123,27 +115,27 @@ export async function sendEmailAlert(opts) {
 
 export function getCookie(req, name) {
     let cookie = null;
-    try { cookie = JSON.parse(cookieEncrypter.decryptCookie(req.cookies[name], { key: SESSION_SECRET })); } catch { }
+    try { cookie = JSON.parse(cookieEncrypter.decryptCookie(req.cookies[name], { key: config.SESSION_SECRET })); } catch { }
     return cookie;
 }
 
 export function setCookie(res, name, value, sameSite = 'strict') {
-    if (process.env.NODE_ENV !== 'production') {
+    if (config.NODE_ENV !== 'production') {
         logger.warn({message: 'Running not in production mode, secure not set on cookie'});
     }
-    res.cookie(name, cookieEncrypter.encryptCookie(JSON.stringify(value), { key: SESSION_SECRET }),
+    res.cookie(name, cookieEncrypter.encryptCookie(JSON.stringify(value), { key: config.SESSION_SECRET }),
         {
             sameSite,
             maxAge: 10 * 365 * 24 * 60 * 60 * 1000,
-            ...(COOKIE_DOMAIN ? { domain: COOKIE_DOMAIN } : {}),
+            ...(config.COOKIE_DOMAIN ? { domain: config.COOKIE_DOMAIN } : {}),
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production'
+            secure: config.NODE_ENV === 'production'
         });
 }
 
 export function clearCookie(res, name) {
     res.clearCookie(name, {
-            ...(COOKIE_DOMAIN ? { domain: COOKIE_DOMAIN } : {})
+            ...(config.COOKIE_DOMAIN ? { domain: config.COOKIE_DOMAIN } : {})
         });
 }
 
@@ -152,9 +144,9 @@ export async function lookupAppInfo(id) {
         // If no ID is provided, default to the account app
         if (!id) {
             return {
-                id: ACCOUNT_APP_ID,
-                secret: "7B229E8C-4F29-4480-91E7-01AD0E3C2731",
-                name: process.env.ACCOUNT_APP_NAME || 'Account',
+                id: config.ACCOUNT_APP_ID,
+                secret: config.ACCOUNT_APP_SECRET,
+                name: config.ACCOUNT_APP_NAME,
             };
         }
         
@@ -162,19 +154,19 @@ export async function lookupAppInfo(id) {
         // db, since they are served up by the login service.. we don't want to
         // end up accidentally deleting the db and then not be able to admin
         // the db
-        if (id == ADMIN_APP_ID) {
+        if (id == config.ADMIN_APP_ID) {
             return {
-                id: ADMIN_APP_ID,
-                secret: process.env.ADMIN_APP_SECRET,
-                name: process.env.ADMIN_APP_NAME || 'Login',
+                id: config.ADMIN_APP_ID,
+                secret: config.ADMIN_APP_SECRET,
+                name: config.ADMIN_APP_NAME,
             };
         }
 
-        if (id == ACCOUNT_APP_ID) {
+        if (id == config.ACCOUNT_APP_ID) {
             return {
-                id: ACCOUNT_APP_ID,
-                secret: "7B229E8C-4F29-4480-91E7-01AD0E3C2731",
-                name: process.env.ACCOUNT_APP_NAME || 'Account',
+                id: config.ACCOUNT_APP_ID,
+                secret: config.ACCOUNT_APP_SECRET,
+                name: config.ACCOUNT_APP_NAME,
             };
         }
 

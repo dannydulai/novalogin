@@ -1,30 +1,16 @@
 import pkceChallenge from 'pkce-challenge';
 import axios from 'axios';
 import requestIp from 'request-ip';
-import dotenv from 'dotenv';
 import { OAuth2Client } from 'google-auth-library';
 import twofactor from 'node-2fa';
 
+import config from './config.mjs';
 import * as utils from './utils.mjs';
 import * as auth from './auth.mjs';
 import db from '../db.js';
 
-// Load environment variables
-dotenv.config();
-
-// Environment variables
-const COOKIE_NAME_BI       = process.env.COOKIE_NAME_BI || 'bi';
-const COOKIE_NAME_II       = process.env.COOKIE_NAME_II || 'ii';
-const COOKIE_NAME_LI       = process.env.COOKIE_NAME_LI || 'li';
-const LOGIN_COOKIE_VERSION = process.env.LOGIN_COOKIE_VERSION || '1';
-const GOOGLE_CLIENT_ID     = process.env.GOOGLE_CLIENT_ID || '';
-const COOKIE_DOMAIN        = process.env.COOKIE_DOMAIN || '';
-const ADMIN_APP_ID         = process.env.ADMIN_APP_ID || '';
-const ACCOUNT_APP_ID       = process.env.ACCOUNT_APP_ID || '';
-const SESSION_SECRET       = process.env.SESSION_SECRET || 'secret';
-
 // Initialize Google OAuth client
-const googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
+const googleClient = new OAuth2Client(config.GOOGLE_CLIENT_ID);
 
 
 export default function (app, logger) {
@@ -80,8 +66,8 @@ export default function (app, logger) {
      * Handle login process
      */
     async function doLogin(req, res, authinfo) {
-        const loginappinfo = await utils.lookupAppInfo(ACCOUNT_APP_ID);
-        const cookBI = utils.getCookie(req, COOKIE_NAME_BI);
+        const loginappinfo = await utils.lookupAppInfo(config.ACCOUNT_APP_ID);
+        const cookBI = utils.getCookie(req, config.COOKIE_NAME_BI);
 
         // Let's check if the user provided valid credentials, and then save the login session cookie.
         const loginResponse = await auth.login(cookBI, req.get('User-Agent'), loginappinfo.id, loginappinfo.name, requestIp.getClientIp(req), authinfo);
@@ -89,7 +75,7 @@ export default function (app, logger) {
         if (accountServerResponse.status != 'Success') return { accountServerResponse };
 
         const cookII = { 
-            v: LOGIN_COOKIE_VERSION,
+            v: config.LOGIN_COOKIE_VERSION,
             user_id: loginResponse.user_id,
             groups: loginResponse.groups,
             access_token: loginResponse.access_token,
@@ -106,7 +92,7 @@ export default function (app, logger) {
             },
         };
         
-        utils.setCookie(res, COOKIE_NAME_BI, { v: LOGIN_COOKIE_VERSION, session: loginResponse.session });
+        utils.setCookie(res, config.COOKIE_NAME_BI, { v: config.LOGIN_COOKIE_VERSION, session: loginResponse.session });
         
         if (!cookII.temp.tfa.enabled) {
             utils.sendEmailAlert({
@@ -125,11 +111,11 @@ export default function (app, logger) {
      */
     async function saveCookLI(_req, res, cookII) {
         if (cookII.temp) {
-            utils.setCookie(res, COOKIE_NAME_II, cookII, 'lax'); // Needs to be lax for navigations purposes
-            utils.clearCookie(res, COOKIE_NAME_LI);
+            utils.setCookie(res, config.COOKIE_NAME_II, cookII, 'lax'); // Needs to be lax for navigations purposes
+            utils.clearCookie(res, config.COOKIE_NAME_LI);
         } else {
-            utils.setCookie(res, COOKIE_NAME_LI, cookII, 'lax'); // Needs to be lax for navigations purposes
-            utils.clearCookie(res, COOKIE_NAME_II);
+            utils.setCookie(res, config.COOKIE_NAME_LI, cookII, 'lax'); // Needs to be lax for navigations purposes
+            utils.clearCookie(res, config.COOKIE_NAME_II);
         }
     }
 
@@ -138,15 +124,15 @@ export default function (app, logger) {
         try {
             if (req.query.logout_token || req.body.logout_token) {
                 await auth.logout({ logout_token: req.query.logout_token || req.body.logout_token });
-                utils.clearCookie(res, COOKIE_NAME_LI);
-                utils.clearCookie(res, COOKIE_NAME_II);
+                utils.clearCookie(res, config.COOKIE_NAME_LI);
+                utils.clearCookie(res, config.COOKIE_NAME_II);
                 return res.send();
             } else {
-                const cookLI = utils.getCookie(req, COOKIE_NAME_LI);
+                const cookLI = utils.getCookie(req, config.COOKIE_NAME_LI);
                 if (cookLI && cookLI.logout_token)
                     await auth.logout({ logout_token: cookLI.logout_token });
-                utils.clearCookie(res, COOKIE_NAME_LI);
-                utils.clearCookie(res, COOKIE_NAME_II);
+                utils.clearCookie(res, config.COOKIE_NAME_LI);
+                utils.clearCookie(res, config.COOKIE_NAME_II);
                 return res.send();
             }
         } catch (e) {
@@ -208,23 +194,23 @@ export default function (app, logger) {
             if (!appinfo) return res.status(400).send("Bad Request (invalid id)");
 
             // BI is the browser identity stuff -- is so we can identify browsers that have logged in before
-            const cookBI = utils.getCookie(req, COOKIE_NAME_BI);
+            const cookBI = utils.getCookie(req, config.COOKIE_NAME_BI);
 
             // If no BI or BI is outdated, clear cookies and force login
-            if (!cookBI || cookBI.v != LOGIN_COOKIE_VERSION) {
-                utils.clearCookie(res, COOKIE_NAME_BI);
-                utils.clearCookie(res, COOKIE_NAME_II);
-                utils.clearCookie(res, COOKIE_NAME_LI);
+            if (!cookBI || cookBI.v != config.LOGIN_COOKIE_VERSION) {
+                utils.clearCookie(res, config.COOKIE_NAME_BI);
+                utils.clearCookie(res, config.COOKIE_NAME_II);
+                utils.clearCookie(res, config.COOKIE_NAME_LI);
                 return res.send({ state: "login"});
             }
 
             // II is session state during login
-            const cookII = utils.getCookie(req, COOKIE_NAME_II) || utils.getCookie(req, COOKIE_NAME_LI);
+            const cookII = utils.getCookie(req, config.COOKIE_NAME_II) || utils.getCookie(req, config.COOKIE_NAME_LI);
 
             // If II is outdated, clear cookies and force login
-            if (!cookII || cookII.v != LOGIN_COOKIE_VERSION) {
-                utils.clearCookie(res, COOKIE_NAME_II);
-                utils.clearCookie(res, COOKIE_NAME_LI);
+            if (!cookII || cookII.v != config.LOGIN_COOKIE_VERSION) {
+                utils.clearCookie(res, config.COOKIE_NAME_II);
+                utils.clearCookie(res, config.COOKIE_NAME_LI);
                 return res.send({ state: "login"});
             }
 
@@ -276,11 +262,11 @@ export default function (app, logger) {
             const appinfo = await utils.lookupAppInfo(req.body.id);
             if (!appinfo) return res.status(400).send({ status: "InvalidApp" });
 
-            const cookBI = utils.getCookie(req, COOKIE_NAME_BI);
-            if (!cookBI) return res.status(400).send({ status: "BadRequest", field: COOKIE_NAME_BI });
+            const cookBI = utils.getCookie(req, config.COOKIE_NAME_BI);
+            if (!cookBI) return res.status(400).send({ status: "BadRequest", field: config.COOKIE_NAME_BI });
 
             // Must have a cookLI
-            const cookII = utils.getCookie(req, COOKIE_NAME_II) || auth.getCookie(req, COOKIE_NAME_LI);
+            const cookII = utils.getCookie(req, config.COOKIE_NAME_II) || auth.getCookie(req, config.COOKIE_NAME_LI);
             if (!cookII) return res.status(400).send({ status: "BadRequest", field: "cookLI" });
 
             for (let group of appinfo.groups || []) {
@@ -376,11 +362,11 @@ export default function (app, logger) {
             const appinfo = await utils.lookupAppInfo(req.body.id);
             if (!appinfo) return res.status(400).send({ status: "InvalidApp" });
 
-            const cookBI = utils.getCookie(req, COOKIE_NAME_BI);
-            if (!cookBI) return res.status(400).send({ status: "BadRequest", field: COOKIE_NAME_BI });
+            const cookBI = utils.getCookie(req, config.COOKIE_NAME_BI);
+            if (!cookBI) return res.status(400).send({ status: "BadRequest", field: config.COOKIE_NAME_BI });
 
-            const cookII = utils.getCookie(req, COOKIE_NAME_II);
-            if (!cookII) return res.status(400).send({ status: "BadRequest", field: COOKIE_NAME_II });
+            const cookII = utils.getCookie(req, config.COOKIE_NAME_II);
+            if (!cookII) return res.status(400).send({ status: "BadRequest", field: config.COOKIE_NAME_II });
 
             if (req.body.tfa === 'goback') {
                 await auth.logout({ session: cookBI.session });
@@ -422,11 +408,11 @@ export default function (app, logger) {
             const appinfo = await utils.lookupAppInfo(req.body.id);
             if (!appinfo) return res.status(400).send({ status: "InvalidApp" });
 
-            const cookBI = utils.getCookie(req, COOKIE_NAME_BI);
-            const cookII = utils.getCookie(req, COOKIE_NAME_II) || utils.getCookie(req, COOKIE_NAME_LI); // Could already be logged in, just approving different app
+            const cookBI = utils.getCookie(req, config.COOKIE_NAME_BI);
+            const cookII = utils.getCookie(req, config.COOKIE_NAME_II) || utils.getCookie(req, config.COOKIE_NAME_LI); // Could already be logged in, just approving different app
 
-            if (!cookBI) return res.status(400).send({ status: "BadRequest", field: COOKIE_NAME_BI });
-            if (!cookII) return res.status(400).send({ status: "BadRequest", field: COOKIE_NAME_II });
+            if (!cookBI) return res.status(400).send({ status: "BadRequest", field: config.COOKIE_NAME_BI });
+            if (!cookII) return res.status(400).send({ status: "BadRequest", field: config.COOKIE_NAME_II });
 
             if (!appinfo.login_callback) return res.status(400).send({ status: "AppRequestNoConfirm" });
 
