@@ -285,12 +285,12 @@ export default function (app, logger) {
                     return res.send({ status: "Success", redirect: url });
                 }
 
-            } else if (req.body.id === ADMIN_APP_ID) {
+            } else if (req.body.id === config.ADMIN_APP_ID) {
                 delete cookII.temp;
                 await saveCookLI(req, res, cookII);
                 return res.send({ status: 'Success', redirect: '/admin' });
 
-            } else if (req.body.id === ACCOUNT_APP_ID) {
+            } else if (req.body.id === config.ACCOUNT_APP_ID || !req.body.id) { // Empty ID defaults to account app
                 delete cookII.temp;
                 await saveCookLI(req, res, cookII);
                 let redirect = req.query.cb || req.body.cb || '/account';

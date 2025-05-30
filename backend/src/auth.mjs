@@ -26,9 +26,10 @@ export async function saveTFA(user_id, secret) {
 
 export async function verify(access_token) {
     try {
-        throw "NotImplementedError";
-        return (r.status == "Success" ? r.email : false);
-
+        const r = (await db.raw(`
+            SELECT email FROM users LEFT JOIN token_info using(user_id) WHERE token_id = :access_token
+        `,{access_token})).rows[0];
+        return (r && r.email) ? r.email : false;
     } catch (err) {
         logger.error(err, "access token verification request failed");
         return false;
