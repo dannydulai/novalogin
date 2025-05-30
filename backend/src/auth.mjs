@@ -8,7 +8,8 @@ import config           from './config.mjs';
 import {
     isValidEmail,
     isValidPassword,
-    genEmailKey
+    genEmailKey,
+    getCookie
 } from './utils.mjs';
 
 const logger = pino({ name: "account" });
@@ -152,18 +153,7 @@ export async function logout(opts) {
  */
 export async function verifyAuthMiddleware(req, res, next) {
     try {
-        const cookieLI = req.cookies[config.COOKIE_NAME_LI];
-        if (!cookieLI) {
-            return res.status(401).send({ status: "Unauthorized", message: "No authentication cookie" });
-        }
-        
-        let cookieData;
-        try {
-            cookieData = JSON.parse(cookieEncrypter.decryptCookie(cookieLI, { key: config.SESSION_SECRET }));
-        } catch (e) {
-            return res.status(401).send({ status: "Unauthorized", message: "Invalid authentication cookie" });
-        }
-        
+        const cookieData = getCookie(req, config.COOKIE_NAME_LI);
         if (!cookieData.user_id || !cookieData.access_token) {
             return res.status(401).send({ status: "Unauthorized", message: "Incomplete authentication data" });
         }
