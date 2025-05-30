@@ -507,14 +507,14 @@ export default {
     // Session management
     async terminateSession(session) {
       try {
-        const response = await fetch('/api/account/terminate-session', {
+        const response = await fetch('/api/account/session', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            sessionToken: session.session_token,
-            logoutToken: session.logout_token
+            session_token: session.session_token,
+            logout_token: session.logout_token
           })
         });
         
@@ -523,13 +523,11 @@ export default {
           return;
         }
         
-        const data = await response.json();
-        
-        if (data.status === 'Success') {
+        if (response.ok) {
           this.showNotification('Session terminated successfully');
           this.fetchAccountInfo(); // Refresh data
         } else {
-          throw new Error(data.status || 'Failed to terminate session');
+          throw new Error('Failed to terminate session');
         }
       } catch (error) {
         this.error = error.message;

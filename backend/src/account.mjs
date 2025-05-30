@@ -13,7 +13,7 @@ export default function(app, logger) {
 
     app.post("/api/account/session", async (req, res) => {
         try {
-            const session = utils.getCookie(req, "roonLI" );
+            const { user_id, access_token } = utils.getCookie(req, config.COOKIE_NAME_LI);
             if (!user_id || !access_token) {
                 return res.status(401).send({ status: "Unauthorized" });
             }

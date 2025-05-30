@@ -28,7 +28,7 @@ export default {
   methods: {
     async logout() {
       try {
-        const response = await fetch('/api/account/logout', {
+        const response = await fetch('/api/login/logout', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
