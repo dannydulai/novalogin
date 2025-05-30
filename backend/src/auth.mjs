@@ -134,8 +134,10 @@ export async function validateRecaptcha(
     recaptcha
 ) {
     try {
-        if (config.RECAPTCHA_SECRET == "SKIPCAPTCHA")
+        if (!config.RECAPTCHA_SECRET) {
+            console.warn("Recaptcha secret not set, skipping recaptcha validation");
             return true;
+        }
 
         const res = await axios.post(`https://www.google.com/recaptcha/api/siteverify?response=${recaptcha}&secret=${config.RECAPTCHA_SECRET}`)
 
