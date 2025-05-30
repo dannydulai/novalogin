@@ -34,8 +34,9 @@ function createLoginRouter() {
 async function insertDefaultApps() {
   try {
     // Check if required environment variables are defined
-    if (!config.ACCOUNT_APP_ID || !config.ADMIN_APP_ID) {
-      throw new Error('ACCOUNT_APP_ID and ADMIN_APP_ID environment variables must be defined');
+    if (!config.ACCOUNT_APP_ID || !config.ADMIN_APP_ID || 
+        !config.ACCOUNT_APP_SECRET || !config.ADMIN_APP_SECRET) {
+      throw new Error('ACCOUNT_APP_ID, ADMIN_APP_ID, ACCOUNT_APP_SECRET, and ADMIN_APP_SECRET environment variables must be defined');
     }
 
     // Insert account app
@@ -43,6 +44,7 @@ async function insertDefaultApps() {
       .insert({
         id: config.ACCOUNT_APP_ID,
         name: config.ACCOUNT_APP_NAME,
+        secret: config.ACCOUNT_APP_SECRET
       })
       .onConflict('id')
       .ignore();
@@ -52,6 +54,7 @@ async function insertDefaultApps() {
       .insert({
         id: config.ADMIN_APP_ID,
         name: config.ADMIN_APP_NAME,
+        secret: config.ADMIN_APP_SECRET
       })
       .onConflict('id')
       .ignore();

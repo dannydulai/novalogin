@@ -21,8 +21,8 @@ export default {
   ACCOUNT_APP_NAME: process.env.ACCOUNT_APP_NAME || 'Account',
   
   // App secrets
-  ADMIN_APP_SECRET: process.env.ADMIN_APP_SECRET,
-  ACCOUNT_APP_SECRET: "7B229E8C-4F29-4480-91E7-01AD0E3C2731",
+  ADMIN_APP_SECRET: process.env.ADMIN_APP_SECRET || '',
+  ACCOUNT_APP_SECRET: process.env.ACCOUNT_APP_SECRET || '',
   
   // Google auth
   GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID || '',
