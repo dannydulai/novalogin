@@ -43,7 +43,6 @@ async function insertDefaultApps() {
       .insert({
         id: config.ACCOUNT_APP_ID,
         name: config.ACCOUNT_APP_NAME,
-        description: 'Account management application'
       })
       .onConflict('id')
       .ignore();
@@ -53,7 +52,6 @@ async function insertDefaultApps() {
       .insert({
         id: config.ADMIN_APP_ID,
         name: config.ADMIN_APP_NAME,
-        description: 'Administration application'
       })
       .onConflict('id')
       .ignore();
