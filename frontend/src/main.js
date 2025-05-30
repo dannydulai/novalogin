@@ -4,12 +4,16 @@ import router from './router';
 import '@mdi/font/css/materialdesignicons.css'
 import './assets/main.css';
 import config from './config';
+import toastPlugin from './plugins/toast';
 
 // Create app
 const app = createApp(App);
 
 // Make config available globally
 app.config.globalProperties.$config = config;
+
+// Use toast plugin
+app.use(toastPlugin);
 
 // Set CSS variables for custom colors
 if (config.primaryColor.startsWith('#')) {

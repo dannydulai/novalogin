@@ -321,37 +321,18 @@
       </div>
     </div>
 
-    <!-- Success notification -->
-    <div 
-      v-if="notification.show" 
-      class="fixed bottom-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-lg"
-      style="max-width: 24rem;"
-    >
-      <div class="flex">
-        <div class="flex-shrink-0">
-          <span class="mdi mdi-check-circle text-xl"></span>
-        </div>
-        <div class="ml-3">
-          <p class="text-sm font-medium">{{ notification.message }}</p>
-        </div>
-        <div class="ml-auto pl-3">
-          <div class="-mx-1.5 -my-1.5">
-            <button 
-              @click="notification.show = false" 
-              class="inline-flex text-green-500 hover:text-green-600"
-            >
-              <span class="mdi mdi-close text-xl"></span>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
 <script>
+import { useToast } from 'vue-toastification';
+
 export default {
   name: 'AccountView',
+  setup() {
+    const toast = useToast();
+    return { toast };
+  },
   data() {
     return {
       loading: true,
@@ -372,13 +353,7 @@ export default {
       
       // Loading states
       updateAccountLoading: false,
-      tfaLoading: false,
-      
-      // Notification
-      notification: {
-        show: false,
-        message: ''
-      }
+      tfaLoading: false
     };
   },
   computed: {
@@ -441,6 +416,7 @@ export default {
         }
       } catch (error) {
         this.error = error.message || 'An error occurred while fetching account information';
+        this.showNotification(this.error, 'error');
       } finally {
         this.loading = false;
       }
@@ -463,17 +439,17 @@ export default {
     copyToClipboard(text) {
       navigator.clipboard.writeText(text).then(() => {
         this.showNotification('Copied to clipboard');
+      }).catch(err => {
+        this.showNotification('Failed to copy to clipboard', 'error');
       });
     },
     
     // Show notification
-    showNotification(message, duration = 3000) {
-      this.notification.message = message;
-      this.notification.show = true;
-      
-      setTimeout(() => {
-        this.notification.show = false;
-      }, duration);
+    showNotification(message, type = 'success') {
+      this.toast(message, {
+        type: type,
+        timeout: 3000
+      });
     },
     
     // Check if a session is the current one
@@ -535,6 +511,7 @@ export default {
         }
       } catch (error) {
         this.error = error.message;
+        this.showNotification(this.error, 'error');
       } finally {
         this.updateAccountLoading = false;
       }
@@ -570,6 +547,7 @@ export default {
         }
       } catch (error) {
         this.error = error.message;
+        this.showNotification(this.error, 'error');
       } finally {
         this.tfaLoading = false;
       }
@@ -604,6 +582,7 @@ export default {
         }
       } catch (error) {
         this.error = error.message;
+        this.showNotification(this.error, 'error');
       }
     },
     
@@ -611,13 +590,13 @@ export default {
     async linkGoogleAccount() {
       // This would typically open a Google OAuth flow
       // For now, we'll just show a notification
-      this.showNotification('Google account linking not implemented yet');
+      this.showNotification('Google account linking not implemented yet', 'info');
     },
     
     async linkAppleAccount() {
       // This would typically open an Apple Sign In flow
       // For now, we'll just show a notification
-      this.showNotification('Apple account linking not implemented yet');
+      this.showNotification('Apple account linking not implemented yet', 'info');
     },
     
     async unlinkAccount(association) {
@@ -648,6 +627,7 @@ export default {
         }
       } catch (error) {
         this.error = error.message;
+        this.showNotification('Failed to logout: ' + this.error, 'error');
       }
     },
     
