@@ -39,6 +39,11 @@ const routes = [
         path: 'edit-2fa',
         name: 'edit-2fa',
         component: () => import('./views/Edit2FAView.vue')
+      },
+      {
+        path: 'edit-account',
+        name: 'edit-account',
+        component: () => import('./views/EditAccountView.vue')
       }
     ]
   },

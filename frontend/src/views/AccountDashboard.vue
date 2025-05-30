@@ -27,13 +27,13 @@
         <div class="bg-white shadow rounded-lg overflow-hidden mb-6">
           <div class="px-6 py-5 border-b border-gray-200 flex justify-between items-center">
             <h2 class="text-lg font-medium text-gray-900">Account Information</h2>
-            <button 
-              @click="openEditModal" 
+            <router-link 
+              to="/account/edit-account" 
               class="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-cyan-600 bg-cyan-50 hover:bg-cyan-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 cursor-pointer"
             >
               <span class="mdi mdi-pencil mr-1.5"></span>
               Edit
-            </button>
+            </router-link>
           </div>
           <div class="p-6">
             <div class="flex items-center mb-6">
@@ -240,66 +240,6 @@
       </div>
     </div>
 
-    <!-- Edit Account Modal -->
-    <div 
-      v-if="showEditModal" 
-      class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity flex items-center justify-center p-4 z-50"
-      @click.self="showEditModal = false"
-    >
-      <div 
-        class="bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:max-w-lg sm:w-full"
-        @click.stop
-      >
-        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-          <h3 class="text-lg font-medium text-gray-900">Edit Account Information</h3>
-          <button 
-            @click="showEditModal = false" 
-            class="text-gray-400 hover:text-gray-500 cursor-pointer"
-          >
-            <span class="mdi mdi-close text-xl"></span>
-          </button>
-        </div>
-        <form @submit.prevent="updateAccount">
-          <div class="p-6 space-y-4">
-            <div>
-              <label for="modal-firstname" class="block text-sm font-medium text-gray-700">First Name</label>
-              <input 
-                type="text" 
-                id="modal-firstname" 
-                v-model="accountForm.firstname" 
-                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm"
-              />
-            </div>
-            <div>
-              <label for="modal-lastname" class="block text-sm font-medium text-gray-700">Last Name</label>
-              <input 
-                type="text" 
-                id="modal-lastname" 
-                v-model="accountForm.lastname" 
-                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm"
-              />
-            </div>
-          </div>
-          <div class="px-6 py-4 bg-gray-50 flex justify-end space-x-3">
-            <button 
-              type="button" 
-              @click="showEditModal = false"
-              class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 cursor-pointer"
-            >
-              Cancel
-            </button>
-            <button 
-              type="submit" 
-              class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-cyan-600 hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 flex items-center cursor-pointer"
-              :disabled="updateAccountLoading"
-            >
-              <span v-if="!updateAccountLoading">Save Changes</span>
-              <div v-else class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -321,17 +261,7 @@ export default {
       sessions: [],
       currentSessionToken: '',
       
-      // Form data
-      accountForm: {
-        firstname: '',
-        lastname: ''
-      },
-      
-      // Modal state
-      showEditModal: false,
-      
-      // Loading states
-      updateAccountLoading: false,
+      // Loading states for other operations
     };
   },
   computed: {
@@ -449,51 +379,6 @@ export default {
       return 'mdi-account-circle text-blue-500';
     },
     
-    // Open edit modal
-    openEditModal() {
-      // Make sure form has current values
-      this.accountForm.firstname = this.user.firstname || '';
-      this.accountForm.lastname = this.user.lastname || '';
-      this.showEditModal = true;
-    },
-    
-    // Account update methods
-    async updateAccount() {
-      this.updateAccountLoading = true;
-      
-      try {
-        const response = await fetch('/api/account/update', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            firstname: this.accountForm.firstname,
-            lastname: this.accountForm.lastname
-          })
-        });
-        
-        if (response.status === 401) {
-          window.location.href = '/login';
-          return;
-        }
-        
-        const data = await response.json();
-        
-        if (data.status === 'Success') {
-          this.showNotification('Account information updated successfully');
-          this.showEditModal = false;
-          this.fetchAccountInfo(); // Refresh data
-        } else {
-          throw new Error(data.status || 'Failed to update account');
-        }
-      } catch (error) {
-        this.error = error.message;
-        this.showNotification(this.error, 'error');
-      } finally {
-        this.updateAccountLoading = false;
-      }
-    },
     
     // Toggle Two-Factor Authentication
     async toggleTFA() {
