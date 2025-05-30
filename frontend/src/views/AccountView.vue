@@ -102,10 +102,10 @@
             </div>
             <div class="p-6">
               <div class="space-y-4">
-                <!-- Two-Factor Authentication Toggle -->
+                <!-- Multi-Factor Authentication Toggle -->
                 <div class="flex items-center justify-between">
                   <div>
-                    <p class="text-sm font-medium text-gray-700">Two-Factor Authentication</p>
+                    <p class="text-sm font-medium text-gray-700">Multi-Factor Authentication</p>
                     <p class="text-xs text-gray-500 mt-1">Add an extra layer of security to your account</p>
                   </div>
                   <div class="relative inline-block w-12 h-6 transition duration-200 ease-in-out rounded-full cursor-pointer">
