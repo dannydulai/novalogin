@@ -29,6 +29,38 @@ export default function(app, logger) {
     })
 
     
+    // Update account information endpoint
+    app.post("/api/account/update", requireAuth, async (req, res) => {
+        try {
+            const { user_id } = req.auth;
+            
+            // Validate input
+            const { firstname, lastname } = req.body;
+            
+            if (!utils.isValidName(firstname)) {
+                return res.status(400).send({ status: "InvalidFirstName" });
+            }
+            
+            if (!utils.isValidName(lastname)) {
+                return res.status(400).send({ status: "InvalidLastName" });
+            }
+            
+            // Update user information
+            await db('users')
+                .where({ user_id })
+                .update({
+                    firstname,
+                    lastname,
+                    updated: db.fn.now()
+                });
+                
+            return res.status(200).send({ status: "Success" });
+        } catch (e) {
+            logger.error(e);
+            return res.status(500).send({ status: "ServerError" });
+        }
+    });
+    
     // Get account information endpoint
     app.post("/api/account/info", requireAuth, async (req, res) => {
         try {
