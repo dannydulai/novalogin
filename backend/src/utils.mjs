@@ -1,9 +1,11 @@
 import "dotenv/config";
-import pino            from "pino";
-import pkceChallenge   from 'pkce-challenge';
-import cookieEncrypter from 'cookie-encrypter';
-import knex            from '../db.js';
-import fs              from 'fs';
+import pino             from "pino";
+import pkceChallenge    from 'pkce-challenge';
+import cookieEncrypter  from 'cookie-encrypter';
+import knex             from '../db.js';
+import fs               from 'fs';
+import { v4 as uuidv4 } from 'uuid';
+import { UAParser }     from 'ua-parser-js';
 
 const logger = pino({ name: "account" });
 
@@ -15,6 +17,21 @@ export const LOGIN_COOKIE_VERSION = 1;
 
 const SESSION_SECRET = process.env.SESSION_SECRET;
 const COOKIE_DOMAIN  = process.env.COOKIE_DOMAIN;
+
+export function getUAInfo(useragent) {
+    let browser = 'Unknown';
+    let os = 'Unknown';
+    let platform = 'Unknown';
+    try {
+        const ua = UAParser(useragent);
+        if (ua?.browser?.name) browser = ua.browser.name;
+        if (ua?.os?.name) os = ua.os.name;
+    } catch {
+    }
+
+    return { browser, os, platform };
+}
+
 
 let badEmailDomains = null;
 export function genEmailKey(email) {
@@ -53,6 +70,21 @@ export function genEmailKey(email) {
     emailCleaned,
     emailKey,
   };
+}
+
+export function getReferralCode() {
+  let newReferralCode;
+  do {
+    const uuid = uuidv4();
+    const base64Uuid = Buffer.from(uuid, 'hex').toString('base64');
+    newReferralCode = base64Uuid.substring(0, 22);
+  } while (newReferralCode.includes('+') || newReferralCode.includes('/'));
+  return newReferralCode;
+}
+
+export function isValidName(name) {
+    name = name?.trim();
+    return name && name.length > 0 && name.length < 256;
 }
 
 export function isValidEmail(email) {
