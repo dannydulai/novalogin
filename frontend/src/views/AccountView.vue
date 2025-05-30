@@ -44,8 +44,15 @@
         <!-- Left column - User info -->
         <div class="lg:col-span-1">
           <div class="bg-white shadow rounded-lg overflow-hidden mb-6">
-            <div class="px-6 py-5 border-b border-gray-200">
+            <div class="px-6 py-5 border-b border-gray-200 flex justify-between items-center">
               <h2 class="text-lg font-medium text-gray-900">Account Information</h2>
+              <button 
+                @click="openEditModal" 
+                class="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-cyan-600 bg-cyan-50 hover:bg-cyan-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500"
+              >
+                <span class="mdi mdi-pencil mr-1.5"></span>
+                Edit
+              </button>
             </div>
             <div class="p-6">
               <div class="flex items-center mb-6">
@@ -88,17 +95,10 @@
             </div>
           </div>
 
-          <!-- Edit button for account info -->
+          <!-- Account Settings -->
           <div class="bg-white shadow rounded-lg overflow-hidden mb-6">
-            <div class="px-6 py-5 border-b border-gray-200 flex justify-between items-center">
+            <div class="px-6 py-5 border-b border-gray-200">
               <h2 class="text-lg font-medium text-gray-900">Account Settings</h2>
-              <button 
-                @click="openEditModal" 
-                class="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-cyan-600 bg-cyan-50 hover:bg-cyan-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500"
-              >
-                <span class="mdi mdi-pencil mr-1.5"></span>
-                Edit
-              </button>
             </div>
             <div class="p-6">
               <div class="space-y-4">
