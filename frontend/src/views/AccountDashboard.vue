@@ -308,17 +308,6 @@ export default {
           this.user = data.user;
           this.associations = data.associations;
           this.sessions = data.sessions;
-          
-          // Find current session
-          const cookies = document.cookie.split(';').reduce((acc, cookie) => {
-            const [key, value] = cookie.trim().split('=');
-            acc[key] = value;
-            return acc;
-          }, {});
-          
-          // Populate form data
-          this.accountForm.firstname = this.user.firstname || '';
-          this.accountForm.lastname = this.user.lastname || '';
         } else {
           throw new Error(data.status || 'Unknown error');
         }
