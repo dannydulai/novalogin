@@ -13,13 +13,7 @@ export default function(app, logger) {
     // Get account information endpoint
     app.post("/api/account/info", async (req, res) => {
         try {
-            // Verify the user is authenticated
-            const cookieLI = req.cookies[config.COOKIE_NAME_LI];
-            if (!cookieLI) {
-                return res.status(401).send({ status: "Unauthorized" });
-            }
-
-            const { user_id, access_token } = JSON.parse(utils.decryptCookie(cookieLI));
+            const { user_id, access_token } = utils.getCookie(req, config.COOKIE_NAME_LI);
             if (!user_id || !access_token) {
                 return res.status(401).send({ status: "Unauthorized" });
             }
