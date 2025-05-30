@@ -121,11 +121,24 @@ export async function login(cookBI, useragent, app_id, app_name, ip, authinfo) {
 
 export async function logout(opts) {
     try {
-        throw "NotImplementedError";
-        if (r.status !== "Success") {
-            logger.error(r, `returned non-Success for logout on token ${JSON.stringify(opts)}`);
+        if (opts.logout_token) {
+            await db.raw(`
+                DELETE FROM tokens
+                USING token_info
+                WHERE token_info.token_id = tokens.token_id
+                AND token_info.user_id = tokens.user_id
+                AND token_info.logout_token = :logout_token
+            `, { logout_token: opts.logout_token });
         }
-
+        if (opts.session_token) {
+            await db.raw(`
+                DELETE FROM tokens
+                USING token_info
+                WHERE token_info.token_id = tokens.token_id
+                AND token_info.user_id = tokens.user_id
+                AND token_info.session_token = :session_token
+            `, { session_token: opts.session_token });
+        }
     } catch (err) {
         logger.error(err, "Account check request failed");
     }

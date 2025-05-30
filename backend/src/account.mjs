@@ -10,6 +10,32 @@ import * as auth from './auth.mjs';
 
 
 export default function(app, logger) {
+
+    app.post("/api/account/session", async (req, res) => {
+        try {
+            const session = utils.getCookie(req, "roonLI" );
+            if (!user_id || !access_token) {
+                return res.status(401).send({ status: "Unauthorized" });
+            }
+
+            // Verify the access token
+            const email = await auth.verify(access_token);
+            if (!email) {
+                return res.status(401).send({ status: "Unauthorized" });
+            }
+
+            await auth.logout({
+                logout_token: req.body.logout_token,
+                session_token: req.body.session_token,
+            });
+
+            return res.status(200).send();
+        } catch (e) {
+            logger.error(e);
+            return res.status(500).send("Server Error");
+        }
+    })
+
     
     // Get account information endpoint
     app.post("/api/account/info", async (req, res) => {
