@@ -10,6 +10,86 @@ import * as auth from './auth.mjs';
 
 
 export default function(app, logger) {
+    // Get account information endpoint
+    app.post("/api/account/info", async (req, res) => {
+        try {
+            // Verify the user is authenticated
+            const cookieLI = req.cookies[config.COOKIE_NAME_LI];
+            if (!cookieLI) {
+                return res.status(401).send({ status: "Unauthorized" });
+            }
+
+            const { user_id, access_token } = JSON.parse(utils.decryptCookie(cookieLI));
+            if (!user_id || !access_token) {
+                return res.status(401).send({ status: "Unauthorized" });
+            }
+
+            // Verify the access token
+            const email = await auth.verify(access_token);
+            if (!email) {
+                return res.status(401).send({ status: "Unauthorized" });
+            }
+
+            // Get user information
+            const user = await db('users')
+                .where({ user_id })
+                .select(
+                    'user_id',
+                    'email',
+                    'firstname',
+                    'lastname',
+                    'created',
+                    'updated',
+                    'referral_code',
+                    'groups',
+                    'tfa_enabled',
+                    'class'
+                )
+                .first();
+
+            if (!user) {
+                return res.status(404).send({ status: "UserNotFound" });
+            }
+
+            // Get user associations
+            const associations = await db('associations')
+                .where({ user_id })
+                .select(
+                    'association_id',
+                    'association_type',
+                    'created',
+                    'updated',
+                    'data'
+                );
+
+            // Get active sessions
+            const sessions = await db('token_info')
+                .join('tokens', 'token_info.token_id', 'tokens.token_id')
+                .where({ 'token_info.user_id': user_id })
+                .where('tokens.expiration', '>', db.fn.now())
+                .select(
+                    'token_info.session_token',
+                    'token_info.app_id',
+                    'token_info.app_name',
+                    'token_info.ip',
+                    'token_info.location',
+                    'token_info.os',
+                    'token_info.browser',
+                    'token_info.created',
+                    'token_info.logout_token'
+                );
+
+            return res.status(200).send({
+                status: "Success",
+                user,
+                associations,
+                sessions
+            });
+        } catch (e) {
+            logger.error(e);
+            return res.status(500).send({ status: "ServerError" });
+        }
+    });
     // Create account endpoint
     app.post("/api/account/create", async (req, res) => {
         try {
