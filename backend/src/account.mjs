@@ -13,10 +13,6 @@ export default function(app, logger) {
     // Create account endpoint
     app.post("/api/account/create", async (req, res) => {
         try {
-            // Validate recaptcha
-            if (!req.body.recaptcha) {
-                return res.status(400).send({ status: "BadRequest", field: "recaptcha" });
-            }
             if (!(await auth.validateRecaptcha(req.body.recaptcha))) {
                 return res.status(400).send({ status: "InvalidRecaptcha" });
             }
@@ -227,7 +223,7 @@ async function _createUser(req, {
                     continue;
                 }
 
-                if (e.constraint === "referralcode_idx") {
+                if (e.constraint === "referral_code_idx") {
                     newReferralCode = utils.getReferralCode();
                     continue;
                 }
