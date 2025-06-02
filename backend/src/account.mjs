@@ -407,7 +407,7 @@ export default function(app, logger) {
                 ].join(' '),
                 response_type: 'code',
                 access_type: 'offline',
-                state: JSON.stringify({ action: 'connect_google' })
+                state: encodeURIComponent(JSON.stringify({ action: 'connect_google' }))
             }).toString();
 
             return res.status(200).send({
