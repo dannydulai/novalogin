@@ -388,4 +388,107 @@ export default function(app, logger) {
             return { status: "UnexpectedError" };
         }
     }
+
+    // Connect Google account - step 1 (get redirect URL)
+    app.post("/api/account/connect-google-1", requireAuth, async (req, res) => {
+        try {
+            if (!config.GOOGLE_CLIENT_ID || !config.GOOGLE_CLIENT_SECRET) {
+                return res.status(400).send({ status: "GoogleNotConfigured" });
+            }
+
+            const stringifiedParams = new URLSearchParams({
+                prompt: 'select_account',
+                client_id: config.GOOGLE_CLIENT_ID,
+                redirect_uri: `${config.DOMAIN}/account/connect`,
+                scope: [
+                    'openid',
+                    'https://www.googleapis.com/auth/userinfo.email',
+                    'https://www.googleapis.com/auth/userinfo.profile',
+                ].join(' '),
+                response_type: 'code',
+                access_type: 'offline',
+                state: JSON.stringify({ setup: true })
+            }).toString();
+
+            return res.status(200).send({
+                status: "Success",
+                redirect: `https://accounts.google.com/o/oauth2/v2/auth?${stringifiedParams}`
+            });
+        } catch (e) {
+            logger.error(e);
+            return res.status(500).send({ status: "ServerError" });
+        }
+    });
+
+    // Connect Google account - step 2 (handle callback)
+    app.post("/api/account/connect-google-2", requireAuth, async (req, res) => {
+        try {
+            const { user_id } = req.auth;
+            const { code } = req.body;
+
+            if (!code) {
+                return res.status(400).send({ status: "InvalidCode" });
+            }
+
+            if (!config.GOOGLE_CLIENT_ID || !config.GOOGLE_CLIENT_SECRET) {
+                return res.status(400).send({ status: "GoogleNotConfigured" });
+            }
+
+            const txn = await db.transaction();
+            try {
+                const { data } = await axios({
+                    url: `https://oauth2.googleapis.com/token`,
+                    method: 'post',
+                    data: {
+                        client_id: config.GOOGLE_CLIENT_ID,
+                        client_secret: config.GOOGLE_CLIENT_SECRET,
+                        redirect_uri: `${config.DOMAIN}/account/connect`,
+                        grant_type: 'authorization_code',
+                        code,
+                    },
+                });
+
+                const ticket = await googleClient.verifyIdToken({
+                    idToken: data.id_token,
+                    audience: config.GOOGLE_CLIENT_ID,
+                });
+
+                const payload = ticket.getPayload();
+                const { email, sub } = payload;
+
+                // Check if this Google account is already associated with another user
+                const existing = await txn('associations')
+                    .where({ association_type: 'google', association_id: sub })
+                    .whereNot({ user_id })
+                    .first();
+
+                if (existing) {
+                    await txn.rollback();
+                    return res.status(400).send({ status: 'AlreadyAssociated' });
+                }
+
+                // Create or update the association
+                await txn('associations')
+                    .insert({
+                        user_id,
+                        association_type: 'google',
+                        association_id: sub,
+                        updated: txn.fn.now(),
+                        data: { email }
+                    })
+                    .onConflict(['user_id', 'association_type', 'association_id'])
+                    .merge(['updated', 'data']);
+
+                await txn.commit();
+                return res.status(200).send({ status: 'Success' });
+            } catch (e) {
+                await txn.rollback();
+                logger.error(e);
+                return res.status(500).send({ status: 'UnexpectedError' });
+            }
+        } catch (e) {
+            logger.error(e);
+            return res.status(500).send({ status: "ServerError" });
+        }
+    });
 }
