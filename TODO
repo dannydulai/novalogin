@@ -3,9 +3,11 @@
 [x] User mgmt system
 [x] Link Google
 [ ] Apple accounts
-[ ] Change email / password flow
-[ ] Test app for how to link ex with PKCE + web secret
 [ ] Verify redirects carry url params properly
     ----> option to save query params when creating user
 [ ] express login package + fastify login package.
 [ ] SES for emails
+[ ] Change email / password flow
+[ ] Test web app with client_secret + express login package
+[ ] Test flutter app for PKCE
+[ ] Example of how to connect open source app with oidc (use grist)
