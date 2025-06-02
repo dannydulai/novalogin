@@ -131,6 +131,36 @@ export default function(app, logger) {
             return res.status(500).send({ status: "ServerError" });
         }
     });
+
+    // Unlink account association endpoint
+    app.post("/api/account/unlink-account", requireAuth, async (req, res) => {
+        try {
+            const { user_id } = req.auth;
+            const { associationType, associationId } = req.body;
+
+            if (!associationType || !associationId) {
+                return res.status(400).send({ status: "InvalidParameters" });
+            }
+
+            // Delete the association
+            const result = await db('associations')
+                .where({
+                    user_id,
+                    association_type: associationType,
+                    association_id: associationId
+                })
+                .del();
+
+            if (result === 0) {
+                return res.status(404).send({ status: "AssociationNotFound" });
+            }
+
+            return res.status(200).send({ status: "Success" });
+        } catch (e) {
+            logger.error(e);
+            return res.status(500).send({ status: "ServerError" });
+        }
+    });
     // Create account endpoint
     app.post("/api/account/create", async (req, res) => {
         try {
