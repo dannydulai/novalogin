@@ -238,50 +238,25 @@
           </div>
         </div>
 
-        <!-- Admin Settings Section -->
+        <!-- Admin Quick Access -->
         <div v-if="isAdmin" class="bg-white shadow rounded-lg overflow-hidden">
           <div class="px-6 py-5 border-b border-gray-200">
-            <h2 class="text-lg font-medium text-gray-900">Admin Settings</h2>
+            <h2 class="text-lg font-medium text-gray-900">Admin Access</h2>
           </div>
-          <div class="p-6 space-y-8">
-            
-            <!-- User Management -->
-            <div>
-              <h3 class="text-base font-medium text-gray-900 mb-4">User Management</h3>
-              <div class="bg-gray-50 rounded-lg p-4">
-                <div class="flex items-center justify-between">
-                  <div>
-                    <p class="text-sm font-medium text-gray-900">Manage Users</p>
-                    <p class="text-xs text-gray-500 mt-1">View, edit, and manage user accounts</p>
-                  </div>
-                  <router-link 
-                    to="/admin/users" 
-                    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-cyan-600 hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500"
-                  >
-                    <span class="mdi mdi-account-group mr-2"></span>
-                    Manage Users
-                  </router-link>
+          <div class="p-6">
+            <div class="bg-gray-50 rounded-lg p-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm font-medium text-gray-900">Application Management</p>
+                  <p class="text-xs text-gray-500 mt-1">Manage applications and system settings</p>
                 </div>
-              </div>
-            </div>
-
-            <!-- Applications Management -->
-            <div>
-              <h3 class="text-base font-medium text-gray-900 mb-4">Applications Management</h3>
-              <div class="bg-gray-50 rounded-lg p-4">
-                <div class="flex items-center justify-between">
-                  <div>
-                    <p class="text-sm font-medium text-gray-900">Manage Applications</p>
-                    <p class="text-xs text-gray-500 mt-1">Configure and manage registered applications</p>
-                  </div>
-                  <router-link 
-                    to="/admin" 
-                    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-cyan-600 hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500"
-                  >
-                    <span class="mdi mdi-application-cog mr-2"></span>
-                    Manage Applications
-                  </router-link>
-                </div>
+                <router-link 
+                  to="/admin" 
+                  class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-cyan-600 hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500"
+                >
+                  <span class="mdi mdi-shield-crown mr-2"></span>
+                  Admin Panel
+                </router-link>
               </div>
             </div>
           </div>

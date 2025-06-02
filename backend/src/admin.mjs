@@ -76,7 +76,7 @@ app.post("/api/admin/submit", async (req, res) => {
         }
 
         if (req.body.del)
-            await db.raw(`DELETE FROM apps WHERE app_id = :app_id`, { id: req.body.del });
+            await db.raw(`DELETE FROM apps WHERE app_id = :app_id`, { app_id: req.body.del });
 
         return res.send();
     } catch (e) {
