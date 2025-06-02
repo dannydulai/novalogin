@@ -141,14 +141,13 @@
       </div>
     </div>
     
-    <!-- Powered by Keyflow footer -->
+    <!-- Powered by NovaLogin footer -->
     <div v-if="!$config.hidePoweredBy" class="absolute bottom-2 w-full text-center">
       <div class="inline-flex items-center px-3 py-1 rounded-full bg-white/80 backdrop-blur-sm shadow-sm text-sm text-gray-600">
-        <span class="mdi mdi-flash-outline text-yellow-500 text-lg mt-1"></span>
         <span>Powered by</span>
-        <a href="https://keyflow.io" target="_blank" rel="noopener"  class="font-medium ml-1 flex items-center hover:underline text-cyan-600">
-          <span class="mdi mdi-key-variant text-xs mr-0.5"></span>
-          Keyflow
+        <a href="https://novalogin.io" target="_blank" rel="noopener"  class="font-medium ml-1 flex items-center hover:underline text-cyan-600">
+          <span class="mdi mdi-space-invaders text-xl mr-1"></span>
+          NovaLogin
         </a>
       </div>
     </div>

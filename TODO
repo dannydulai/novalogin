@@ -1,7 +1,10 @@
-[ ] SES for emails
+[ ] OIDC routes
 [ ] Change email / password flow
 [ ] Link Google / Apple accounts
-[ ] Admin user + User mgmt system
+[ ] Admin app + User mgmt system
 [ ] Admin app mgmt system
 [ ] Test app for how to link ex with PKCE + web secret
 [ ] Verify redirects carry url params properly
+    ----> option to save query params when creating user
+[ ] express login package + fastify login package.
+[ ] SES for emails

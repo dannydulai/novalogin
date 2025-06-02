@@ -67,9 +67,7 @@ export function genEmailKey(email) {
 export function getReferralCode() {
   let newReferralCode;
   do {
-    const uuid = uuidv4();
-    const base64Uuid = Buffer.from(uuid, 'hex').toString('base64');
-    newReferralCode = base64Uuid.substring(0, 22);
+    newReferralCode = Buffer.from(uuidv4().replaceAll('-',''), 'hex').toString('base64').replaceAll('=', '');
   } while (newReferralCode.includes('+') || newReferralCode.includes('/'));
   return newReferralCode;
 }
