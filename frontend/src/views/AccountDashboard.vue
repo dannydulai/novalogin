@@ -116,11 +116,11 @@
                   Manage your account security by updating your email or password. These changes require verification of your current credentials.
                 </p>
                 <div class="flex flex-col sm:flex-row gap-3">
-                  <router-link to="/account/change-email" class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-cyan-700 bg-cyan-100 hover:bg-cyan-200">
+                  <router-link to="/account/change-email" class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-xs font-medium rounded-md text-cyan-700 bg-cyan-100 hover:bg-cyan-200">
                     <span class="mdi mdi-email-edit-outline mr-1.5"></span>
                     Change Email
                   </router-link>
-                  <router-link to="/account/change-password" class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-cyan-700 bg-cyan-100 hover:bg-cyan-200">
+                  <router-link to="/account/change-password" class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-xs font-medium rounded-md text-cyan-700 bg-cyan-100 hover:bg-cyan-200">
                     <span class="mdi mdi-lock-reset mr-1.5"></span>
                     Change Password
                   </router-link>
@@ -450,27 +450,6 @@
                 </div>
               </div>
             </div>
-
-            <!-- User Management -->
-            <div>
-              <h3 class="text-base font-medium text-gray-900 mb-4">User Management</h3>
-              <div class="bg-gray-50 rounded-lg p-4">
-                <div class="flex items-center justify-between">
-                  <div>
-                    <p class="text-sm font-medium text-gray-900">Manage Users</p>
-                    <p class="text-xs text-gray-500 mt-1">View, edit, and manage user accounts</p>
-                  </div>
-                  <router-link 
-                    to="/admin/users" 
-                    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-cyan-600 hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500"
-                  >
-                    <span class="mdi mdi-account-group mr-2"></span>
-                    Manage Users
-                  </router-link>
-                </div>
-              </div>
-            </div>
-
           </div>
         </div>
       </div>
