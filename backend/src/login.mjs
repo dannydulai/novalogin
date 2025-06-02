@@ -169,7 +169,7 @@ export default function (app, logger) {
 
             const ticket = await googleClient.verifyIdToken({
                 idToken: req.body.id_token,
-                audience: GOOGLE_CLIENT_ID,
+                audience: config.GOOGLE_CLIENT_ID,
             });
 
             const payload = ticket.getPayload();

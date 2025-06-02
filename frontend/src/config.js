@@ -19,5 +19,7 @@ export default {
       return ''; // Using custom color in CSS variables
     }
     return this.primaryColor;
-  }
+  },
+  
+  googleClientId: import.meta.env.GOOGLE_CLIENT_ID || '',
 };

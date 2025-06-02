@@ -47,6 +47,7 @@ exports.up = async function(knex) {
             data jsonb DEFAULT '{}'::jsonb
         );
         CREATE INDEX associations_user_id_idx ON associations(user_id);
+        ALTER TABLE associations ADD CONSTRAINT associations_association_user_key UNIQUE (user_id, association_type, association_id);
     `);
     // Tokens table
     await knex.schema.raw(`
@@ -121,6 +122,7 @@ exports.down = async function(knex) {
         DROP TABLE IF EXISTS tokens;
     `);
     await knex.schema.raw(`
+        ALTER TABLE associations DROP CONSTRAINT IF EXISTS associations_association_user_key;
         ALTER TABLE associations DROP CONSTRAINT IF EXISTS associations_user_id_idx;
         DROP TABLE IF EXISTS associations;
     `);

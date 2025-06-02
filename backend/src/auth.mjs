@@ -364,7 +364,7 @@ async function loginGoogle({
                             email: googleEmail
                         }
                     })
-                    .onConflict(['user id', 'association_type', 'association_id'])
+                    .onConflict(['user_id', 'association_type', 'association_id'])
                     .merge();
             }
         });

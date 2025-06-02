@@ -35,5 +35,8 @@ export default {
   GEOIP_SERVICE_URL: process.env.GEOIP_SERVICE_URL,
   
   // Environment
-  NODE_ENV: process.env.NODE_ENV
+  NODE_ENV: process.env.NODE_ENV,
+
+  GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID || '',
+  GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET || '',
 };

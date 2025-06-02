@@ -330,9 +330,10 @@ export default {
     //  });
     //}
     
-    if (typeof google !== 'undefined' && import.meta.env.GOOGLE_CLIENT_ID) {
+    console.log('google', typeof google, this.$config);
+    if (typeof google !== 'undefined' && this.$config.googleClientId) { 
       google.accounts.id.initialize({
-        client_id: import.meta.env.GOOGLE_CLIENT_ID,
+        client_id: this.$config.googleClientId,
         callback: this.signInWithGoogle
       });
     }
@@ -342,7 +343,7 @@ export default {
       //  AppleID.auth.renderButton();
       //}
       
-      if (typeof google !== 'undefined' && this.auth_state === 'login' && import.meta.env.GOOGLE_CLIENT_ID) {
+      if (typeof google !== 'undefined' && this.auth_state === 'login' && this.$config.googleClientId) {
         google.accounts.id.renderButton(
           document.getElementById("google-signin"),
           { theme: "outline", size: "large", width: "100%" }
@@ -413,7 +414,7 @@ export default {
       this.loading.action = 'checking';
       this.auth_state = 'checking';
       try {
-        const res = await fetch('/api/gcb', {
+        const res = await fetch('/api/login/gcb', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
