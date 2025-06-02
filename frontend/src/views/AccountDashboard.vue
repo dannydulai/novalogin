@@ -470,7 +470,7 @@ export default {
         },
         app: {
           name: 'Your App Name',
-          logo: 'https://via.placeholder.com/64x64?text=Logo',
+          logo: 'stocklogo.png',
           accentColor: '#06b6d4'
         }
       },
@@ -488,6 +488,10 @@ export default {
     fullName() {
       if (!this.user) return '';
       return `${this.user.firstname || ''} ${this.user.lastname || ''}`.trim();
+    },
+    isAdmin() {
+      // Placeholder logic - check if user has admin privileges
+       return this.user && (this.user.groups || []).includes('admin');
     }
   },
   mounted() {
