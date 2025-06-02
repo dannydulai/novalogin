@@ -10,19 +10,19 @@
           </div>
           <div class="flex items-center space-x-4">
             <router-link 
-              to="/admin" 
-              class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-            >
-              <span class="mdi mdi-arrow-left mr-2"></span>
-              Back to Admin
-            </router-link>
-            <router-link 
               to="/account" 
               class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
             >
               <span class="mdi mdi-account mr-2"></span>
-              Account
+              Back to Account
             </router-link>
+            <button 
+              @click="logout"
+              class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700"
+            >
+              <span class="mdi mdi-logout mr-2"></span>
+              Logout
+            </button>
           </div>
         </div>
       </div>
@@ -544,6 +544,19 @@ export default {
       }).catch(() => {
         this.showNotification('Failed to copy to clipboard', 'error');
       });
+    },
+
+    async logout() {
+      try {
+        const response = await fetch('/api/admin/logout', { method: 'POST' });
+        if (response.ok) {
+          window.location.href = '/login';
+        } else {
+          this.showNotification('An error occurred logging out', 'error');
+        }
+      } catch (error) {
+        this.showNotification('An error occurred logging out', 'error');
+      }
     }
   }
 }
