@@ -330,9 +330,9 @@ export default {
     //  });
     //}
     
-    if (typeof google !== 'undefined') {
+    if (typeof google !== 'undefined' && import.meta.env.GOOGLE_CLIENT_ID) {
       google.accounts.id.initialize({
-        client_id: "92734372290-cq0btomrba7c886npam0do95d09uqbkq.apps.googleusercontent.com",
+        client_id: import.meta.env.GOOGLE_CLIENT_ID,
         callback: this.signInWithGoogle
       });
     }
@@ -342,7 +342,7 @@ export default {
       //  AppleID.auth.renderButton();
       //}
       
-      if (typeof google !== 'undefined' && this.auth_state === 'login') {
+      if (typeof google !== 'undefined' && this.auth_state === 'login' && import.meta.env.GOOGLE_CLIENT_ID) {
         google.accounts.id.renderButton(
           document.getElementById("google-signin"),
           { theme: "outline", size: "large", width: "100%" }
