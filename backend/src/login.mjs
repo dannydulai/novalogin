@@ -476,7 +476,30 @@ export default function (app, logger) {
                     cookII = { ...cookII };
                     delete(cookII.session);
                     if (oidcEnabled && appinfo.oidc) {
-                        // XXX OIDC RESPONSE
+                        // Generate OIDC ID token
+                        const userInfo = await db('users').select('email', 'firstname', 'lastname').where({ user_id: cookII.user_id }).first();
+                        
+                        const idTokenPayload = {
+                            iss: config.DOMAIN,
+                            sub: cookII.user_id.toString(),
+                            aud: appinfo.id,
+                            exp: Math.floor(Date.now() / 1000) + (60 * 60), // 1 hour
+                            iat: Math.floor(Date.now() / 1000),
+                            email: userInfo.email,
+                            name: `${userInfo.firstname} ${userInfo.lastname}`.trim(),
+                            given_name: userInfo.firstname,
+                            family_name: userInfo.lastname
+                        };
+
+                        const idToken = jwk.sign(idTokenPayload, oidcPrivateKey, { algorithm: 'RS256' });
+
+                        return res.status(200).send({
+                            access_token: cookII.access_token,
+                            token_type: 'Bearer',
+                            expires_in: 3600,
+                            id_token: idToken,
+                            scope: 'openid email profile'
+                        });
                     } else {
                         return res.status(200).send(cookII);
                     }
@@ -499,7 +522,32 @@ export default function (app, logger) {
 
         app.get("/api/oidc-userinfo", async (req, res) => {
             try {
-                // XXX This is a placeholder for OIDC userinfo endpoint
+                const authHeader = req.headers.authorization;
+                if (!authHeader || !authHeader.startsWith('Bearer ')) {
+                    return res.status(401).send({ error: 'invalid_token', error_description: 'Missing or invalid authorization header' });
+                }
+
+                const accessToken = authHeader.substring(7);
+                const email = await auth.verify(accessToken);
+                
+                if (!email) {
+                    return res.status(401).send({ error: 'invalid_token', error_description: 'Invalid access token' });
+                }
+
+                const userInfo = await db('users').select('user_id', 'email', 'firstname', 'lastname').where({ email }).first();
+                
+                if (!userInfo) {
+                    return res.status(404).send({ error: 'user_not_found', error_description: 'User not found' });
+                }
+
+                return res.status(200).send({
+                    sub: userInfo.user_id.toString(),
+                    email: userInfo.email,
+                    name: `${userInfo.firstname} ${userInfo.lastname}`.trim(),
+                    given_name: userInfo.firstname,
+                    family_name: userInfo.lastname,
+                    email_verified: true
+                });
             } catch (e) {
                 logger.error(e);
                 return res.status(500).send("Server Error");
