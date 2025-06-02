@@ -223,7 +223,7 @@
         <hr class="flex-1 border-gray-200">
       </div>
       
-      <div v-if="$config.googleClientId" id="google-signin" class="mb-3"></div>
+      <div v-if="$config.googleClientId" id="google-signin" class="flex justify-center mb-3"></div>
       
       <div v-if="$config.appleClientId" id="appleid-signin" class="mb-6"></div>
       
