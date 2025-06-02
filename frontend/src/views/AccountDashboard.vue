@@ -450,6 +450,135 @@
                 </div>
               </div>
             </div>
+
+            <!-- SMTP Configuration -->
+            <div>
+              <h3 class="text-base font-medium text-gray-900 mb-4">Email Configuration (SMTP)</h3>
+              <div class="bg-gray-50 rounded-lg p-4">
+                <div class="flex items-center justify-between mb-4">
+                  <div class="flex items-center">
+                    <span class="mdi mdi-email-send text-xl text-blue-500 mr-3"></span>
+                    <div>
+                      <p class="text-sm font-medium text-gray-900">SMTP Email Service</p>
+                      <p class="text-xs text-gray-500">Configure SMTP settings for sending emails</p>
+                    </div>
+                  </div>
+                  <div class="relative inline-block w-12 h-6 transition duration-200 ease-in-out rounded-full cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      id="smtp-toggle" 
+                      class="absolute w-6 h-6 opacity-0 cursor-pointer"
+                      v-model="adminSettings.smtp.enabled"
+                      @change="updateSMTPSettings"
+                    />
+                    <label 
+                      for="smtp-toggle" 
+                      class="block h-6 overflow-hidden rounded-full cursor-pointer"
+                      :class="adminSettings.smtp.enabled ? 'bg-cyan-500' : 'bg-gray-300'"
+                    >
+                      <span 
+                        class="block h-6 w-6 rounded-full transform transition-transform duration-200 ease-in-out bg-white shadow-md"
+                        :class="adminSettings.smtp.enabled ? 'translate-x-6' : 'translate-x-0'"
+                      ></span>
+                    </label>
+                  </div>
+                </div>
+                
+                <div v-if="adminSettings.smtp.enabled" class="space-y-4">
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label class="block text-xs font-medium text-gray-700 mb-1">SMTP Host</label>
+                      <input 
+                        type="text" 
+                        v-model="adminSettings.smtp.host"
+                        @blur="updateSMTPSettings"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                        placeholder="smtp.gmail.com"
+                      />
+                    </div>
+                    <div>
+                      <label class="block text-xs font-medium text-gray-700 mb-1">Port</label>
+                      <input 
+                        type="number" 
+                        v-model="adminSettings.smtp.port"
+                        @blur="updateSMTPSettings"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                        placeholder="587"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div class="flex items-center">
+                    <input 
+                      type="checkbox" 
+                      id="smtp-secure" 
+                      v-model="adminSettings.smtp.secure"
+                      @change="updateSMTPSettings"
+                      class="h-4 w-4 text-cyan-600 focus:ring-cyan-500 border-gray-300 rounded"
+                    />
+                    <label for="smtp-secure" class="ml-2 block text-sm text-gray-700">
+                      Use SSL/TLS (secure connection)
+                    </label>
+                  </div>
+                  
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label class="block text-xs font-medium text-gray-700 mb-1">Username</label>
+                      <input 
+                        type="text" 
+                        v-model="adminSettings.smtp.username"
+                        @blur="updateSMTPSettings"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                        placeholder="your-email@gmail.com"
+                      />
+                    </div>
+                    <div>
+                      <label class="block text-xs font-medium text-gray-700 mb-1">Password</label>
+                      <input 
+                        type="password" 
+                        v-model="adminSettings.smtp.password"
+                        @blur="updateSMTPSettings"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                        placeholder="your-app-password"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label class="block text-xs font-medium text-gray-700 mb-1">From Name</label>
+                      <input 
+                        type="text" 
+                        v-model="adminSettings.smtp.fromName"
+                        @blur="updateSMTPSettings"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                        placeholder="Your App Name"
+                      />
+                    </div>
+                    <div>
+                      <label class="block text-xs font-medium text-gray-700 mb-1">From Email</label>
+                      <input 
+                        type="email" 
+                        v-model="adminSettings.smtp.fromEmail"
+                        @blur="updateSMTPSettings"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                        placeholder="noreply@yourapp.com"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div class="flex justify-end pt-2">
+                    <button 
+                      @click="testSMTPConnection"
+                      class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-cyan-700 bg-cyan-100 hover:bg-cyan-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500"
+                    >
+                      <span class="mdi mdi-email-check mr-2"></span>
+                      Test Connection
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -491,6 +620,16 @@ export default {
           name: 'Your App Name',
           logo: 'stocklogo.png',
           accentColor: '#06b6d4'
+        },
+        smtp: {
+          enabled: true,
+          host: 'smtp.gmail.com',
+          port: 587,
+          secure: false,
+          username: 'your-email@gmail.com',
+          password: 'your-app-password',
+          fromName: 'Your App Name',
+          fromEmail: 'noreply@yourapp.com'
         }
       },
       
