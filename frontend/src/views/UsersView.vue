@@ -113,8 +113,15 @@
                       <div class="text-sm font-medium text-gray-900">
                         {{ getUserFullName(user) }}
                       </div>
-                      <div class="text-sm text-gray-500">
+                      <div class="text-sm text-gray-500 flex items-center">
                         ID: {{ user.user_id }}
+                        <button 
+                          @click="copyToClipboard(user.user_id.toString())"
+                          class="ml-2 text-cyan-600 hover:text-cyan-800"
+                          title="Copy User ID"
+                        >
+                          <span class="mdi mdi-content-copy"></span>
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -527,6 +534,14 @@ export default {
       this.toast(message, {
         type: type,
         timeout: 3000
+      });
+    },
+
+    copyToClipboard(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        this.showNotification('User ID copied to clipboard', 'success');
+      }).catch(() => {
+        this.showNotification('Failed to copy to clipboard', 'error');
       });
     }
   }
