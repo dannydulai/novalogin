@@ -286,6 +286,12 @@
 
 <script>
 import { useToast } from 'vue-toastification';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 export default {
   name: 'AccountDashboard',
@@ -366,17 +372,10 @@ export default {
       }
     },
     
-    // Format date to a readable string
+    // Format date to a readable string in local time
     formatDate(dateString) {
       if (!dateString) return '';
-      const date = new Date(dateString);
-      return new Intl.DateTimeFormat('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      }).format(date);
+      return dayjs.utc(dateString).local().format('MMM D, YYYY h:mm A');
     },
     
     // Copy text to clipboard

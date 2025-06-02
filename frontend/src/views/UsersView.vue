@@ -340,6 +340,12 @@
 
 <script>
 import { useToast } from 'vue-toastification';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 export default {
   name: 'UsersView',
@@ -522,12 +528,7 @@ export default {
 
     formatDate(dateString) {
       if (!dateString) return '';
-      const date = new Date(dateString);
-      return new Intl.DateTimeFormat('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-      }).format(date);
+      return dayjs.utc(dateString).local().format('MMM D, YYYY');
     },
 
     showNotification(message, type = 'success') {
