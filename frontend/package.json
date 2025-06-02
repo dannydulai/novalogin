@@ -15,6 +15,7 @@
     "@mdi/font": "^7.4.47",
     "@tailwindcss/vite": "^4.1.8",
     "@vitejs/plugin-vue": "^5.2.4",
+    "dayjs": "^1.11.13",
     "dotenv": "^16.5.0",
     "tailwindcss": "^4.1.8",
     "vue": "^3.5.16",

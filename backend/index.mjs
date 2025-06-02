@@ -3,6 +3,12 @@
  * Can be used standalone or imported into an existing Express application
  */
 
+import pg from 'pg';
+// Do not adjust timezone for PostgreSQL, use UTC
+pg.types.setTypeParser(1114, function(stringValue) { return new Date(Date.parse(stringValue + "+0000")); });
+// Parse PostgreSQL bigint as a number
+pg.types.setTypeParser(20, function(val) { return parseInt(val) });
+
 import express from 'express';
 import path from 'path';
 import morgan from 'morgan';
