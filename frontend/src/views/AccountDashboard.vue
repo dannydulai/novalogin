@@ -153,7 +153,7 @@
                         {{ formatAssociationType(association.association_type) }}
                       </p>
                       <p class="text-sm text-gray-500">
-                        Connected {{ formatDate(association.created) }}
+                        <span v-if="association.data && association.data.email">{{ association.data.email }} • </span>Connected {{ formatDate(association.created) }}
                       </p>
                     </div>
                   </div>
