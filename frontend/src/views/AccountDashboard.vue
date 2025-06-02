@@ -392,6 +392,50 @@ export default {
         timeout: 3000
       });
     },
+
+    // Handle Google OAuth callback
+    async handleGoogleCallback() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const code = urlParams.get('code');
+      const state = urlParams.get('state');
+      
+      if (code && state) {
+        try {
+          const stateData = JSON.parse(state);
+          if (stateData.setup) {
+            // Clear URL parameters
+            window.history.replaceState({}, document.title, window.location.pathname);
+            
+            // Complete Google connection
+            const response = await fetch('/api/account/connect-google-2', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ code })
+            });
+            
+            if (response.status === 401) {
+              window.location.href = '/login';
+              return;
+            }
+            
+            const data = await response.json();
+            
+            if (data.status === 'Success') {
+              this.showNotification('Google account connected successfully', 'success');
+              this.fetchAccountInfo(); // Refresh to show new association
+            } else if (data.status === 'AlreadyAssociated') {
+              this.showNotification('This Google account is already associated with another user', 'error');
+            } else {
+              this.showNotification('Failed to connect Google account', 'error');
+            }
+          }
+        } catch (error) {
+          this.showNotification('Failed to process Google connection', 'error');
+        }
+      }
+    },
     
     // Check if a session is the current one
     isCurrentSession(session) {
@@ -455,9 +499,30 @@ export default {
     
     // Account linking
     async linkGoogleAccount() {
-      // This would typically open a Google OAuth flow
-      // For now, we'll just show a notification
-      this.showNotification('Google account linking not implemented yet', 'info');
+      try {
+        const response = await fetch('/api/account/connect-google-1', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (response.status === 401) {
+          window.location.href = '/login';
+          return;
+        }
+        
+        const data = await response.json();
+        
+        if (data.status === 'Success') {
+          // Redirect to Google OAuth
+          window.location.href = data.redirect;
+        } else {
+          this.showNotification('Failed to initiate Google connection', 'error');
+        }
+      } catch (error) {
+        this.showNotification('Failed to connect Google account', 'error');
+      }
     },
     
     async linkAppleAccount() {

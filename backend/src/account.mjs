@@ -2,11 +2,14 @@ import axios from 'axios';
 import bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
 import requestIp from 'request-ip';
+import { OAuth2Client } from 'google-auth-library';
 import db from '../db.js';
 
 import config from './config.mjs';
 import * as utils from './utils.mjs';
 import * as auth from './auth.mjs';
+
+const googleClient = new OAuth2Client(config.GOOGLE_CLIENT_ID);
 
 // Authentication middleware
 const requireAuth = auth.verifyAuthMiddleware;
