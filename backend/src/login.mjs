@@ -1,20 +1,25 @@
-import pkceChallenge from 'pkce-challenge';
-import axios from 'axios';
-import requestIp from 'request-ip';
+import pkceChallenge    from 'pkce-challenge';
+import axios            from 'axios';
+import requestIp        from 'request-ip';
 import { OAuth2Client } from 'google-auth-library';
-import twofactor from 'node-2fa';
+import twofactor        from 'node-2fa';
+import jwk              from 'jsonwebtoken';
+import rsaPemToJwk      from 'rsa-pem-to-jwk';
+import fs               from 'fs';
 
-import config from './config.mjs';
+import config     from './config.mjs';
 import * as utils from './utils.mjs';
-import * as auth from './auth.mjs';
-import db from '../db.js';
+import * as auth  from './auth.mjs';
+import db         from '../db.js';
 
 // Initialize Google OAuth client
-const googleClient = new OAuth2Client(config.GOOGLE_CLIENT_ID);
-
+const googleClient   = new OAuth2Client(config.GOOGLE_CLIENT_ID);
+const oidcEnabled    = config.OIDC_PUBLIC_KEY && config.OIDC_PRIVATE_KEY;
+const oidcPublicKey  = oidcEnabled ? fs.readFileSync(config.OIDC_PUBLIC_KEY, 'utf8') : null;
+const oidcPrivateKey = oidcEnabled ? fs.readFileSync(config.OIDC_PRIVATE_KEY, 'utf8') : null;
+const oidcJwk        = oidcEnabled ? rsaPemToJwk(oidcPublicKey, { use: 'sig' }, 'public') : null;
 
 export default function (app, logger) {
-
     /**
      * Generate a code exchange for authentication
      */
@@ -460,8 +465,8 @@ export default function (app, logger) {
                     if (loginResponse.status != 'Success') {
                         cookII = undefined;
                     } else {
-                        cookII.user_id =       loginResponse.user_id;
-                        cookII.groups =       loginResponse.groups;
+                        cookII.user_id      = loginResponse.user_id;
+                        cookII.groups       = loginResponse.groups;
                         cookII.access_token = loginResponse.access_token;
                         cookII.logout_token = loginResponse.logout_token;
                     }
@@ -470,7 +475,11 @@ export default function (app, logger) {
                 if (cookII) {
                     cookII = { ...cookII };
                     delete(cookII.session);
-                    return res.status(200).send(cookII);
+                    if (oidcEnabled && appinfo.oidc) {
+                        // XXX OIDC RESPONSE
+                    } else {
+                        return res.status(200).send(cookII);
+                    }
                 }
             }
         } catch (e) {
@@ -478,6 +487,55 @@ export default function (app, logger) {
         }
         return res.status(404).send("Not found");
     }
+
+    if (oidcEnabled) {
+        // OIDC token endpoint
+        // This is used for OIDC clients to exchange the code for a token
+        app.post("/api/oidc-token", async (req, res) => {
+            if (!req.body.code) return res.status(400).send("Bad Request (missing code)");
+            if (!req.body.client_secret && !req.body.verifier) return res.status(400).send("Bad Request (missing client_secret/verifier)");
+            await ssotoken(req, res, req.body.code, req.body.verifier, req.body.client_secret);
+        });
+
+        app.get("/api/oidc-userinfo", async (req, res) => {
+            try {
+                // XXX This is a placeholder for OIDC userinfo endpoint
+            } catch (e) {
+                logger.error(e);
+                return res.status(500).send("Server Error");
+            }
+        });
+
+        app.get("/api/.well-known/openid-configuration", async (req, res) => {
+            return res.status(200).send({
+                issuer: config.DOMAIN,
+                authorization_endpoint: config.DOMAIN + "/login",
+                end_session_endpoint: config.DOMAIN + "/account",
+                token_endpoint: config.DOMAIN + "/api/oidc-token",
+                jwks_uri: config.DOMAIN + "/api/oidc-jwks",
+                response_types_supported: ["code"],
+                grant_types_supported: ["authorization_code"],
+                code_challenge_methods_supported: ["S256"],
+                token_endpoint_auth_methods_supported: ["client_secret_post"],
+                id_token_signing_alg_values_supported: ["RS256"],
+                subject_types_supported: ["public"],
+                userinfo_endpoint: config.DOMAIN + "/api/oidc-userinfo",
+
+            });
+        });
+
+        app.get("/api/jwks", async (req, res) => {
+            return res.status(200).send({
+                keys: [jwk]
+            });
+        });
+    } else {
+        logger.info("OIDC is not enabled, skipping OIDC routes");
+    }
+
+
+
+
 
     // Apple callback - disabled for now
     /*
