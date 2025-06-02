@@ -15,7 +15,7 @@ async function userAuthenticate(session, res) {
 }
 
 async function userAuthorize(session, res) {
-    if (!session || !((session.groups || []).includes("staff"))) {
+    if (!session || !((session.groups || []).includes("admin"))) {
         res.status(403).send("Forbidden");
         return false;
     }

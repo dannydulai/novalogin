@@ -17,7 +17,7 @@ export default {
   ACCOUNT_APP_ID: process.env.ACCOUNT_APP_ID || '',
   
   // App names
-  ADMIN_APP_NAME: process.env.ADMIN_APP_NAME || 'Login',
+  ADMIN_APP_NAME: process.env.ADMIN_APP_NAME || 'Admin',
   ACCOUNT_APP_NAME: process.env.ACCOUNT_APP_NAME || 'Account',
   
   // App secrets
