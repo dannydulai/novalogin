@@ -398,7 +398,7 @@ export default {
     async handleGoogleCallback() {
       const urlParams = new URLSearchParams(window.location.search);
       const code = urlParams.get('code');
-      const state = urlParams.get('state');
+      const state = decodeURIComponent(urlParams.get('state'));
       
       if (code && state) {
         try {
