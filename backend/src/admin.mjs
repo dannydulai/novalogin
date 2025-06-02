@@ -85,4 +85,107 @@ app.post("/api/admin/submit", async (req, res) => {
     }
 })
 
+app.post("/api/admin/users", async (req, res) => {
+    try {
+        const session = getCookie(req, config.COOKIE_NAME_LI);
+        if (!await userAuthenticate(session, res)) return;
+        if (!await userAuthorize(session, res)) return;
+
+        const page = parseInt(req.body.page) || 1;
+        const limit = parseInt(req.body.limit) || 20;
+        const search = req.body.search || '';
+        const offset = (page - 1) * limit;
+
+        let whereClause = '';
+        let params = { limit, offset };
+
+        if (search) {
+            whereClause = `WHERE email ILIKE :search OR firstname ILIKE :search OR lastname ILIKE :search`;
+            params.search = `%${search}%`;
+        }
+
+        // Get total count
+        const countQuery = `SELECT COUNT(*) as total FROM users ${whereClause}`;
+        const countResult = await db.raw(countQuery, params);
+        const total = parseInt(countResult.rows[0].total);
+
+        // Get users
+        const usersQuery = `
+            SELECT user_id, email, firstname, lastname, groups, created, updated, tfa_enabled
+            FROM users 
+            ${whereClause}
+            ORDER BY created DESC 
+            LIMIT :limit OFFSET :offset
+        `;
+        const usersResult = await db.raw(usersQuery, params);
+
+        return res.send({
+            users: usersResult.rows,
+            pagination: {
+                page,
+                limit,
+                total,
+                totalPages: Math.ceil(total / limit)
+            }
+        });
+    } catch (e) {
+        logger.error(e);
+        return res.status(500).send("Server Error");
+    }
+})
+
+app.post("/api/admin/users/update", async (req, res) => {
+    try {
+        const session = getCookie(req, config.COOKIE_NAME_LI);
+        if (!await userAuthenticate(session, res)) return;
+        if (!await userAuthorize(session, res)) return;
+
+        const { user_id, email, firstname, lastname, groups } = req.body;
+
+        if (!user_id) {
+            return res.status(400).send("User ID is required");
+        }
+
+        // Verify groups is an array
+        if (groups && !Array.isArray(groups)) {
+            return res.status(400).send("Invalid groups");
+        }
+
+        // Build update query dynamically
+        const updates = [];
+        const params = { user_id };
+
+        if (email !== undefined) {
+            updates.push('email = :email');
+            params.email = email;
+        }
+        if (firstname !== undefined) {
+            updates.push('firstname = :firstname');
+            params.firstname = firstname;
+        }
+        if (lastname !== undefined) {
+            updates.push('lastname = :lastname');
+            params.lastname = lastname;
+        }
+        if (groups !== undefined) {
+            updates.push('groups = :groups');
+            params.groups = groups;
+        }
+
+        if (updates.length === 0) {
+            return res.status(400).send("No fields to update");
+        }
+
+        updates.push('updated = NOW()');
+
+        const query = `UPDATE users SET ${updates.join(', ')} WHERE user_id = :user_id`;
+        await db.raw(query, params);
+
+        return res.send({ status: 'Success' });
+    } catch (e) {
+        logger.error(e);
+        return res.status(500).send("Server Error");
+    }
+})
+
 }
