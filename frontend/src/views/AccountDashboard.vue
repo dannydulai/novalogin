@@ -321,6 +321,7 @@ export default {
     }
   },
   mounted() {
+    this.handleGoogleCallback();
     this.fetchAccountInfo();
   },
   methods: {
@@ -402,8 +403,8 @@ export default {
       if (code && state) {
         try {
           const stateData = JSON.parse(state);
-          if (stateData.setup) {
-            // Clear URL parameters
+          if (stateData.action === 'connect_google') {
+            // Clear URL parameters immediately
             window.history.replaceState({}, document.title, window.location.pathname);
             
             // Complete Google connection
@@ -424,7 +425,10 @@ export default {
             
             if (data.status === 'Success') {
               this.showNotification('Google account connected successfully', 'success');
-              this.fetchAccountInfo(); // Refresh to show new association
+              // Delay the fetch slightly to ensure the notification shows
+              setTimeout(() => {
+                this.fetchAccountInfo(); // Refresh to show new association
+              }, 100);
             } else if (data.status === 'AlreadyAssociated') {
               this.showNotification('This Google account is already associated with another user', 'error');
             } else {
@@ -432,6 +436,8 @@ export default {
             }
           }
         } catch (error) {
+          // Clear URL parameters even on error
+          window.history.replaceState({}, document.title, window.location.pathname);
           this.showNotification('Failed to process Google connection', 'error');
         }
       }

@@ -407,7 +407,7 @@ export default function(app, logger) {
                 ].join(' '),
                 response_type: 'code',
                 access_type: 'offline',
-                state: JSON.stringify({ setup: true })
+                state: JSON.stringify({ action: 'connect_google' })
             }).toString();
 
             return res.status(200).send({
@@ -442,7 +442,7 @@ export default function(app, logger) {
                     data: {
                         client_id: config.GOOGLE_CLIENT_ID,
                         client_secret: config.GOOGLE_CLIENT_SECRET,
-                        redirect_uri: `${config.HOST}/account/connect`,
+                        redirect_uri: `${config.HOST}/account`,
                         grant_type: 'authorization_code',
                         code,
                     },
