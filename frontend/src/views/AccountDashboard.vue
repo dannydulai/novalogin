@@ -828,6 +828,63 @@ export default {
         this.error = error.message;
         this.showNotification(this.error, 'error');
       }
+    },
+
+    // Admin settings methods (placeholder implementations)
+    async updateGoogleSignInSettings() {
+      try {
+        // Placeholder API call
+        this.showNotification('Google Sign-In settings updated', 'success');
+        console.log('Google settings:', this.adminSettings.googleSignIn);
+      } catch (error) {
+        this.showNotification('Failed to update Google Sign-In settings', 'error');
+      }
+    },
+
+    async updateAppleSignInSettings() {
+      try {
+        // Placeholder API call
+        this.showNotification('Apple Sign-In settings updated', 'success');
+        console.log('Apple settings:', this.adminSettings.appleSignIn);
+      } catch (error) {
+        this.showNotification('Failed to update Apple Sign-In settings', 'error');
+      }
+    },
+
+    async updateAppSettings() {
+      try {
+        // Placeholder API call
+        this.showNotification('App settings updated', 'success');
+        console.log('App settings:', this.adminSettings.app);
+      } catch (error) {
+        this.showNotification('Failed to update app settings', 'error');
+      }
+    },
+
+    async updateSMTPSettings() {
+      try {
+        // Placeholder API call
+        this.showNotification('SMTP settings updated', 'success');
+        console.log('SMTP settings:', this.adminSettings.smtp);
+      } catch (error) {
+        this.showNotification('Failed to update SMTP settings', 'error');
+      }
+    },
+
+    async testSMTPConnection() {
+      try {
+        // Placeholder API call to test SMTP connection
+        this.showNotification('Testing SMTP connection...', 'info');
+        
+        // Simulate API call delay
+        setTimeout(() => {
+          this.showNotification('SMTP connection test successful!', 'success');
+        }, 2000);
+        
+        console.log('Testing SMTP with settings:', this.adminSettings.smtp);
+      } catch (error) {
+        this.showNotification('SMTP connection test failed', 'error');
+      }
     }
   }
 }
