@@ -243,19 +243,34 @@
           <div class="px-6 py-5 border-b border-gray-200">
             <h2 class="text-lg font-medium text-gray-900">Admin Access</h2>
           </div>
-          <div class="p-6">
+          <div class="p-6 space-y-4">
+            <div class="bg-gray-50 rounded-lg p-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm font-medium text-gray-900">User Management</p>
+                  <p class="text-xs text-gray-500 mt-1">View, edit, and manage user accounts</p>
+                </div>
+                <router-link 
+                  to="/admin/users" 
+                  class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-cyan-600 hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500"
+                >
+                  <span class="mdi mdi-account-group mr-2"></span>
+                  Manage Users
+                </router-link>
+              </div>
+            </div>
             <div class="bg-gray-50 rounded-lg p-4">
               <div class="flex items-center justify-between">
                 <div>
                   <p class="text-sm font-medium text-gray-900">Application Management</p>
-                  <p class="text-xs text-gray-500 mt-1">Manage applications and system settings</p>
+                  <p class="text-xs text-gray-500 mt-1">Configure and manage registered applications</p>
                 </div>
                 <router-link 
                   to="/admin" 
                   class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-cyan-600 hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500"
                 >
                   <span class="mdi mdi-shield-crown mr-2"></span>
-                  Admin Panel
+                  Manage Apps
                 </router-link>
               </div>
             </div>
