@@ -237,6 +237,202 @@
             </div>
           </div>
         </div>
+
+        <!-- Admin Settings Section -->
+        <div v-if="isAdmin" class="bg-white shadow rounded-lg overflow-hidden">
+          <div class="px-6 py-5 border-b border-gray-200">
+            <h2 class="text-lg font-medium text-gray-900">Admin Settings</h2>
+          </div>
+          <div class="p-6 space-y-8">
+            
+            <!-- Authentication Providers -->
+            <div>
+              <h3 class="text-base font-medium text-gray-900 mb-4">Authentication Providers</h3>
+              
+              <!-- Google Sign-In -->
+              <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                <div class="flex items-center justify-between mb-4">
+                  <div class="flex items-center">
+                    <span class="mdi mdi-google text-xl text-red-500 mr-3"></span>
+                    <div>
+                      <p class="text-sm font-medium text-gray-900">Google Sign-In</p>
+                      <p class="text-xs text-gray-500">Allow users to sign in with Google</p>
+                    </div>
+                  </div>
+                  <div class="relative inline-block w-12 h-6 transition duration-200 ease-in-out rounded-full cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      id="google-toggle" 
+                      class="absolute w-6 h-6 opacity-0 cursor-pointer"
+                      v-model="adminSettings.googleSignIn.enabled"
+                      @change="updateGoogleSignInSettings"
+                    />
+                    <label 
+                      for="google-toggle" 
+                      class="block h-6 overflow-hidden rounded-full cursor-pointer"
+                      :class="adminSettings.googleSignIn.enabled ? 'bg-cyan-500' : 'bg-gray-300'"
+                    >
+                      <span 
+                        class="block h-6 w-6 rounded-full transform transition-transform duration-200 ease-in-out bg-white shadow-md"
+                        :class="adminSettings.googleSignIn.enabled ? 'translate-x-6' : 'translate-x-0'"
+                      ></span>
+                    </label>
+                  </div>
+                </div>
+                
+                <div v-if="adminSettings.googleSignIn.enabled" class="space-y-3">
+                  <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Client ID</label>
+                    <input 
+                      type="text" 
+                      v-model="adminSettings.googleSignIn.clientId"
+                      @blur="updateGoogleSignInSettings"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                      placeholder="your-google-client-id.googleusercontent.com"
+                    />
+                  </div>
+                  <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Client Secret</label>
+                    <input 
+                      type="password" 
+                      v-model="adminSettings.googleSignIn.clientSecret"
+                      @blur="updateGoogleSignInSettings"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                      placeholder="GOCSPX-your-google-client-secret"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Apple Sign-In -->
+              <div class="bg-gray-50 rounded-lg p-4">
+                <div class="flex items-center justify-between mb-4">
+                  <div class="flex items-center">
+                    <span class="mdi mdi-apple text-xl text-gray-800 mr-3"></span>
+                    <div>
+                      <p class="text-sm font-medium text-gray-900">Apple Sign-In</p>
+                      <p class="text-xs text-gray-500">Allow users to sign in with Apple</p>
+                    </div>
+                  </div>
+                  <div class="relative inline-block w-12 h-6 transition duration-200 ease-in-out rounded-full cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      id="apple-toggle" 
+                      class="absolute w-6 h-6 opacity-0 cursor-pointer"
+                      v-model="adminSettings.appleSignIn.enabled"
+                      @change="updateAppleSignInSettings"
+                    />
+                    <label 
+                      for="apple-toggle" 
+                      class="block h-6 overflow-hidden rounded-full cursor-pointer"
+                      :class="adminSettings.appleSignIn.enabled ? 'bg-cyan-500' : 'bg-gray-300'"
+                    >
+                      <span 
+                        class="block h-6 w-6 rounded-full transform transition-transform duration-200 ease-in-out bg-white shadow-md"
+                        :class="adminSettings.appleSignIn.enabled ? 'translate-x-6' : 'translate-x-0'"
+                      ></span>
+                    </label>
+                  </div>
+                </div>
+                
+                <div v-if="adminSettings.appleSignIn.enabled" class="space-y-3">
+                  <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Client ID</label>
+                    <input 
+                      type="text" 
+                      v-model="adminSettings.appleSignIn.clientId"
+                      @blur="updateAppleSignInSettings"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                      placeholder="com.yourapp.signin"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- App Customization -->
+            <div>
+              <h3 class="text-base font-medium text-gray-900 mb-4">App Customization</h3>
+              <div class="bg-gray-50 rounded-lg p-4 space-y-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">App Name</label>
+                  <input 
+                    type="text" 
+                    v-model="adminSettings.app.name"
+                    @blur="updateAppSettings"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                    placeholder="Your App Name"
+                  />
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Logo URL</label>
+                  <div class="flex items-center space-x-3">
+                    <img 
+                      :src="adminSettings.app.logo" 
+                      alt="App Logo" 
+                      class="w-12 h-12 rounded-lg object-cover border border-gray-200"
+                      @error="$event.target.src = 'https://via.placeholder.com/64x64?text=Logo'"
+                    />
+                    <input 
+                      type="url" 
+                      v-model="adminSettings.app.logo"
+                      @blur="updateAppSettings"
+                      class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                      placeholder="https://example.com/logo.png"
+                    />
+                  </div>
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Accent Color</label>
+                  <div class="flex items-center space-x-3">
+                    <div 
+                      class="w-12 h-8 rounded border border-gray-200 cursor-pointer"
+                      :style="{ backgroundColor: adminSettings.app.accentColor }"
+                      @click="$refs.colorPicker.click()"
+                    ></div>
+                    <input 
+                      ref="colorPicker"
+                      type="color" 
+                      v-model="adminSettings.app.accentColor"
+                      @change="updateAppSettings"
+                      class="sr-only"
+                    />
+                    <input 
+                      type="text" 
+                      v-model="adminSettings.app.accentColor"
+                      @blur="updateAppSettings"
+                      class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                      placeholder="#06b6d4"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- User Management -->
+            <div>
+              <h3 class="text-base font-medium text-gray-900 mb-4">User Management</h3>
+              <div class="bg-gray-50 rounded-lg p-4">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-sm font-medium text-gray-900">Manage Users</p>
+                    <p class="text-xs text-gray-500 mt-1">View, edit, and manage user accounts</p>
+                  </div>
+                  <router-link 
+                    to="/admin/users" 
+                    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-cyan-600 hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500"
+                  >
+                    <span class="mdi mdi-account-group mr-2"></span>
+                    Manage Users
+                  </router-link>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
       </div>
     </div>
 
@@ -260,6 +456,24 @@ export default {
       associations: [],
       sessions: [],
       currentSessionToken: '',
+      
+      // Admin settings (placeholder data)
+      adminSettings: {
+        googleSignIn: {
+          enabled: true,
+          clientId: 'your-google-client-id.googleusercontent.com',
+          clientSecret: 'GOCSPX-your-google-client-secret'
+        },
+        appleSignIn: {
+          enabled: false,
+          clientId: 'com.yourapp.signin'
+        },
+        app: {
+          name: 'Your App Name',
+          logo: 'https://via.placeholder.com/64x64?text=Logo',
+          accentColor: '#06b6d4'
+        }
+      },
       
       // Loading states for other operations
     };
