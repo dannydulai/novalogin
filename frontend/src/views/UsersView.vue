@@ -528,7 +528,7 @@ export default {
 
     formatDate(dateString) {
       if (!dateString) return '';
-      return dayjs.utc(dateString).local().format('MMM D, YYYY');
+      return dayjs.utc(dateString, 'z').local().format('MMM D, YYYY');
     },
 
     showNotification(message, type = 'success') {

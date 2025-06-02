@@ -375,7 +375,7 @@ export default {
     // Format date to a readable string in local time
     formatDate(dateString) {
       if (!dateString) return '';
-      return dayjs.utc(dateString).local().format('MMM D, YYYY h:mm A');
+      return dayjs.utc(dateString, 'z').local().format('MMM D, YYYY h:mm A');
     },
     
     // Copy text to clipboard
