@@ -172,8 +172,9 @@
               <p>No linked accounts</p>
             </div>
             
-            <div class="mt-6 grid grid-cols-1 gap-3">
+            <div v-if="$config.googleClientId || $config.appleClientId" class="mt-6 grid grid-cols-1 gap-3">
               <button 
+                v-if="$config.googleClientId"
                 @click="linkGoogleAccount" 
                 class="flex items-center justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 cursor-pointer"
               >
@@ -181,6 +182,7 @@
                 Link Google Account
               </button>
               <button 
+                v-if="$config.appleClientId"
                 @click="linkAppleAccount" 
                 class="flex items-center justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 cursor-pointer"
               >

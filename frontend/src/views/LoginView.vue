@@ -217,15 +217,15 @@
         </div>
       </form>
       
-      <div class="flex items-center my-5 sm:my-6">
+      <div v-if="$config.googleClientId || $config.appleClientId" class="flex items-center my-5 sm:my-6">
         <hr class="flex-1 border-gray-200">
         <span class="px-2 sm:px-3 text-xs sm:text-sm text-gray-500 uppercase font-bold">or</span>
         <hr class="flex-1 border-gray-200">
       </div>
       
-      <div id="google-signin" class="mb-3"></div>
+      <div v-if="$config.googleClientId" id="google-signin" class="mb-3"></div>
       
-      <div id="appleid-signin" class="mb-6"></div>
+      <div v-if="$config.appleClientId" id="appleid-signin" class="mb-6"></div>
       
       <div class="text-center text-sm text-gray-600">
         Don't have an account? 
