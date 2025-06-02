@@ -480,7 +480,7 @@ export default function (app, logger) {
                         const userInfo = await db('users').select('email', 'firstname', 'lastname').where({ user_id: cookII.user_id }).first();
                         
                         const idTokenPayload = {
-                            iss: config.DOMAIN,
+                            iss: config.HOST,
                             sub: cookII.user_id.toString(),
                             aud: appinfo.id,
                             exp: Math.floor(Date.now() / 1000) + (60 * 60), // 1 hour
@@ -556,18 +556,18 @@ export default function (app, logger) {
 
         app.get("/api/.well-known/openid-configuration", async (req, res) => {
             return res.status(200).send({
-                issuer: config.DOMAIN,
-                authorization_endpoint: config.DOMAIN + "/login",
-                end_session_endpoint: config.DOMAIN + "/account",
-                token_endpoint: config.DOMAIN + "/api/oidc-token",
-                jwks_uri: config.DOMAIN + "/api/oidc-jwks",
+                issuer: config.HOST,
+                authorization_endpoint: config.HOST + "/login",
+                end_session_endpoint: config.HOST + "/account",
+                token_endpoint: config.HOST + "/api/oidc-token",
+                jwks_uri: config.HOST + "/api/oidc-jwks",
                 response_types_supported: ["code"],
                 grant_types_supported: ["authorization_code"],
                 code_challenge_methods_supported: ["S256"],
                 token_endpoint_auth_methods_supported: ["client_secret_post"],
                 id_token_signing_alg_values_supported: ["RS256"],
                 subject_types_supported: ["public"],
-                userinfo_endpoint: config.DOMAIN + "/api/oidc-userinfo",
+                userinfo_endpoint: config.HOST + "/api/oidc-userinfo",
 
             });
         });

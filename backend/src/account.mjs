@@ -399,7 +399,7 @@ export default function(app, logger) {
             const stringifiedParams = new URLSearchParams({
                 prompt: 'select_account',
                 client_id: config.GOOGLE_CLIENT_ID,
-                redirect_uri: `${config.DOMAIN}/account/connect`,
+                redirect_uri: `${config.HOST}/account`,
                 scope: [
                     'openid',
                     'https://www.googleapis.com/auth/userinfo.email',
@@ -442,7 +442,7 @@ export default function(app, logger) {
                     data: {
                         client_id: config.GOOGLE_CLIENT_ID,
                         client_secret: config.GOOGLE_CLIENT_SECRET,
-                        redirect_uri: `${config.DOMAIN}/account/connect`,
+                        redirect_uri: `${config.HOST}/account/connect`,
                         grant_type: 'authorization_code',
                         code,
                     },

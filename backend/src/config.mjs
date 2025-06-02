@@ -7,6 +7,8 @@ export default {
   COOKIE_NAME_II: process.env.COOKIE_NAME_II || 'ii',
   COOKIE_NAME_LI: process.env.COOKIE_NAME_LI || 'li',
   COOKIE_DOMAIN: process.env.COOKIE_DOMAIN || '',
+
+  HOST: process.env.HOST || 'localhost',
   
   // Login settings
   LOGIN_COOKIE_VERSION: process.env.LOGIN_COOKIE_VERSION || '1',
