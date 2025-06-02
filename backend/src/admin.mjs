@@ -37,8 +37,8 @@ app.post("/api/admin/data", async (req, res) => {
         if (!await userAuthenticate(session, res)) return;
         if (!await userAuthorize(session, res)) return;
 
-        const rows = (await db.raw(`SELECT * FROM apps ORDER BY id`)).rows;
-        return res.send(rows.map(r => ({...r, login_profile: !r.skipprofile})));
+        const rows = (await db.raw(`SELECT * FROM apps ORDER BY app_id`)).rows;
+        return res.send(rows);
     } catch (e) {
         logger.error(e);
         return res.status(500).send("Server Error");
@@ -55,10 +55,9 @@ app.post("/api/admin/submit", async (req, res) => {
         if (req.body.groups && !Array.isArray(req.body.groups)) return res.status(400).send("Invalid groups");
 
         if (req.body.add == "new") {
-            await db.raw(`INSERT INTO apps (name, login_callback, skipprofile, groups) VALUES ( :name, :login_callback, :login_profile, :groups )`, {
+            await db.raw(`INSERT INTO apps (name, login_callback, groups) VALUES ( :name, :login_callback, :groups )`, {
                 name:           req.body.name,
                 login_callback: req.body.login_callback,
-                login_profile:  req.body.login_profile != true,
                 groups:         req.body.groups || []
             });
         }
@@ -67,19 +66,17 @@ app.post("/api/admin/submit", async (req, res) => {
             let opts = {}
             if (req.body.name) opts.name = req.body.name;
             if (req.body.login_callback != undefined) opts.login_callback = req.body.login_callback;
-            if (req.body.login_profile != undefined)  opts.skipprofile    = req.body.login_profile == true;
             if (req.body.groups) opts.groups = req.body.groups;
-            await db.raw(`UPDATE apps SET ${Object.keys(opts).map(x => `${x} = :${x}`).join(', ')} WHERE id = :id `, {
+            await db.raw(`UPDATE apps SET ${Object.keys(opts).map(x => `${x} = :${x}`).join(', ')} WHERE app_id = :app_id `, {
                 name:           req.body.name,
                 login_callback: req.body.login_callback,
-                skipprofile:    req.body.login_profile != true,
-                id:             req.body.save,
+                app_id:         req.body.save,
                 groups:         req.body.groups || []
             });
         }
 
         if (req.body.del)
-            await db.raw(`DELETE FROM apps WHERE id = :id`, { id: req.body.del });
+            await db.raw(`DELETE FROM apps WHERE app_id = :app_id`, { id: req.body.del });
 
         return res.send();
     } catch (e) {

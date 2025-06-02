@@ -1,8 +1,7 @@
-[ ] OIDC routes
+[x] OIDC routes
+[ ] Admin app + User mgmt system
 [ ] Change email / password flow
 [ ] Link Google / Apple accounts
-[ ] Admin app + User mgmt system
-[ ] Admin app mgmt system
 [ ] Test app for how to link ex with PKCE + web secret
 [ ] Verify redirects carry url params properly
     ----> option to save query params when creating user
