@@ -415,7 +415,7 @@ async function loginAssociation({
     user_id = user.user_id;
     email   = user.email.trim();
 
-    const result = await _login6({
+    const result = await _login({
       txn,
       groups: user.groups,
       email,
