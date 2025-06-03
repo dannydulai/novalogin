@@ -319,18 +319,17 @@ export default {
     // Pick out any params
     this.mapQSToState();
     
-    //if (typeof AppleID !== 'undefined') {
-    //  AppleID.auth.init({
-    //    clientId: 'com.keyflow.website.signin',
-    //    scope: 'name email',
-    //    redirectURI: window.location.origin + '/login/acb',
-    //    state: JSON.stringify({ challenge: this.challenge, id: this._id, cb: this.cb, state: this.state }),
-    //    nonce: this.nonce(),
-    //    usePopup: true 
-    //  });
-    //}
+    if (typeof AppleID !== 'undefined') {
+      AppleID.auth.init({
+        clientId: this.$config.appleClientId,
+        scope: 'name email',
+        redirectURI: window.location.origin + '/login/acb',
+        state: JSON.stringify({ challenge: this.challenge, id: this._id, cb: this.cb, state: this.state }),
+        nonce: this.nonce(),
+        usePopup: true
+      });
+    }
     
-    console.log('google', typeof google, this.$config);
     if (typeof google !== 'undefined' && this.$config.googleClientId) { 
       google.accounts.id.initialize({
         client_id: this.$config.googleClientId,
@@ -339,9 +338,9 @@ export default {
     }
 
     this.$nextTick(() => {
-      //if (typeof AppleID !== 'undefined') {
-      //  AppleID.auth.renderButton();
-      //}
+      if (typeof AppleID !== 'undefined') {
+        AppleID.auth.renderButton();
+      }
       
       if (typeof google !== 'undefined' && this.auth_state === 'login' && this.$config.googleClientId) {
         google.accounts.id.renderButton(
@@ -352,19 +351,19 @@ export default {
       }
     });
 
-    ///if (typeof AppleID !== 'undefined') {
-    ///  document.addEventListener('AppleIDSignInOnSuccess', async (event) => {
-    ///    this.loading.action = 'checking';
-    ///    await this.signInWithApple(event.detail.authorization);
-    ///  });
+    if (typeof AppleID !== 'undefined') {
+      document.addEventListener('AppleIDSignInOnSuccess', async (event) => {
+        this.loading.action = 'checking';
+        await this.signInWithApple(event.detail.authorization);
+      });
 
-    ///  document.addEventListener('AppleIDSignInOnFailure', (event) => {
-    ///    this.loading.action = null;
-    ///    console.log(event.detail.error);
-    ///    if (event.detail.error === 'popup_closed_by_user' || event.detail.error === 'user_cancelled_authorize') return;
-    ///    this.error = event.detail.error;
-    ///  });
-    ///}
+      document.addEventListener('AppleIDSignInOnFailure', (event) => {
+        this.loading.action = null;
+        console.log(event.detail.error);
+        if (event.detail.error === 'popup_closed_by_user' || event.detail.error === 'user_cancelled_authorize') return;
+        this.error = event.detail.error;
+      });
+    }
   },
   computed: {
   },
@@ -441,37 +440,37 @@ export default {
         this.auth_state = 'login';
       }
     },
-    //async signInWithApple({ code, id_token }) {
-    //  this.loading.action = 'checking';
-    //  this.auth_state = 'checking';
-    //  try {
-    //    const res = await fetch('/api/acb', {
-    //      method: 'POST',
-    //      headers: { 'Content-Type': 'application/json' },
-    //      body: JSON.stringify({
-    //        recaptcha: await this.recaptcha('keyflow_login_enter_credentials_apple'),
-    //        code,
-    //        id_token,
-    //        nonce: this._nonce,
-    //      })
-    //    });
-    //    const data = await res.json();
-    //    if (data.status === 'Success') {
-    //      this.getLoginStatus();
-    //    } else {
-    //      this.error = data.status;
-    //      this.auth_state = 'login';
-    //      this.loading.action = null;
-    //    }
-    //  } catch (e) {
-    //    console.log(e)
-    //    this.auth_state = 'login';
-    //    this.loading.action = null;
-    //  }
-    //},
-    //appleSignInClicked() {
-    //  this.error = '';
-    //},
+    async signInWithApple({ code, id_token }) {
+      this.loading.action = 'checking';
+      this.auth_state = 'checking';
+      try {
+        const res = await fetch('/api/acb', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            recaptcha: await this.recaptcha('keyflow_login_enter_credentials_apple'),
+            code,
+            id_token,
+            nonce: this._nonce,
+          })
+        });
+        const data = await res.json();
+        if (data.status === 'Success') {
+          this.getLoginStatus();
+        } else {
+          this.error = data.status;
+          this.auth_state = 'login';
+          this.loading.action = null;
+        }
+      } catch (e) {
+        console.log(e)
+        this.auth_state = 'login';
+        this.loading.action = null;
+      }
+    },
+    appleSignInClicked() {
+      this.error = '';
+    },
     nonce() {
       const nonceBytes = new Uint8Array(16);
       crypto.getRandomValues(nonceBytes);

@@ -22,4 +22,5 @@ export default {
   },
   
   googleClientId: import.meta.env.GOOGLE_CLIENT_ID || '',
+  appleClientId: import.meta.env.APPLE_CLIENT_ID || '',
 };
