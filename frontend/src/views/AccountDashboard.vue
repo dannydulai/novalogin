@@ -307,7 +307,7 @@ export default {
       associations: [],
       sessions: [],
       currentSessionToken: '',
-      
+      _nonce: null,
       
       // Loading states for other operations
     };
@@ -329,6 +329,7 @@ export default {
     }
   },
   mounted() {
+    this.setupAppleSignIn();
     this.handleGoogleCallback();
     this.fetchAccountInfo();
   },
@@ -533,9 +534,24 @@ export default {
     },
     
     async linkAppleAccount() {
-      // This would typically open an Apple Sign In flow
-      // For now, we'll just show a notification
-      this.showNotification('Apple account linking not implemented yet', 'info');
+      if (typeof AppleID === 'undefined') {
+        this.showNotification('Apple Sign In not available', 'error');
+        return;
+      }
+      
+      try {
+        AppleID.auth.init({
+          clientId: this.$config.appleClientId,
+          scope: 'name email',
+          redirectURI: window.location.origin + '/account',
+          state: null,
+          nonce: this.generateNonce(),
+          usePopup: true 
+        });
+        AppleID.auth.signIn();
+      } catch (error) {
+        this.showNotification('Failed to initiate Apple Sign In', 'error');
+      }
     },
     
     async unlinkAccount(association) {
@@ -567,6 +583,67 @@ export default {
       } catch (error) {
         this.error = error.message;
         this.showNotification(this.error, 'error');
+      }
+    },
+    
+    setupAppleSignIn() {
+      if (typeof document !== 'undefined') {
+        document.addEventListener('AppleIDSignInOnSuccess', async (event) => {
+          // Handle successful response.
+          try {
+            await this.signInWithApple(event.detail.authorization);
+          } catch (error) {
+            this.showNotification('Failed to connect Apple account', 'error');
+          }
+        });
+
+        // Listen for authorization failures.
+        document.addEventListener('AppleIDSignInOnFailure', (event) => {
+          // Handle error.
+          console.log(event.detail.error);
+          if (event.detail.error === 'popup_closed_by_user') return;
+          this.showNotification('Apple Sign In failed', 'error');
+        });
+      }
+    },
+    
+    generateNonce() {
+      const nonceBytes = new Uint8Array(16);
+      crypto.getRandomValues(nonceBytes);
+      const nonce = btoa(String.fromCharCode.apply(null, nonceBytes));
+      this._nonce = nonce;
+      return nonce;
+    },
+    
+    async signInWithApple({ code, id_token }) {
+      try {
+        const response = await fetch('/api/account/connect-apple', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            code,
+            id_token,
+            nonce: this._nonce
+          })
+        });
+        
+        if (response.status === 401) {
+          window.location.href = '/login';
+          return;
+        }
+        
+        const data = await response.json();
+        
+        if (data.status === 'Success') {
+          this.showNotification('Apple account connected successfully', 'success');
+          this.fetchAccountInfo(); // Refresh to show new association
+        } else if (data.status === 'AlreadyAssociated') {
+          this.showNotification('This Apple account is already associated with another user', 'error');
+        } else {
+          this.showNotification('Failed to connect Apple account', 'error');
+        }
+      } catch (error) {
+        this.showNotification('Failed to connect Apple account', 'error');
       }
     },
 
