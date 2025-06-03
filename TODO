@@ -6,7 +6,7 @@
 [ ] SES for emails
 [ ] Change email / password flow
 [ ] express login package + fastify login package.
-[ ] Test web app with client_secret + express login package
+[x] Test web app with client_secret + express login package
 [ ] Test flutter app for PKCE
 [ ] Example of how to connect open source app with oidc (use grist)
 [ ] How to test apple login? ngrok?
