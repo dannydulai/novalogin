@@ -225,7 +225,7 @@
       
       <div v-if="$config.googleClientId" id="google-signin" class="flex justify-center mb-3"></div>
       
-      <div v-if="$config.appleClientId" id="appleid-signin" class="mb-6"></div>
+      <div v-if="$config.appleClientId" id="appleid-signin" class="flex justify-center mb-6"></div>
       
       <div class="text-center text-sm text-gray-600">
         Don't have an account? 
@@ -270,7 +270,7 @@
     </div>
     
     <!-- Powered by NovaLogin footer -->
-    <div v-if="!$config.hidePoweredBy" class="absolute bottom-2 w-full text-center">
+    <div v-if="!$config.hidePoweredBy" class="fixed bottom-4 w-full text-center">
       <div class="inline-flex items-center px-3 py-1 rounded-full bg-white/80 backdrop-blur-sm shadow-sm text-sm text-gray-600">
         <span>Powered by</span>
         <a href="https://novalogin.io" target="_blank" rel="noopener"  class="font-medium ml-1 flex items-center hover:underline text-cyan-600">
