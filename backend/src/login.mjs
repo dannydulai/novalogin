@@ -471,6 +471,22 @@ export default function (app, logger) {
         }
     });
 
+    // Verify token endpoint
+    app.get("/api/login/verify-token", async (req, res) => {
+        if (!req.query.token)  return res.status(400).send("Bad Request (missing token)");
+        if (!req.query.secret) return res.status(400).send("Bad Request (missing secret)");
+        try {
+            const app = await db('apps').select('app_id').where({app_secret: req.query.secret}).first();
+            if (!app) return res.status(400).send("Bad Request (invalid secret)");
+            const email = await auth.verify(req.query.token);
+            if (!email) return res.status(401).send("Unauthorized (invalid token)");
+            return res.status(200).send({ status: "Success" });
+        } catch (e) {
+            logger.error(e);
+            return res.status(500).send("Server Error");
+        }
+    });
+
     // Token endpoint
     app.get("/api/login/token", async (req, res) => {
         if (!req.query.code)     return res.status(400).send("Bad Request (missing code)");
