@@ -2,12 +2,13 @@
 [x] Admin app
 [x] User mgmt system
 [x] Link Google
-[ ] Apple accounts
-[ ] Verify redirects carry url params properly
-    ----> option to save query params when creating user
-[ ] express login package + fastify login package.
+[x] Apple accounts
 [ ] SES for emails
 [ ] Change email / password flow
+[ ] express login package + fastify login package.
 [ ] Test web app with client_secret + express login package
 [ ] Test flutter app for PKCE
 [ ] Example of how to connect open source app with oidc (use grist)
+[ ] How to test apple login? ngrok?
+[ ] Verify redirects carry url params properly
+    ----> option to save query params when creating user
