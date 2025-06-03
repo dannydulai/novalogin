@@ -18,7 +18,7 @@ module.exports = function(options) {
 
     // Optional
     const cookie_name      = options.cookie_name || 'novaLI';
-    const verify_url       = options.verify_url  || (`${auth_url}/api/login/verify`);
+    const verify_url       = options.verify_url  || (`${auth_url}/api/login/token-verify`);
     const token_url        = options.token_url   || (`${auth_url}/api/login/token`);
     const login_url        = options.login_url   || (`${auth_url}/login`);
     const logout_url       = options.logout_url  || (`${auth_url}/api/login/logout`);
