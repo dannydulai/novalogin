@@ -1,5 +1,9 @@
 <template>
-    <div class="text-6xl">
-        hhh
-    </div>
+  <router-view />
 </template>
+
+<script>
+export default {
+  name: 'App'
+}
+</script>
