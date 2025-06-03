@@ -18,7 +18,7 @@ module.exports = function(options) {
 
     // Optional
     const cookie_name      = options.cookie_name || 'novaLI';
-    const verify_url       = options.verify_url  || (`${auth_url}/api/login/token-verify`);
+    const verify_url       = options.verify_url  || (`${auth_url}/api/login/verify-token`);
     const token_url        = options.token_url   || (`${auth_url}/api/login/token`);
     const login_url        = options.login_url   || (`${auth_url}/login`);
     const logout_url       = options.logout_url  || (`${auth_url}/api/login/logout`);
@@ -32,9 +32,9 @@ module.exports = function(options) {
         return _cookie;
     }
 
-    function decodeRoonLICookie(roonLICookie, key) {
+    function decodeLICookie(LICookie, key) {
         try {
-            let r = JSON.parse(cookieEncrypter.decryptCookie(roonLICookie, { key: key || cookie_secret }));
+            let r = JSON.parse(cookieEncrypter.decryptCookie(LICookie, { key: key || cookie_secret }));
             return r;
         } catch (e) {}
         return null;
@@ -119,13 +119,13 @@ module.exports = function(options) {
     }
 
     async function softTryStandalone(rawcookie, key) {
-        const cookie = decodeRoonLICookie(rawcookie, key);
+        const cookie = decodeLICookie(rawcookie, key);
         if (!cookie) return null;
         return cookie;
     }
 
     async function softCheckStandalone(rawcookie, key, _hard_check_threshold = null) {
-        const cookie = decodeRoonLICookie(rawcookie, key);
+        const cookie = decodeLICookie(rawcookie, key);
         if (!cookie) return null;
 
         const hard_check_threshold = _hard_check_threshold || (1000 * 60 * 60);
@@ -146,7 +146,7 @@ module.exports = function(options) {
     }
 
     async function hardCheckStandalone(rawcookie, key) {
-        const cookie = decodeRoonLICookie(rawcookie, key);
+        const cookie = decodeLICookie(rawcookie, key);
         if (!cookie) return null;
 
         const { access_token } = cookie;
@@ -181,23 +181,11 @@ module.exports = function(options) {
             const { code } = req.query;
             const response = await axios({
                 method: 'GET',
-                url: token_url + new URLSearchParams({
+                url: token_url + '?' + new URLSearchParams({
                     code,
                     secret: options.app_secret
                 })
             });
-
-            if (options.groups) {
-                for (let group of options.groups) {
-                    if (!response.data.groups.includes(group)) {
-                        if (options.on_not_authorized) {
-                            return await options.on_not_authorized(req, res, response.data);
-                        } else {
-                            return res.status(403).json({ status: "Not authorized" });
-                        }
-                    }
-                }
-            }
 
             setCookie(
                 res,
@@ -218,7 +206,10 @@ module.exports = function(options) {
 
     router.get('/api/logout', async (req, res) => {
         try {
-            const logout_token = req.auth?.credentials?.logout_token;
+            const reqCookie = getCookie(req, cookie_name);
+            if (!cookie) throw new Error('Invalid cookie');
+
+            const logout_token = reqCookie.logout_token;
             if (!logout_token) throw new Error('Missing logout token');
 
             const response = await axios({

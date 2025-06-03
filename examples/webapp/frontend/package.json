@@ -11,8 +11,11 @@
   "dependencies": {
     "@mdi/font": "^7.4.47",
     "@tailwindcss/vite": "^4.1.8",
+    "axios": "^1.9.0",
     "tailwindcss": "^4.1.8",
-    "vue": "^3.5.13"
+    "vue": "^3.5.13",
+    "vue-nova-login": "file:../../../vue-nova-login",
+    "vue-router": "^4.5.1"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.3",

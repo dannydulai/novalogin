@@ -51,16 +51,17 @@ export default function (app, logger) {
      */
     async function getCodeExchange(code, opts) {
         try {
-            if (opts.verifier)
+            if (opts.verifier) {
                 return JSON.parse((await db.raw(`DELETE FROM codes WHERE code = :code AND challenge = :challenge RETURNING value`, { 
                     code, 
                     challenge: "PKCE-" + pkceChallenge.generateChallenge(opts.verifier) 
                 })).rows[0].value);
-            else
+            } else {
                 return JSON.parse((await db.raw(`DELETE FROM codes WHERE code = :code AND challenge = :challenge RETURNING value`, { 
                     code, 
                     challenge: "APPSECRET-" + opts.client_secret 
                 })).rows[0].value);
+            }
         } catch (e) {
             logger.error(e);
             return null;
@@ -410,7 +411,6 @@ export default function (app, logger) {
             if (!cookII.temp?.tfa.secret) return res.send();
 
             if (!twofactor.verifyToken(cookII.temp?.tfa.secret, req.body.tfa)) {
-                console.log("token failed to validate", cookII.temp?.tfa.secret, req.body.tfa);
                 return res.status(400).send({ status: "BadToken" });
             }
 
@@ -476,7 +476,7 @@ export default function (app, logger) {
         if (!req.query.token)  return res.status(400).send("Bad Request (missing token)");
         if (!req.query.secret) return res.status(400).send("Bad Request (missing secret)");
         try {
-            const app = await db('apps').select('app_id').where({app_secret: req.query.secret}).first();
+            const app = await db('apps').select('app_id').where({secret: req.query.secret}).first();
             if (!app) return res.status(400).send("Bad Request (invalid secret)");
             const email = await auth.verify(req.query.token);
             if (!email) return res.status(401).send("Unauthorized (invalid token)");

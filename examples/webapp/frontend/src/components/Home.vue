@@ -36,19 +36,9 @@
         </h1>
         
         <div class="space-y-3 mb-6">
-          <div v-if="user.email" class="flex items-center justify-center text-gray-600">
-            <i class="mdi mdi-email text-indigo-500 mr-2"></i>
-            <span>{{ user.email }}</span>
-          </div>
-          
-          <div v-if="user.name" class="flex items-center justify-center text-gray-600">
+          <div v-if="user.user_id" class="flex items-center justify-center text-gray-600">
             <i class="mdi mdi-account-circle text-indigo-500 mr-2"></i>
-            <span>{{ user.name }}</span>
-          </div>
-          
-          <div v-if="user.lastLogin" class="flex items-center justify-center text-gray-500 text-sm">
-            <i class="mdi mdi-clock text-indigo-400 mr-2"></i>
-            <span>Last login: {{ formatDate(user.lastLogin) }}</span>
+            <span>{{ user.user_id }}</span>
           </div>
         </div>
 
@@ -77,7 +67,7 @@
 
 <script>
 import axios from 'axios'
-import NovaAuth from '../../vue-nova-login'
+import NovaAuth from 'vue-nova-login'
 
 export default {
   name: 'Home',
@@ -114,17 +104,6 @@ export default {
     async logout() {
       await NovaAuth.logout({ to: '/' })
     },
-    
-    formatDate(dateString) {
-      if (!dateString) return ''
-      return new Date(dateString).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      })
-    }
   }
 }
 </script>

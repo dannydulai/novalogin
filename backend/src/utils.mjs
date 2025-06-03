@@ -171,7 +171,7 @@ export async function lookupAppInfo(id) {
             };
         }
 
-        return (await knex.raw(`SELECT * FROM apps WHERE id = :id`, { id })).rows[0];
+        return (await knex.raw(`SELECT * FROM apps WHERE app_id = :id`, { id })).rows[0];
     } catch (e) {
         logger.error(e);
         return null;

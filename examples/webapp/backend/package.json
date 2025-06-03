@@ -1,5 +1,5 @@
 {
-  "name": "express-nova-login",
+  "name": "backend",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
@@ -10,9 +10,8 @@
   "description": "",
   "dependencies": {
     "axios": "^1.9.0",
-    "cookie": "^1.0.2",
-    "cookie-encrypter": "^1.0.1",
-    "cookie-parser": "^1.4.7",
-    "express": "^5.1.0"
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "express-nova-login": "file:../../../express-nova-login"
   }
 }

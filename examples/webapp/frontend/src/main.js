@@ -3,7 +3,7 @@ import './style.css'
 import '@mdi/font/css/materialdesignicons.css'
 import App from './App.vue'
 import router from './router'
-import NovaAuth from '../vue-nova-login'
+import NovaAuth from 'vue-nova-login'
 
 // Setup NovaAuth with the router
 NovaAuth.install(router)
