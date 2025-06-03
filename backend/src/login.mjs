@@ -158,6 +158,36 @@ export default function (app, logger) {
         }
     });
 
+    // Apple callback
+    app.post("/api/login/acb", async (req, res) => {
+        try {
+            if (!(await auth.validateRecaptcha(req.body.recaptcha))) return res.status(400).send({ status: "InvalidRecaptcha" });
+            if (!req.body.id_token) return res.status(400).send({ status: "BadRequest", field: "code" });
+            if (!req.body.nonce) return res.status(400).send({ status: "BadRequest", field: "nonce" });
+
+            const id_token = req.body.id_token;
+
+            // Verify JWT
+            const {
+                sub,
+            } = await auth.verifyAppleIdToken(id_token, config.APPLE_CLIENT_ID, req.body.nonce);
+
+            const { loginResponse, cookII } = await doLogin(req, res, { association: { association_id: sub }});
+            if (loginResponse.status === 'NotFound')     {
+                return res.status(200).send({status: 'NotFound'});
+            } else if (loginResponse.status != 'Success') {
+                return res.status(200).send({status: loginResponse.status});
+            } else {
+                // Success
+                await saveCookLI(req, res, cookII);
+                return res.status(200).send({status: 'Success'});
+            }
+        } catch (e) {
+            console.log(e);
+            return res.status(500).send({status: 'ServerError'});
+        }
+    });
+
     // Google callback
     app.post("/api/login/gcb", async (req, res) => {
         try {
@@ -585,35 +615,4 @@ export default function (app, logger) {
 
 
 
-    // Apple callback - disabled for now
-    /*
-    app.post("/api/login/acb", async (req, res) => {
-        try {
-            if (!(await auth.validateRecaptcha(req.body.recaptcha))) return res.status(400).send({ status: "InvalidRecaptcha" });
-            if (!req.body.id_token) return res.status(400).send({ status: "BadRequest", field: "code" });
-            if (!req.body.nonce) return res.status(400).send({ status: "BadRequest", field: "nonce" });
-
-            const id_token = req.body.id_token;
-
-            // Verify JWT
-            const {
-                sub,
-            } = await auth.verifyAppleIdToken(id_token, 'com.roon.website.signin', req.body.nonce);
-
-            const { accountServerResponse, cookII } = await doLogin(req, res, { association: { association_id: sub }});
-            if (accountServerResponse.status === 'NotFound')     {
-                return res.status(200).send({status: 'NotFound'});
-            } else if (accountServerResponse.status != 'Success') {
-                return res.status(200).send({status: accountServerResponse.status});
-            } else {
-                // Success
-                await saveCookLI(req, res, cookII);
-                return res.status(200).send({status: 'Success'});
-            }
-        } catch (e) {
-            console.log(e);
-            return res.status(500).send({status: 'ServerError'});
-        }
-    });
-    */
 }
