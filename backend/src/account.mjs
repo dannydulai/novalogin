@@ -389,6 +389,47 @@ export default function(app, logger) {
         }
     }
 
+    app.post("/api/account/connect-apple", requireAuth, async (req, res) => {
+        try {
+            if (!config.APPLE_CLIENT_ID) return res.status(400).send({ status: "AppleNotConfigured" });
+            if (!req.body.id_token)      return res.status(400).send();
+            if (!req.body.nonce)         return res.status(400).send();
+            const {
+                sub,
+                email,
+                email_verified
+            } = await utils.verifyAppleIdToken(req.body.id_token, config.APPLE_CLIENT_ID, req.body.nonce);
+
+            const otheraccts = await db('associations')
+            .where({association_type: 'apple', association_id: sub})
+            .whereNot({user_id: req.auth.user_id})
+            .first();
+
+            if (otheraccts) {
+                return res.status(400).send({ status: 'AlreadyAssociated' });
+            }
+
+            await db('associations')
+            .insert({
+                user_id: req.auth.user_id,
+                association_type: 'apple',
+                association_id: sub,
+                updated: db.raw('now()'),
+                data: {
+                    email: email,
+                    email_verified: email_verified
+                }
+            })
+            .onConflict(['user_id', 'association_type', 'association_id'])
+            .merge(['updated', 'data']);
+
+            return res.status(200).send({ status: 'Success' });
+        } catch (e) {
+            logger.error(e);
+            return res.status(500).send({ status: "ServerError" });
+        }
+    });
+
     // Connect Google account - step 1 (get redirect URL)
     app.post("/api/account/connect-google-1", requireAuth, async (req, res) => {
         try {

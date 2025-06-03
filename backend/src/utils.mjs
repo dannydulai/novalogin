@@ -7,6 +7,8 @@ import path             from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { UAParser }     from 'ua-parser-js';
 import config           from './config.mjs';
+import jwt              from 'jsonwebtoken';
+import jwksClient       from 'jwks-rsa';
 
 const logger = pino({ name: "account" });
 
@@ -176,47 +178,43 @@ export async function lookupAppInfo(id) {
     }
 }
 
-/// Coming soon...
-//import jwt        from 'jsonwebtoken';
-//import jwksClient from 'jwks-rsa';
-//
-///export async function verifyAppleIdToken(idToken, clientId, nonce) {
-///    const applePublicKeyUrl = 'https://appleid.apple.com/auth/keys';
-///
-///    // Get keys from apple Json web key set endpoint (JWKS)
-///    const client = jwksClient({
-///        jwksUri: applePublicKeyUrl,
-///    });
-///
-///    // Callback passed to jwt.verify that will return the actual key from the JWKS endpoint
-///    function getKey(header, callback) {
-///        client.getSigningKey(header.kid, (err, key) => {
-///            const signingKey = key.publicKey || key.rsaPublicKey;
-///            callback(null, signingKey);
-///        });
-///    }
-///
-///    return new Promise((resolve, reject) => {
-///        jwt.verify(
-///            idToken,
-///            getKey,
-///            {
-///                audience: clientId,
-///                issuer: 'https://appleid.apple.com',
-///                algorithms: ['RS256'],
-///            },
-///            (err, decodedToken) => {
-///                if (err) {
-///                    reject(err);
-///                } else {
-///                    if (decodedToken.nonce === nonce) {
-///                        resolve(decodedToken);
-///                    } else {
-///                        reject(new Error('Invalid nonce'));
-///                    }
-///                }
-///            }
-///        );
-///    });
-///}
+export async function verifyAppleIdToken(idToken, clientId, nonce) {
+    const applePublicKeyUrl = 'https://appleid.apple.com/auth/keys';
+
+    // Get keys from apple Json web key set endpoint (JWKS)
+    const client = jwksClient({
+        jwksUri: applePublicKeyUrl,
+    });
+
+    // Callback passed to jwt.verify that will return the actual key from the JWKS endpoint
+    function getKey(header, callback) {
+        client.getSigningKey(header.kid, (err, key) => {
+            const signingKey = key.publicKey || key.rsaPublicKey;
+            callback(null, signingKey);
+        });
+    }
+
+    return new Promise((resolve, reject) => {
+        jwt.verify(
+            idToken,
+            getKey,
+            {
+                audience: clientId,
+                issuer: 'https://appleid.apple.com',
+                algorithms: ['RS256'],
+            },
+            (err, decodedToken) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    if (decodedToken.nonce === nonce) {
+                        resolve(decodedToken);
+                    } else {
+                        reject(new Error('Invalid nonce'));
+                    }
+                }
+            }
+        );
+    });
+}
 
