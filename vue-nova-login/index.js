@@ -2,17 +2,17 @@ import Cookies from "js-cookie";
 import axios   from "axios";
 import { h }   from 'vue';
 
-function goToLogin(redirectTo, apiBase = '/api') {
+function goToLogin(redirectTo, apiBase = '/api', loginEndpoint = 'ligo', callbackEndpoint = 'licb') {
     const state          = encodeURIComponent(btoa(JSON.stringify({ r: redirectTo })));
-    const cb             = encodeURIComponent(window.location.origin + "/licb");
-    window.location.href = `${apiBase}/ligo?cb=${cb}&state=${state}`;
+    const cb             = encodeURIComponent(window.location.origin + `/${callbackEndpoint}`);
+    window.location.href = `${apiBase}/${loginEndpoint}?cb=${cb}&state=${state}`;
 }
 
 // This should work for vue 2 and 3, the next argument is still supported in vue router 4.x
-function useNovaAuth(router, cookie_name = 'novaLI', apiBase = '/api') {
+function useNovaAuth(router, cookie_name = 'novaLI', apiBase = '/api', loginEndpoint = 'ligo', callbackEndpoint = 'licb') {
     let licbRes;
     router.beforeEach(async (to, from, next) => {
-        if (to.path === '/licb') {
+        if (to.path === `/${callbackEndpoint}`) {
             // Grab cookie here and force router to wait
             // vue router ensures they are run in order regardless of sync/async definition, by
             // enqueuing all guards and creating a promise chain with reduce
@@ -24,7 +24,7 @@ function useNovaAuth(router, cookie_name = 'novaLI', apiBase = '/api') {
             // https://github.com/vuejs/router/blob/4cc3093d0485cbd968ff096d1878bee40b7e47a9/packages/router/src/router.ts#L1272
             const res = await axios({
                 method: 'get',
-                url: `${apiBase}/licb`,
+                url: `${apiBase}/${callbackEndpoint}`,
                 params: { code: to.query.code }
             })
             licbRes  = res;
@@ -34,13 +34,13 @@ function useNovaAuth(router, cookie_name = 'novaLI', apiBase = '/api') {
         if (!Cookies.get(cookie_name)) {
 	    // Allow for redirecting of certain pages when unauthorized, if login page is not preferred
 	    if (to.meta?.authRedirect && to.meta?.authRedirect !== to.path) return next(to.meta.authRedirect);
-            goToLogin(to.path, apiBase)
+            goToLogin(to.path, apiBase, loginEndpoint, callbackEndpoint)
 	    return next(false);
         }
 	return next();
     });
 
-    router.addRoute({ name: 'LICB', path: '/licb', meta: { auth: false }, component: {
+    router.addRoute({ name: 'LICB', path: `/${callbackEndpoint}`, meta: { auth: false }, component: {
         data() {
             return {
                 error: null
@@ -78,7 +78,7 @@ function useNovaAuth(router, cookie_name = 'novaLI', apiBase = '/api') {
                 error.config.url && 
                 error.config.url.startsWith(apiBase + '/')) {
                 Cookies.remove(cookie_name);
-                goToLogin(window.location.pathname, apiBase)
+                goToLogin(window.location.pathname, apiBase, loginEndpoint, callbackEndpoint)
             }
             return Promise.reject(error);
         });
@@ -86,12 +86,16 @@ function useNovaAuth(router, cookie_name = 'novaLI', apiBase = '/api') {
 
 let $router;
 let $apiBase;
+let $loginEndpoint;
+let $callbackEndpoint;
 const NovaAuth = {
     install: (router, options = {}) => {
-        const { apiBase = '/api' } = options;
-        useNovaAuth(router, 'novaLI', apiBase);
+        const { apiBase = '/api', loginEndpoint = 'ligo', callbackEndpoint = 'licb' } = options;
+        useNovaAuth(router, 'novaLI', apiBase, loginEndpoint, callbackEndpoint);
         $router = router;
         $apiBase = apiBase;
+        $loginEndpoint = loginEndpoint;
+        $callbackEndpoint = callbackEndpoint;
     },
 
     logout: async (opts) => {
@@ -114,7 +118,7 @@ const NovaAuth = {
     },
 
     login: (opts) => {
-        goToLogin(opts?.to || '/', $apiBase || '/api');
+        goToLogin(opts?.to || '/', $apiBase || '/api', $loginEndpoint || 'ligo', $callbackEndpoint || 'licb');
     }
 
 }
