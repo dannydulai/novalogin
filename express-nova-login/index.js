@@ -161,20 +161,6 @@ module.exports = function(options) {
     const router = express.Router();
     router.use(cookie_parser());
 
-    router.get('/api/ligo', async (req, res) => {
-        const { cb, state } = req.query;
-
-        if (!cb) {
-            return res.status(400).json({ status: "Callback required" });
-        }
-
-        let URL = `${login_url}?id=${options.app_id}&cb=${cb}`;
-        if (state) {
-            URL += `&state=${state}`;
-        }
-
-        res.redirect(URL);
-    });
 
     router.get('/api/licb', async (req, res) => {
         try {
