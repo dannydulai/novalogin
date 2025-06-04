@@ -7,6 +7,27 @@
         <p class="text-gray-600">Loading your profile...</p>
       </div>
 
+      <!-- Logout State -->
+      <div v-else-if="loggingOut" class="text-center">
+        <div class="mb-6">
+          <div class="w-20 h-20 bg-gradient-to-br from-green-400 to-blue-500 rounded-full mx-auto flex items-center justify-center">
+            <i class="mdi mdi-check text-white text-3xl"></i>
+          </div>
+        </div>
+        <h1 class="text-2xl font-bold text-gray-800 mb-2">
+          You've been signed out
+        </h1>
+        <p class="text-gray-600 mb-4">
+          Redirecting to login in {{ countdown }} second{{ countdown !== 1 ? 's' : '' }}...
+        </p>
+        <div class="w-full bg-gray-200 rounded-full h-2">
+          <div 
+            class="bg-indigo-600 h-2 rounded-full transition-all duration-1000 ease-linear"
+            :style="{ width: `${((3 - countdown) / 3) * 100}%` }"
+          ></div>
+        </div>
+      </div>
+
       <!-- Error State -->
       <div v-else-if="error" class="text-center">
         <div class="text-red-500 mb-4">
@@ -75,7 +96,9 @@ export default {
     return {
       user: {},
       loading: true,
-      error: null
+      error: null,
+      loggingOut: false,
+      countdown: 3
     }
   },
   async created() {
@@ -102,7 +125,23 @@ export default {
     },
     
     async logout() {
-      await NovaAuth.logout({ to: '/' })
+      this.loggingOut = true;
+      this.countdown = 3;
+      
+      // Start countdown
+      const countdownInterval = setInterval(() => {
+        this.countdown--;
+        if (this.countdown <= 0) {
+          clearInterval(countdownInterval);
+          this.redirectToLogin();
+        }
+      }, 1000);
+      
+      // Perform logout
+      await NovaAuth.logout({ to: '/' });
+    },
+    
+    async redirectToLogin() {
       NovaAuth.login();
     },
   }
