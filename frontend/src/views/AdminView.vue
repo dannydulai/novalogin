@@ -42,7 +42,7 @@
           </div>
           <div class="ml-3">
             <p class="text-sm">{{ error }}</p>
-            <button @click="fetchApps" class="text-sm font-medium text-red-700 hover:text-red-600 mt-2">
+            <button @click="fetchApps" class="text-sm font-medium text-red-700 hover:text-red-600 mt-2 cursor-pointer">
               Try again
             </button>
           </div>
@@ -84,7 +84,7 @@
                   <code class="text-xs bg-gray-100 px-2 py-1 rounded flex-1">{{ app.app_id }}</code>
                   <button 
                     @click="copyToClipboard(app.app_id.toString())"
-                    class="ml-2 text-cyan-600 hover:text-cyan-800"
+                    class="ml-2 text-cyan-600 hover:text-cyan-800 cursor-pointer"
                     title="Copy App ID"
                   >
                     <span class="mdi mdi-content-copy"></span>
@@ -98,7 +98,7 @@
                   <code class="text-xs bg-gray-100 px-2 py-1 rounded flex-1">{{ app.secret }}</code>
                   <button 
                     @click="copyToClipboard(app.secret)"
-                    class="ml-2 text-cyan-600 hover:text-cyan-800"
+                    class="ml-2 text-cyan-600 hover:text-cyan-800 cursor-pointer"
                     title="Copy App Secret"
                   >
                     <span class="mdi mdi-content-copy"></span>
@@ -137,7 +137,7 @@
                     {{ group }}
                     <button 
                       @click="removeGroup(app, index)"
-                      class="ml-1 text-cyan-600 hover:text-cyan-800"
+                      class="ml-1 text-cyan-600 hover:text-cyan-800 cursor-pointer"
                     >
                       <span class="mdi mdi-close text-xs"></span>
                     </button>
@@ -153,7 +153,7 @@
                   />
                   <button 
                     @click="addGroup(app)"
-                    class="px-3 py-2 bg-cyan-600 text-white rounded-r-md hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    class="px-3 py-2 bg-cyan-600 text-white rounded-r-md hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-cyan-500 cursor-pointer"
                   >
                     <span class="mdi mdi-plus"></span>
                   </button>
@@ -164,14 +164,14 @@
             <div class="flex justify-between pt-4 border-t border-gray-200">
               <button 
                 @click="confirmDelete(app)"
-                class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 cursor-pointer"
               >
                 <span class="mdi mdi-delete mr-1"></span>
                 Delete
               </button>
               <button 
                 @click="saveApp(app)"
-                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-cyan-600 hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500"
+                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-cyan-600 hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 cursor-pointer"
               >
                 <span class="mdi mdi-content-save mr-1"></span>
                 Save
@@ -233,7 +233,7 @@
                     {{ group }}
                     <button 
                       @click="removeNewAppGroup(index)"
-                      class="ml-1 text-cyan-600 hover:text-cyan-800"
+                      class="ml-1 text-cyan-600 hover:text-cyan-800 cursor-pointer"
                     >
                       <span class="mdi mdi-close text-xs"></span>
                     </button>
@@ -249,7 +249,7 @@
                   />
                   <button 
                     @click="addNewAppGroup"
-                    class="px-3 py-2 bg-cyan-600 text-white rounded-r-md hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    class="px-3 py-2 bg-cyan-600 text-white rounded-r-md hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-cyan-500 cursor-pointer"
                   >
                     <span class="mdi mdi-plus"></span>
                   </button>
@@ -261,7 +261,7 @@
               <button 
                 @click="createApp"
                 :disabled="!newApp.name"
-                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-cyan-600 hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-cyan-600 hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
                 <span class="mdi mdi-plus mr-1"></span>
                 Create App
@@ -288,13 +288,13 @@
           <div class="flex justify-center space-x-3 mt-4">
             <button 
               @click="showDeleteModal = false"
-              class="px-4 py-2 bg-gray-300 text-gray-800 text-sm font-medium rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300"
+              class="px-4 py-2 bg-gray-300 text-gray-800 text-sm font-medium rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300 cursor-pointer"
             >
               Cancel
             </button>
             <button 
               @click="deleteApp"
-              class="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
+              class="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 cursor-pointer"
             >
               Delete
             </button>
