@@ -9,7 +9,7 @@ function goToLogin(redirectTo, loginUrl, appId, callbackEndpoint = 'licb') {
 }
 
 // This should work for vue 2 and 3, the next argument is still supported in vue router 4.x
-function useNovaAuth(router, cookie_name = 'novaLI', apiBase = '/api', loginUrl, appId, callbackEndpoint = 'licb') {
+function useNovaAuth(router, cookie_name = 'novaLI', apiBase = '/api', loginUrl, appId, callbackEndpoint = 'licb', logoutEndpoint = 'logout') {
     let licbRes;
     router.beforeEach(async (to, from, next) => {
         if (to.path === `/${callbackEndpoint}`) {
@@ -89,18 +89,20 @@ let $apiBase;
 let $loginUrl;
 let $appId;
 let $callbackEndpoint;
+let $logoutEndpoint;
 const NovaAuth = {
     install: (router, options = {}) => {
         if (!options.loginUrl) throw new Error('loginUrl is required');
         if (!options.appId) throw new Error('appId is required');
         
-        const { apiBase = '/api', loginUrl, appId, callbackEndpoint = 'licb' } = options;
-        useNovaAuth(router, 'novaLI', apiBase, loginUrl, appId, callbackEndpoint);
+        const { apiBase = '/api', loginUrl, appId, callbackEndpoint = 'licb', logoutEndpoint = 'logout' } = options;
+        useNovaAuth(router, 'novaLI', apiBase, loginUrl, appId, callbackEndpoint, logoutEndpoint);
         $router = router;
         $apiBase = apiBase;
         $loginUrl = loginUrl;
         $appId = appId;
         $callbackEndpoint = callbackEndpoint;
+        $logoutEndpoint = logoutEndpoint;
     },
 
     logout: async (opts) => {
@@ -109,7 +111,7 @@ const NovaAuth = {
         try {
             await axios({
                 method: 'get',
-                url: `${$apiBase || '/api'}/logout`
+                url: `${$apiBase || '/api'}/${$logoutEndpoint || 'logout'}`
             })
 
             if ($router) {
