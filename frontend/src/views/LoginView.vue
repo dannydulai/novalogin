@@ -211,7 +211,7 @@
         </button>
         
         <div class="text-center mt-2">
-          <a :href="'/reset?email=' + encodeURIComponent(email)" class="text-sm text-gray-500 hover:text-gray-700">
+          <a :href="'/reset-password?email=' + encodeURIComponent(email)" class="text-sm text-gray-500 hover:text-gray-700">
             Forgot password?
           </a>
         </div>
