@@ -10,6 +10,8 @@ import { UAParser }     from 'ua-parser-js';
 import config           from './config.mjs';
 import jwt              from 'jsonwebtoken';
 import jwksClient       from 'jwks-rsa';
+import nodemailer       from 'nodemailer';
+import { SESv2Client }  from '@aws-sdk/client-sesv2';
 
 const logger = pino({ name: "account" });
 
@@ -103,13 +105,85 @@ export function isValidPassword(password) {
 }
 
 /**
- * Placeholder for email alert functionality
+ * Placeholder function to render email content
+ * @param {Object} opts - Email options
+ * @returns {Object} - Email content with subject and body
+ */
+function renderEmail(opts) {
+    // Placeholder implementation - will be implemented later
+    return {
+        subject: 'Email Alert',
+        text: `Email alert with options: ${JSON.stringify(opts, null, 2)}`,
+        html: `<p>Email alert with options:</p><pre>${JSON.stringify(opts, null, 2)}</pre>`
+    };
+}
+
+/**
+ * Create email transporter based on configuration
+ * @returns {Object} - Nodemailer transporter
+ */
+function createEmailTransporter() {
+    // Check if SES credentials are available
+    if (config.AWS_ACCESS_KEY_ID && config.AWS_SECRET_ACCESS_KEY) {
+        const sesClient = new SESv2Client({
+            region: config.AWS_REGION,
+            credentials: {
+                accessKeyId: config.AWS_ACCESS_KEY_ID,
+                secretAccessKey: config.AWS_SECRET_ACCESS_KEY
+            }
+        });
+        
+        return nodemailer.createTransporter({
+            SES: { ses: sesClient, aws: { SESv2Client } }
+        });
+    }
+    
+    // Check if SMTP credentials are available
+    if (config.SMTP_HOST && config.SMTP_USER && config.SMTP_PASS) {
+        return nodemailer.createTransporter({
+            host: config.SMTP_HOST,
+            port: parseInt(config.SMTP_PORT),
+            secure: config.SMTP_SECURE,
+            auth: {
+                user: config.SMTP_USER,
+                pass: config.SMTP_PASS
+            }
+        });
+    }
+    
+    // No email configuration available
+    return null;
+}
+
+/**
+ * Send email alert functionality
  * @param {Object} opts - Email options
  */
 export async function sendEmailAlert(opts) {
     try {
-        console.log(`[EMAIL ALERT] Would send email with options:`, JSON.stringify(opts, null, 2));
+        const transporter = createEmailTransporter();
+        
+        if (!transporter) {
+            // No email configuration - just log
+            console.log(`[EMAIL ALERT] Would send email with options:`, JSON.stringify(opts, null, 2));
+            return;
+        }
+        
+        const emailContent = renderEmail(opts);
+        
+        const mailOptions = {
+            from: `${config.FROM_NAME} <${config.FROM_EMAIL}>`,
+            to: opts.email,
+            subject: emailContent.subject,
+            text: emailContent.text,
+            html: emailContent.html
+        };
+        
+        const result = await transporter.sendMail(mailOptions);
+        logger.info(`Email sent successfully to ${opts.email}`, { messageId: result.messageId });
+        
     } catch (e) {
+        logger.error('Error sending email alert:', e);
         console.error('Error sending email alert:', e);
     }
 }

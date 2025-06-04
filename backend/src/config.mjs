@@ -39,6 +39,22 @@ export default {
   // Environment
   NODE_ENV: process.env.NODE_ENV,
 
+  // Email configuration
+  SMTP_HOST: process.env.SMTP_HOST || '',
+  SMTP_PORT: process.env.SMTP_PORT || 587,
+  SMTP_SECURE: process.env.SMTP_SECURE === 'true',
+  SMTP_USER: process.env.SMTP_USER || '',
+  SMTP_PASS: process.env.SMTP_PASS || '',
+  
+  // SES configuration
+  AWS_REGION: process.env.AWS_REGION || 'us-east-1',
+  AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID || '',
+  AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY || '',
+  
+  // Email settings
+  FROM_EMAIL: process.env.FROM_EMAIL || 'noreply@example.com',
+  FROM_NAME: process.env.FROM_NAME || 'Your App',
+
   GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID || '',
   GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET || '',
 };
