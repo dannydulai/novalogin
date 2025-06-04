@@ -103,6 +103,7 @@ export default {
     
     async logout() {
       await NovaAuth.logout({ to: '/' })
+      NovaAuth.login();
     },
   }
 }
