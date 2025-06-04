@@ -223,7 +223,7 @@
               </div>
 
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Groups</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Permissions</label>
                 <div class="flex flex-wrap gap-1 mb-2">
                   <span 
                     v-for="(group, index) in newApp.groups" 
@@ -245,7 +245,7 @@
                     v-model="newApp.newGroup"
                     @keyup.enter="addNewAppGroup"
                     class="flex-1 px-3 py-2 border border-gray-300 rounded-l-md text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
-                    placeholder="Add group"
+                    placeholder="Add permission"
                   />
                   <button 
                     @click="addNewAppGroup"
