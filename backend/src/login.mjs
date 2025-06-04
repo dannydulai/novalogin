@@ -128,7 +128,7 @@ export default function (app, logger) {
     // Logout endpoint (POST)
     app.post("/api/login/logout", async (req, res) => {
         try {
-            if (req.query.logout_token || req.body.logout_token) {
+            if (req.query?.logout_token || req.body?.logout_token) {
                 await auth.logout({ logout_token: req.query.logout_token || req.body.logout_token });
                 utils.clearCookie(res, config.COOKIE_NAME_LI);
                 utils.clearCookie(res, config.COOKIE_NAME_II);

@@ -392,7 +392,7 @@ export default {
     async clearSelectAccount() {
       this.auth_state = 'checking';
       try {
-        const res = await fetch('/api/account/logout', {method: 'POST'});
+        const res = await fetch('/api/login/logout', {method: 'POST'});
         if (res.status != 200) throw '';
         this.loading.action = null;
         this.email = '';
