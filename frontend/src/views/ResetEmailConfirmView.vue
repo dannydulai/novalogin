@@ -3,14 +3,14 @@
     <div class="sm:mx-auto sm:w-full sm:max-w-md">
       <div class="flex justify-center">
         <div class="w-12 h-12 bg-cyan-600 rounded-lg flex items-center justify-center">
-          <span class="mdi mdi-email-edit text-white text-2xl"></span>
+          <span class="mdi mdi-email-check text-white text-2xl"></span>
         </div>
       </div>
       <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
-        Reset Email Address
+        Set New Email Address
       </h2>
       <p class="mt-2 text-center text-sm text-gray-600">
-        Enter your current email address to receive a reset link
+        Enter your new email address to complete the reset
       </p>
     </div>
 
@@ -18,22 +18,43 @@
       <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
         <form v-if="status !== 'Success'" @submit.prevent="submit" class="space-y-6">
           <div>
-            <label for="email" class="block text-sm font-medium text-gray-700">
-              Email address
+            <label for="email1" class="block text-sm font-medium text-gray-700">
+              New email address
             </label>
             <div class="mt-1 relative">
               <input
-                id="email"
-                ref="email"
-                v-model.trim="email"
+                id="email1"
+                ref="email1"
+                v-model.trim="email1"
                 type="email"
                 autocomplete="email"
                 required
                 class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm"
-                placeholder="Enter your email address"
+                placeholder="Enter your new email address"
               />
               <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
                 <span class="mdi mdi-email text-gray-400"></span>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label for="email2" class="block text-sm font-medium text-gray-700">
+              Confirm new email address
+            </label>
+            <div class="mt-1 relative">
+              <input
+                id="email2"
+                ref="email2"
+                v-model.trim="email2"
+                type="email"
+                autocomplete="email"
+                required
+                class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm"
+                placeholder="Confirm your new email address"
+              />
+              <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                <span class="mdi mdi-email-check text-gray-400"></span>
               </div>
             </div>
           </div>
@@ -45,8 +66,8 @@
               class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-cyan-600 hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <span v-if="loading" class="mdi mdi-loading mdi-spin mr-2"></span>
-              <span v-else class="mdi mdi-send mr-2"></span>
-              {{ loading ? 'Sending...' : 'Send Reset Link' }}
+              <span v-else class="mdi mdi-check mr-2"></span>
+              {{ loading ? 'Updating...' : 'Update Email Address' }}
             </button>
           </div>
         </form>
@@ -63,10 +84,10 @@
               </div>
               <div class="ml-3">
                 <h3 class="text-sm font-medium text-green-800">
-                  Reset link sent!
+                  Email updated successfully!
                 </h3>
                 <div class="mt-2 text-sm text-green-700">
-                  <p>An email reset link has been sent. Please check the email you entered for a link to reset it.</p>
+                  <p>Your email has been reset. You may now <router-link to="/account" class="font-medium underline hover:text-green-600">sign in</router-link>.</p>
                 </div>
               </div>
             </div>
@@ -85,7 +106,7 @@
                   {{ getErrorTitle(status) }}
                 </h3>
                 <div class="mt-2 text-sm text-red-700">
-                  <p>{{ getErrorMessage(status) }}</p>
+                  <p v-html="getErrorMessage(status)"></p>
                 </div>
               </div>
             </div>
@@ -104,11 +125,11 @@
 
           <div class="mt-6">
             <router-link
-              to="/login"
+              to="/change-email"
               class="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500"
             >
               <span class="mdi mdi-arrow-left mr-2"></span>
-              Back to Sign In
+              Request New Reset Link
             </router-link>
           </div>
         </div>
@@ -119,40 +140,33 @@
 
 <script>
 export default {
-  name: 'ChangeEmailView',
+  name: 'ResetEmailConfirmView',
   data() {
     return {
-      email: '',
+      email1: '',
+      email2: '',
+      code: null,
       status: null,
       loading: false
     }
   },
   mounted() {
-    // Auto-populate email from query parameter
+    // Get code from URL parameters
     const urlParams = new URLSearchParams(window.location.search);
-    const emailParam = urlParams.get('email');
-    if (emailParam) {
-      this.email = emailParam;
-    }
+    this.code = urlParams.get('code');
 
-    // Check if there's a code parameter (redirect to step 2)
-    const code = urlParams.get('code');
-    if (code) {
-      this.$router.push(`/reset-email-confirm?code=${encodeURIComponent(code)}`);
+    // Redirect if no code
+    if (!this.code) {
+      this.$router.push('/change-email');
       return;
     }
 
-    // Focus email input
+    // Focus first email input
     this.$nextTick(() => {
-      if (this.$refs.email) {
-        this.$refs.email.focus();
+      if (this.$refs.email1) {
+        this.$refs.email1.focus();
       }
     });
-
-    // Auto-submit if auto parameter is present
-    if (urlParams.get('auto')) {
-      this.submit();
-    }
   },
   methods: {
     async submit() {
@@ -160,15 +174,15 @@ export default {
         this.status = null;
         this.loading = true;
 
-        if (!this.email) {
-          this.status = 'EmptyEmail';
-          this.$refs.email.focus();
+        if (!this.email1) {
+          this.status = 'NoEmail';
+          this.$refs.email1.focus();
           return;
         }
 
-        if (!(/.@.*\..*$/.test(this.email))) {
-          this.status = 'InvalidEmail';
-          this.$refs.email.focus();
+        if (this.email1 !== this.email2) {
+          this.status = 'BadConfirm';
+          this.$refs.email2.focus();
           return;
         }
 
@@ -177,7 +191,10 @@ export default {
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ email: this.email })
+          body: JSON.stringify({
+            code: this.code,
+            email: this.email1
+          })
         });
 
         const data = await response.json();
@@ -185,10 +202,15 @@ export default {
         if (data.status === 'Success') {
           this.status = 'Success';
         } else if (data.status === 'NotFound') {
-          this.status = 'EmailNotFound';
-          this.$refs.email.focus();
+          this.status = 'NotFound';
+        } else if (data.status === 'InvalidEmail') {
+          this.status = 'InvalidEmail';
+          this.$refs.email1.focus();
+        } else if (data.status === 'EmailExists') {
+          this.status = 'EmailExists';
+          this.$refs.email1.focus();
         } else {
-          console.error('Reset email error:', data);
+          console.error('Reset email confirm error:', data);
           this.status = 'UnexpectedError';
         }
       } catch (error) {
@@ -201,9 +223,11 @@ export default {
 
     getErrorTitle(status) {
       const titles = {
-        'EmptyEmail': 'Email Required',
+        'NoEmail': 'Email Required',
+        'BadConfirm': 'Emails Don\'t Match',
+        'NotFound': 'Invalid Reset Link',
         'InvalidEmail': 'Invalid Email',
-        'EmailNotFound': 'Email Not Found',
+        'EmailExists': 'Email Already Exists',
         'UnexpectedError': 'Unexpected Error',
         'NetworkFailure': 'Network Error'
       };
@@ -212,9 +236,11 @@ export default {
 
     getErrorMessage(status) {
       const messages = {
-        'EmptyEmail': 'Please enter an email address.',
-        'InvalidEmail': 'Please check your email address for mistakes.',
-        'EmailNotFound': 'This email is not associated with an account. Please enter an email associated with an account.',
+        'NoEmail': 'Please enter a new email address.',
+        'BadConfirm': 'Emails don\'t match. Please enter your email again.',
+        'NotFound': 'The reset link you followed has expired. Please <a href="/change-email" class="font-medium underline hover:text-red-600">request a new link</a>.',
+        'InvalidEmail': 'The email address you entered is invalid. Please type a valid email address.',
+        'EmailExists': 'Email already in use by another account. Please enter a different email address.',
         'UnexpectedError': 'There was an unexpected error resetting your email. Please wait a while and try again.',
         'NetworkFailure': 'There was a network error communicating. Please check your network and try again.'
       };

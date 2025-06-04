@@ -47,6 +47,16 @@ const routes = [
     component: () => import('./views/CreateAccountView.vue')
   },
   {
+    path: '/change-email',
+    name: 'change-email-public',
+    component: () => import('./views/ChangeEmailView.vue')
+  },
+  {
+    path: '/reset-email-confirm',
+    name: 'reset-email-confirm',
+    component: () => import('./views/ResetEmailConfirmView.vue')
+  },
+  {
     path: '/account',
     name: 'account',
     component: () => import('./views/AccountView.vue'),
@@ -109,7 +119,7 @@ const router = createRouter({
 // Navigation guard for admin routes
 router.beforeEach(async (to, from, next) => {
   // Routes that don't require authentication
-  const publicRoutes = ['login', 'create'];
+  const publicRoutes = ['login', 'create', 'change-email-public', 'reset-email-confirm'];
   
   if (publicRoutes.includes(to.name)) {
     next();
