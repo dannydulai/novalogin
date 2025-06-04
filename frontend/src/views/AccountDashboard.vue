@@ -120,10 +120,10 @@
                     <span class="mdi mdi-email-edit-outline mr-1.5"></span>
                     Change Email
                   </a>
-                  <router-link to="/account/change-password" class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-xs font-medium rounded-md text-cyan-700 bg-cyan-100 hover:bg-cyan-200">
+                  <a :href="`/reset-password?email=${encodeURIComponent(user.email)}`" class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-xs font-medium rounded-md text-cyan-700 bg-cyan-100 hover:bg-cyan-200">
                     <span class="mdi mdi-lock-reset mr-1.5"></span>
                     Change Password
-                  </router-link>
+                  </a>
                 </div>
               </div>
             </div>

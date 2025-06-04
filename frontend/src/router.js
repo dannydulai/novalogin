@@ -57,6 +57,16 @@ const routes = [
     component: () => import('./views/ResetEmailConfirmView.vue')
   },
   {
+    path: '/reset-password',
+    name: 'reset-password-public',
+    component: () => import('./views/ChangePasswordView.vue')
+  },
+  {
+    path: '/reset-password-confirm',
+    name: 'reset-password-confirm',
+    component: () => import('./views/ResetPasswordConfirmView.vue')
+  },
+  {
     path: '/account',
     name: 'account',
     component: () => import('./views/AccountView.vue'),
@@ -119,7 +129,7 @@ const router = createRouter({
 // Navigation guard for admin routes
 router.beforeEach(async (to, from, next) => {
   // Routes that don't require authentication
-  const publicRoutes = ['login', 'create', 'change-email-public', 'reset-email-confirm'];
+  const publicRoutes = ['login', 'create', 'change-email-public', 'reset-email-confirm', 'reset-password-public', 'reset-password-confirm'];
   
   if (publicRoutes.includes(to.name)) {
     next();

@@ -3,14 +3,14 @@
     <div class="sm:mx-auto sm:w-full sm:max-w-md">
       <div class="flex justify-center">
         <div class="w-12 h-12 bg-cyan-600 rounded-lg flex items-center justify-center">
-          <span class="mdi mdi-lock-reset text-white text-2xl"></span>
+          <span class="mdi mdi-lock-check text-white text-2xl"></span>
         </div>
       </div>
       <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
-        Reset Password
+        Set New Password
       </h2>
       <p class="mt-2 text-center text-sm text-gray-600">
-        Enter your email address to receive a password reset link
+        Enter your new password to complete the reset
       </p>
     </div>
 
@@ -18,22 +18,43 @@
       <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
         <form v-if="status !== 'Success'" @submit.prevent="submit" class="space-y-6">
           <div>
-            <label for="email" class="block text-sm font-medium text-gray-700">
-              Email address
+            <label for="password1" class="block text-sm font-medium text-gray-700">
+              New password
             </label>
             <div class="mt-1 relative">
               <input
-                id="email"
-                ref="email"
-                v-model.trim="email"
-                type="email"
-                autocomplete="email"
+                id="password1"
+                ref="password1"
+                v-model="password1"
+                type="password"
+                autocomplete="new-password"
                 required
                 class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm"
-                placeholder="Enter your email address"
+                placeholder="Enter your new password"
               />
               <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
-                <span class="mdi mdi-email text-gray-400"></span>
+                <span class="mdi mdi-lock text-gray-400"></span>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label for="password2" class="block text-sm font-medium text-gray-700">
+              Confirm new password
+            </label>
+            <div class="mt-1 relative">
+              <input
+                id="password2"
+                ref="password2"
+                v-model="password2"
+                type="password"
+                autocomplete="new-password"
+                required
+                class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm"
+                placeholder="Confirm your new password"
+              />
+              <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                <span class="mdi mdi-lock-check text-gray-400"></span>
               </div>
             </div>
           </div>
@@ -45,8 +66,8 @@
               class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-cyan-600 hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               <span v-if="loading" class="mdi mdi-loading mdi-spin mr-2"></span>
-              <span v-else class="mdi mdi-send mr-2"></span>
-              {{ loading ? 'Sending...' : 'Send Reset Link' }}
+              <span v-else class="mdi mdi-check mr-2"></span>
+              {{ loading ? 'Updating...' : 'Reset Password' }}
             </button>
           </div>
         </form>
@@ -63,10 +84,10 @@
               </div>
               <div class="ml-3">
                 <h3 class="text-sm font-medium text-green-800">
-                  Reset link sent!
+                  Password reset successfully!
                 </h3>
                 <div class="mt-2 text-sm text-green-700">
-                  <p>A password reset link has been sent. Please check the email you entered for a link to reset it.</p>
+                  <p>Your password has been reset. You may now <router-link to="/login" class="font-medium underline hover:text-green-600">sign in</router-link>.</p>
                 </div>
               </div>
             </div>
@@ -85,7 +106,7 @@
                   {{ getErrorTitle(status) }}
                 </h3>
                 <div class="mt-2 text-sm text-red-700">
-                  <p>{{ getErrorMessage(status) }}</p>
+                  <p v-html="getErrorMessage(status)"></p>
                 </div>
               </div>
             </div>
@@ -104,11 +125,11 @@
 
           <div class="mt-6">
             <router-link
-              to="/login"
+              to="/reset-password"
               class="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 cursor-pointer"
             >
               <span class="mdi mdi-arrow-left mr-2"></span>
-              Back to Sign In
+              Request New Reset Link
             </router-link>
           </div>
         </div>
@@ -119,40 +140,33 @@
 
 <script>
 export default {
-  name: 'ChangePasswordView',
+  name: 'ResetPasswordConfirmView',
   data() {
     return {
-      email: '',
+      password1: '',
+      password2: '',
+      code: null,
       status: null,
       loading: false
     }
   },
   mounted() {
-    // Auto-populate email from query parameter
+    // Get code from URL parameters
     const urlParams = new URLSearchParams(window.location.search);
-    const emailParam = urlParams.get('email');
-    if (emailParam) {
-      this.email = emailParam;
-    }
+    this.code = urlParams.get('code');
 
-    // Check if there's a code parameter (redirect to step 2)
-    const code = urlParams.get('code');
-    if (code) {
-      this.$router.push(`/reset-password-confirm?code=${encodeURIComponent(code)}`);
+    // Redirect if no code
+    if (!this.code) {
+      this.$router.push('/reset-password');
       return;
     }
 
-    // Focus email input
+    // Focus first password input
     this.$nextTick(() => {
-      if (this.$refs.email) {
-        this.$refs.email.focus();
+      if (this.$refs.password1) {
+        this.$refs.password1.focus();
       }
     });
-
-    // Auto-submit if auto parameter is present
-    if (urlParams.get('auto')) {
-      this.submit();
-    }
   },
   methods: {
     async submit() {
@@ -160,15 +174,15 @@ export default {
         this.status = null;
         this.loading = true;
 
-        if (!this.email) {
-          this.status = 'EmptyEmail';
-          this.$refs.email.focus();
+        if (!this.password1) {
+          this.status = 'NoPassword';
+          this.$refs.password1.focus();
           return;
         }
 
-        if (!(/.@.*\..*$/.test(this.email))) {
-          this.status = 'InvalidEmail';
-          this.$refs.email.focus();
+        if (this.password1 !== this.password2) {
+          this.status = 'BadConfirm';
+          this.$refs.password2.focus();
           return;
         }
 
@@ -177,7 +191,10 @@ export default {
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ email: this.email })
+          body: JSON.stringify({
+            code: this.code,
+            password: this.password1
+          })
         });
 
         const data = await response.json();
@@ -185,10 +202,12 @@ export default {
         if (data.status === 'Success') {
           this.status = 'Success';
         } else if (data.status === 'NotFound') {
-          this.status = 'EmailNotFound';
-          this.$refs.email.focus();
+          this.status = 'NotFound';
+        } else if (data.status === 'InvalidPassword') {
+          this.status = 'InvalidPassword';
+          this.$refs.password1.focus();
         } else {
-          console.error('Reset password error:', data);
+          console.error('Reset password confirm error:', data);
           this.status = 'UnexpectedError';
         }
       } catch (error) {
@@ -201,9 +220,10 @@ export default {
 
     getErrorTitle(status) {
       const titles = {
-        'EmptyEmail': 'Email Required',
-        'InvalidEmail': 'Invalid Email',
-        'EmailNotFound': 'Email Not Found',
+        'NoPassword': 'Password Required',
+        'BadConfirm': 'Passwords Don\'t Match',
+        'NotFound': 'Invalid Reset Link',
+        'InvalidPassword': 'Invalid Password',
         'UnexpectedError': 'Unexpected Error',
         'NetworkFailure': 'Network Error'
       };
@@ -212,9 +232,10 @@ export default {
 
     getErrorMessage(status) {
       const messages = {
-        'EmptyEmail': 'Please enter an email address.',
-        'InvalidEmail': 'Please check your email address for mistakes.',
-        'EmailNotFound': 'This email is not associated with an account. Please enter an email associated with an account.',
+        'NoPassword': 'Please enter a new password.',
+        'BadConfirm': 'Passwords don\'t match. Please enter your password again.',
+        'NotFound': 'The reset link you followed has expired. Please <a href="/reset-password" class="font-medium underline hover:text-red-600">request a new link</a>.',
+        'InvalidPassword': 'The password you entered is invalid. Please type a valid password.',
         'UnexpectedError': 'There was an unexpected error resetting your password. Please wait a while and try again.',
         'NetworkFailure': 'There was a network error communicating. Please check your network and try again.'
       };
