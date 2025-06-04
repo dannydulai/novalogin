@@ -11,7 +11,8 @@ import config           from './config.mjs';
 import jwt              from 'jsonwebtoken';
 import jwksClient       from 'jwks-rsa';
 import nodemailer       from 'nodemailer';
-import { SESv2Client }  from '@aws-sdk/client-sesv2';
+
+import { SESv2Client, SendEmailCommand }  from '@aws-sdk/client-sesv2';
 
 const logger = pino({ name: "account" });
 
@@ -133,14 +134,14 @@ function createEmailTransporter() {
             }
         });
         
-        return nodemailer.createTransporter({
-            SES: { ses: sesClient, aws: { SESv2Client } }
+        return nodemailer.createTransport({
+            SES: { sesClient, SendEmailCommand }
         });
     }
     
     // Check if SMTP credentials are available
     if (config.SMTP_HOST && config.SMTP_USER && config.SMTP_PASS) {
-        return nodemailer.createTransporter({
+        return nodemailer.createTransport({
             host: config.SMTP_HOST,
             port: parseInt(config.SMTP_PORT),
             secure: config.SMTP_SECURE,
@@ -318,7 +319,7 @@ export async function resetPassword1(email, from) {
         const updateResult = await knex.raw("UPDATE users SET password_reset_token = ? WHERE email_key = ?", [code, emailKey]);
         if (updateResult.rowCount !== 1) return { status: ResetPasswordResult.NotFound };
 
-        const reset_password_url = `${config.HOST}/reset-password?code=${code}`;
+        const reset_password_url = `${config.HOST}/reset-password-confirm?code=${code}`;
 
         await sendEmailAlert({
             use_handlebars: true,
@@ -408,7 +409,7 @@ export async function resetEmail1(email) {
             use_handlebars: true,
             user_id: user.user_id,
             email: user.email,
-            reset_email_url: `${config.HOST}/reset-email?code=` + code,
+            reset_email_url: `${config.HOST}/reset-email-confirm?code=` + code,
         });
 
         return { status: 'Success' };

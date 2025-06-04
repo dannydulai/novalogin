@@ -3,9 +3,9 @@
 [x] User mgmt system
 [x] Link Google
 [x] Apple accounts
-[ ] SES for emails
-[ ] Change email / password flow
-[ ] express login package + fastify login package.
+[x] SES for emails
+[x] Change email / password flow
+[x] express login package + fastify login package.
 [x] Test web app with client_secret + express login package
 [ ] Test flutter app for PKCE
 [ ] Example of how to connect open source app with oidc (use grist)

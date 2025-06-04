@@ -11,6 +11,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@aws-sdk/client-sesv2": "^3.824.0",
     "axios": "^1.9.0",
     "bcrypt": "^6.0.0",
     "cookie-encrypter": "^1.0.1",
@@ -24,6 +25,7 @@
     "morgan": "^1.10.0",
     "multer": "^2.0.0",
     "node-2fa": "^2.0.3",
+    "nodemailer": "^7.0.3",
     "pg": "^8.16.0",
     "pino": "^9.7.0",
     "pkce-challenge": "^5.0.0",
