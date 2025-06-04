@@ -69,27 +69,19 @@ function useNovaAuth(router, cookie_name = 'novaLI') {
         }
     }})
 
-    //
-    // Don't attach this until router is ready!
-    //
-    const onreadycallback = () => {
-        axios.interceptors.response.use(
-            (response) => { return response },
-            async (error) => {
-                if (error.response && error.response.status === 401) {
-                    Cookies.remove(cookie_name);
-                    goToLogin(window.location.pathname)
-                }
-                return Promise.reject(error);
-            });
-    }
-
-    // Vue 2 vs Vue 3 routers
-    if (router.onReady) {
-        router.onReady(onreadycallback)
-    } else if (router.isReady) {
-        router.isReady().then(onreadycallback)
-    }
+    // Set up axios interceptor immediately - only intercept 401s from our own API
+    axios.interceptors.response.use(
+        (response) => { return response },
+        async (error) => {
+            if (error.response && 
+                error.response.status === 401 && 
+                error.config.url && 
+                error.config.url.startsWith('/api/')) {
+                Cookies.remove(cookie_name);
+                goToLogin(window.location.pathname)
+            }
+            return Promise.reject(error);
+        });
 }
 
 let $router;
