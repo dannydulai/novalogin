@@ -246,7 +246,10 @@
                           <div class="mt-2 ml-8 text-sm text-gray-500">
                             <div class="flex items-center">
                               <span class="mdi mdi-map-marker text-sm mr-1"></span>
-                              <span>{{ session.location }}</span>
+                              <span>{{ session.location || 'Unknown location' }}</span>
+                              <span v-if="session.ip" class="mx-2">•</span>
+                              <span v-if="session.ip" class="mdi mdi-ip-network text-sm mr-1"></span>
+                              <span v-if="session.ip">{{ session.ip }}</span>
                               <span class="mx-2">•</span>
                               <span class="mdi mdi-clock-outline text-sm mr-1"></span>
                               <span>{{ formatDate(session.created) }}</span>
