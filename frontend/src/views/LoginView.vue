@@ -165,7 +165,7 @@
           <span v-else class="mdi mdi-key-variant text-4xl sm:text-5xl" :class="$config.primaryColorClass || 'text-cyan-500'"></span>
         </div>
         <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">
-          {{ clientAppName || `Welcome to ${$config.appName}` }}
+          {{ `Welcome to ${$config.appName}` }}
         </h1>
       </div>
       
@@ -303,7 +303,6 @@ export default {
       password: '',
       redirect_url: '',
       appname: '',
-      clientAppName: '',
       tfatoken: '',
       _nonce: null,
       qs: new URLSearchParams()
@@ -521,18 +520,11 @@ export default {
         }
 
         const data = await res.json();
-        const { state, email, name, clientAppName } = data;
+        const { state, email, name } = data;
 
         if (getinfo && email && name) {
           this.email = email;
           this.name = name;
-          this.clientAppName = clientAppName || '';
-          
-          // If no app ID is provided, go directly to account page
-          if (!this._id) {
-            window.location.href = '/account';
-            return;
-          }
           
           this.auth_state = 'loggedin';
           return;

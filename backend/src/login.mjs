@@ -272,7 +272,7 @@ export default function (app, logger) {
 
             // App requires confirmation from user
             if (appinfo.login_callback) {
-                if (!cookII.confirmed?.[appinfo.id]) {
+                if (!cookII.confirmed?.[appinfo.app_id]) {
                     resData.state = 'confirmapp';
                     resData.appname = appinfo.name;
                     return res.send(resData);

@@ -154,7 +154,7 @@ export async function logout(opts) {
 export async function verifyAuthMiddleware(req, res, next) {
     try {
         const cookieData = getCookie(req, config.COOKIE_NAME_LI);
-        if (!cookieData.user_id || !cookieData.access_token) {
+        if (!cookieData?.user_id || !cookieData?.access_token) {
             return res.status(401).send({ status: "Unauthorized", message: "Incomplete authentication data" });
         }
         
