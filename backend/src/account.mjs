@@ -532,4 +532,47 @@ export default function(app, logger) {
             return res.status(500).send({ status: "ServerError" });
         }
     });
+
+    // Reset password endpoint
+    app.post("/api/account/reset-password", async (req, res) => {
+        try {
+            const email = req.query.email || req.body.email;
+            const code = req.query.code || req.body.code;
+            const password = req.query.password || req.body.password;
+
+            if (email) {
+                const result = await utils.resetPassword1(email, 'account');
+                return res.json(result);
+            } else if (password && code) {
+                const result = await utils.resetPassword2(code, password, requestIp.getClientIp(req));
+                return res.json(result);
+            } else {
+                return res.json({ status: 'InvalidRequest' });
+            }
+        } catch (e) {
+            logger.error(e);
+            return res.status(500).send({ status: "ServerError" });
+        }
+    });
+
+    // Reset email endpoint
+    app.post("/api/account/reset-email", async (req, res) => {
+        try {
+            const email = req.query.email || req.body.email;
+            const code = req.query.code || req.body.code;
+
+            if (email && code) {
+                const result = await utils.resetEmail2(email, code, requestIp.getClientIp(req));
+                return res.json(result);
+            } else if (email) {
+                const result = await utils.resetEmail1(email);
+                return res.json(result);
+            } else {
+                return res.json({ status: 'InvalidRequest' });
+            }
+        } catch (e) {
+            logger.error(e);
+            return res.status(500).send({ status: "ServerError" });
+        }
+    });
 }
