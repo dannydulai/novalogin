@@ -200,38 +200,72 @@
           </div>
           <div class="p-6">
             <div v-if="sessions && sessions.length > 0">
-              <ul class="divide-y divide-gray-200">
-                <li v-for="(session, index) in sessions" :key="index" class="py-4">
-                  <div class="flex justify-between items-start">
-                    <div>
-                      <div class="flex items-center">
-                        <span class="mdi mdi-laptop text-lg text-gray-500 mr-2"></span>
-                        <p class="text-sm font-medium text-gray-900">
-                          {{ session.browser }} on {{ session.os }}
-                        </p>
-                        <span 
-                          v-if="isCurrentSession(session)" 
-                          class="ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800"
+              <div class="space-y-6">
+                <div v-for="(sessionGroups, os) in groupedSessions" :key="os" class="border border-gray-200 rounded-lg overflow-hidden">
+                  <!-- OS Header -->
+                  <div class="bg-gray-50 px-4 py-3 border-b border-gray-200">
+                    <div class="flex items-center">
+                      <span 
+                        class="mdi text-xl mr-3" 
+                        :class="getOSIcon(os)"
+                      ></span>
+                      <h3 class="text-sm font-medium text-gray-900">{{ os }}</h3>
+                      <span class="ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-600">
+                        {{ Object.keys(sessionGroups).length }} session{{ Object.keys(sessionGroups).length !== 1 ? 's' : '' }}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <!-- Sessions for this OS -->
+                  <div class="divide-y divide-gray-200">
+                    <div v-for="(sessionList, sessionToken) in sessionGroups" :key="sessionToken" class="p-4">
+                      <div v-for="(session, index) in sessionList" :key="index" class="flex justify-between items-start" :class="{ 'mt-3 pt-3 border-t border-gray-100': index > 0 }">
+                        <div class="flex-1">
+                          <div class="flex items-center">
+                            <span 
+                              class="mdi text-lg mr-3" 
+                              :class="getBrowserIcon(session.browser)"
+                            ></span>
+                            <div>
+                              <p class="text-sm font-medium text-gray-900">
+                                {{ session.browser }}
+                              </p>
+                              <div class="flex items-center mt-1">
+                                <span 
+                                  v-if="isCurrentSession(session)" 
+                                  class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 mr-2"
+                                >
+                                  Current
+                                </span>
+                                <span class="text-xs text-gray-500">
+                                  {{ session.app_name }}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="mt-2 ml-8 text-sm text-gray-500">
+                            <div class="flex items-center">
+                              <span class="mdi mdi-map-marker text-sm mr-1"></span>
+                              <span>{{ session.location }}</span>
+                              <span class="mx-2">•</span>
+                              <span class="mdi mdi-clock-outline text-sm mr-1"></span>
+                              <span>{{ formatDate(session.created) }}</span>
+                            </div>
+                          </div>
+                        </div>
+                        <button 
+                          v-if="!isCurrentSession(session)"
+                          @click="terminateSession(session)" 
+                          class="ml-4 text-red-600 hover:text-red-800 cursor-pointer flex-shrink-0"
+                          title="Terminate session"
                         >
-                          Current
-                        </span>
-                      </div>
-                      <div class="mt-1 text-sm text-gray-500">
-                        <p>{{ session.app_name }}</p>
-                        <p>{{ session.location }} • {{ formatDate(session.created) }}</p>
+                          <span class="mdi mdi-close-circle text-lg"></span>
+                        </button>
                       </div>
                     </div>
-                    <button 
-                      v-if="!isCurrentSession(session)"
-                      @click="terminateSession(session)" 
-                      class="text-red-600 hover:text-red-800 cursor-pointer"
-                      title="Terminate session"
-                    >
-                      <span class="mdi mdi-close-circle"></span>
-                    </button>
                   </div>
-                </li>
-              </ul>
+                </div>
+              </div>
             </div>
             <div v-else class="text-center py-4 text-gray-500">
               <span class="mdi mdi-laptop-off text-4xl block mb-2"></span>
@@ -326,6 +360,22 @@ export default {
     isAdmin() {
       // Placeholder logic - check if user has admin privileges
        return this.user && (this.user.groups || []).includes('admin');
+    },
+    groupedSessions() {
+      const grouped = {};
+      if (this.sessions) {
+        this.sessions.forEach(session => {
+          // Initialize the array for this os (Windows, iOS, etc.) if it doesn't exist yet
+          if (!grouped[session.os]) {
+            grouped[session.os] = { [session.session_token]: [session] };
+          } else if (!grouped[session.os][session.session_token]) {
+            grouped[session.os][session.session_token] = [session];
+          } else {
+            grouped[session.os][session.session_token].push(session);
+          }
+        });
+      }
+      return grouped;
     }
   },
   mounted() {
@@ -462,6 +512,28 @@ export default {
       if (type === 'google') return 'mdi-google text-red-500';
       if (type === 'apple') return 'mdi-apple text-gray-800';
       return 'mdi-account-circle text-blue-500';
+    },
+    
+    // Get icon class for operating system
+    getOSIcon(os) {
+      const osLower = os.toLowerCase();
+      if (osLower.includes('windows')) return 'mdi-microsoft-windows text-blue-600';
+      if (osLower.includes('mac') || osLower.includes('darwin')) return 'mdi-apple text-gray-700';
+      if (osLower.includes('ios')) return 'mdi-cellphone text-gray-700';
+      if (osLower.includes('android')) return 'mdi-android text-green-600';
+      if (osLower.includes('linux')) return 'mdi-linux text-orange-600';
+      return 'mdi-laptop text-gray-500';
+    },
+    
+    // Get icon class for browser
+    getBrowserIcon(browser) {
+      const browserLower = browser.toLowerCase();
+      if (browserLower.includes('chrome')) return 'mdi-google-chrome text-blue-500';
+      if (browserLower.includes('firefox')) return 'mdi-firefox text-orange-500';
+      if (browserLower.includes('safari')) return 'mdi-apple-safari text-blue-400';
+      if (browserLower.includes('edge')) return 'mdi-microsoft-edge text-blue-600';
+      if (browserLower.includes('opera')) return 'mdi-opera text-red-500';
+      return 'mdi-web text-gray-500';
     },
     
     
