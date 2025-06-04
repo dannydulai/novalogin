@@ -87,7 +87,7 @@
                   Email
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Groups
+                  Permissions
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   2FA
@@ -139,7 +139,7 @@
                       {{ group }}
                     </span>
                     <span v-if="!user.groups || user.groups.length === 0" class="text-sm text-gray-400">
-                      No groups
+                      No permissions
                     </span>
                   </div>
                 </td>
@@ -279,7 +279,7 @@
             </div>
             
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Groups</label>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Permissions</label>
               <div class="flex flex-wrap gap-1 mb-2">
                 <span
                   v-for="(group, index) in editingUser.groups"
@@ -302,7 +302,7 @@
                   v-model="newGroup"
                   @keyup.enter="addGroup"
                   class="flex-1 px-3 py-2 border border-gray-300 rounded-l-md text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
-                  placeholder="Add group"
+                  placeholder="Add permission"
                 />
                 <button
                   type="button"
