@@ -2,14 +2,14 @@ import Cookies from "js-cookie";
 import axios   from "axios";
 import { h }   from 'vue';
 
-function goToLogin(redirectTo) {
+function goToLogin(redirectTo, apiBase = '/api') {
     const state          = encodeURIComponent(btoa(JSON.stringify({ r: redirectTo })));
     const cb             = encodeURIComponent(window.location.origin + "/licb");
-    window.location.href = `/api/ligo?cb=${cb}&state=${state}`;
+    window.location.href = `${apiBase}/ligo?cb=${cb}&state=${state}`;
 }
 
 // This should work for vue 2 and 3, the next argument is still supported in vue router 4.x
-function useNovaAuth(router, cookie_name = 'novaLI') {
+function useNovaAuth(router, cookie_name = 'novaLI', apiBase = '/api') {
     let licbRes;
     router.beforeEach(async (to, from, next) => {
         if (to.path === '/licb') {
@@ -24,7 +24,7 @@ function useNovaAuth(router, cookie_name = 'novaLI') {
             // https://github.com/vuejs/router/blob/4cc3093d0485cbd968ff096d1878bee40b7e47a9/packages/router/src/router.ts#L1272
             const res = await axios({
                 method: 'get',
-                url: '/api/licb',
+                url: `${apiBase}/licb`,
                 params: { code: to.query.code }
             })
             licbRes  = res;
@@ -34,7 +34,7 @@ function useNovaAuth(router, cookie_name = 'novaLI') {
         if (!Cookies.get(cookie_name)) {
 	    // Allow for redirecting of certain pages when unauthorized, if login page is not preferred
 	    if (to.meta?.authRedirect && to.meta?.authRedirect !== to.path) return next(to.meta.authRedirect);
-            goToLogin(to.path)
+            goToLogin(to.path, apiBase)
 	    return next(false);
         }
 	return next();
@@ -76,19 +76,22 @@ function useNovaAuth(router, cookie_name = 'novaLI') {
             if (error.response && 
                 error.response.status === 401 && 
                 error.config.url && 
-                error.config.url.startsWith('/api/')) {
+                error.config.url.startsWith(apiBase + '/')) {
                 Cookies.remove(cookie_name);
-                goToLogin(window.location.pathname)
+                goToLogin(window.location.pathname, apiBase)
             }
             return Promise.reject(error);
         });
 }
 
 let $router;
+let $apiBase;
 const NovaAuth = {
-    install: (router) => {
-        useNovaAuth(router);
+    install: (router, options = {}) => {
+        const { apiBase = '/api' } = options;
+        useNovaAuth(router, 'novaLI', apiBase);
         $router = router;
+        $apiBase = apiBase;
     },
 
     logout: async (opts) => {
@@ -97,7 +100,7 @@ const NovaAuth = {
         try {
             await axios({
                 method: 'get',
-                url: '/api/logout'
+                url: `${$apiBase || '/api'}/logout`
             })
 
             if ($router) {
@@ -111,7 +114,7 @@ const NovaAuth = {
     },
 
     login: (opts) => {
-        goToLogin(opts?.to || '/');
+        goToLogin(opts?.to || '/', $apiBase || '/api');
     }
 
 }
