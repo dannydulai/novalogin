@@ -2,6 +2,7 @@ import pino             from "pino";
 import pkceChallenge    from 'pkce-challenge';
 import cookieEncrypter  from 'cookie-encrypter';
 import knex             from '../db.js';
+import bcrypt           from 'bcrypt';
 import fs               from 'fs';
 import path             from 'path';
 import { v4 as uuidv4 } from 'uuid';
@@ -216,5 +217,192 @@ export async function verifyAppleIdToken(idToken, clientId, nonce) {
             }
         );
     });
+}
+
+const ResetPasswordResult = {
+    NotFound: 'NotFound',
+    InvalidPassword: 'InvalidPassword',
+    UnexpectedError: 'UnexpectedError',
+    Success: 'Success',
+};
+
+export async function resetPassword1(email, from) {
+    const code = uuidv4();
+    email = email.toLowerCase();
+
+    try {
+        if (!isValidEmail(email)) return { status: ResetPasswordResult.NotFound };
+
+        const { success, emailCleaned, emailKey } = genEmailKey(email);
+        if (!success) return { status: ResetPasswordResult.NotFound };
+
+        const [user] = (await knex.raw("SELECT user_id, email, is_fraud FROM users WHERE email_key = ?", [emailKey])).rows;
+        if (user) {
+            if (user.is_fraud) return { status: ResetPasswordResult.NotFound };
+        }
+
+        const updateResult = await knex.raw("UPDATE users SET password_reset_token = ? WHERE email_key = ?", [code, emailKey]);
+        if (updateResult.rowCount !== 1) return { status: ResetPasswordResult.NotFound };
+
+        const reset_password_url = from === 'store'
+            ? `https://store.roonlabs.com/login.php?action=change_password&code=${code}`
+            : `${config.HOST}/reset-password?code=${code}`;
+
+        await sendEmailAlert({
+            use_handlebars: true,
+            user_id: user.user_id,
+            email: user.email,
+            reset_password_url,
+        });
+
+        return { status: ResetPasswordResult.Success };
+
+    } catch (e) {
+        logger.error(e.toString());
+        return { status: ResetPasswordResult.UnexpectedError };
+    }
+}
+
+export async function resetPassword2(code, password, ip) {
+    let email = null;
+
+    const trx = await knex.transaction();
+    try {
+        if (!isValidPassword(password)) throw ResetPasswordResult.InvalidPassword;
+        const [user] = (await trx.raw("SELECT email, user_id FROM users WHERE password_reset_token = ?", [code])).rows;
+
+        if (!user) throw ResetPasswordResult.NotFound;
+
+        email = user.email.trim();
+        const userId = user.user_id;
+
+        await trx.raw("DELETE FROM tokens WHERE user_id = ?", [userId]);
+        await trx.raw("DELETE FROM token_info WHERE user_id = ?", [userId]);
+
+        const salt = await bcrypt.genSalt(11, 'a');
+        const hashedPassword = await bcrypt.hash(password, salt);
+        const updatedUser = await trx.raw("UPDATE users SET password = ?, password_reset_token = null WHERE password_reset_token = ?", [hashedPassword, code]);
+
+        if (updatedUser.rowCount !== 1) throw ResetPasswordResult.UnexpectedError;
+
+        await trx.commit();
+
+        await sendEmailAlert({
+            use_handlebars: true,
+            user_id: user.user_id,
+            email: user.email,
+            device_location: ip,
+            reset_password_url: `${config.HOST}/reset-password?email=` + encodeURIComponent(user.email),
+        });
+
+        return { status: ResetPasswordResult.Success };
+    } catch (e) {
+        await trx.rollback();
+        logger.error(e);
+        if (ResetPasswordResult[e]) return { status: e };
+        return { status: ResetPasswordResult.UnexpectedError };
+    }
+}
+
+export async function resetEmail1(email) {
+    const code = uuidv4();
+    email = email.toLowerCase();
+    try {
+        if (!isValidEmail(email)) throw 'NotFound';
+
+        const { emailCleaned: email_cleaned, emailKey: email_key } = genEmailKey(email);
+        if (!email_cleaned || !email_key) throw 'NotFound';
+
+        const userInfo = await knex('users')
+            .where('email_key', email_key)
+            .select('is_fraud')
+            .first();
+
+        if (!userInfo) throw 'NotFound';
+        const { is_fraud } = userInfo;
+
+        if (is_fraud !== null && is_fraud) throw 'NotFound';
+
+        const updatedRows = await knex('users')
+            .where('email_key', email_key)
+            .returning('*')
+            .update({ password_reset_token: code });
+
+        if (updatedRows.length !== 1) throw 'NotFound';
+
+        const user = updatedRows[0];
+
+        await sendEmailAlert({
+            use_handlebars: true,
+            user_id: user.user_id,
+            email: user.email,
+            reset_email_url: `${config.HOST}/reset-email?code=` + code,
+        });
+
+        return { status: 'Success' };
+    } catch (e) {
+        logger.error(e);
+        if (typeof e === 'string') return { status: e };
+        return { status: 'UnexpectedError' };
+    }
+}
+
+export async function resetEmail2(email, code, ip) {
+    const trx = await knex.transaction();
+    try {
+        if (!isValidEmail(email)) throw 'InvalidEmail';
+
+        let oldemail;
+
+        // Get email for return and user_id to delete tokens
+        const userInfo = await trx('users')
+            .where('password_reset_token', code)
+            .select('email', 'user_id')
+            .first();
+
+        if (!userInfo) throw 'NotFound';
+        oldemail = userInfo.email.trim();
+        const { user_id } = userInfo;
+
+        // Kill all tokens due to email change
+        await trx('tokens').where('user_id', user_id).del();
+        await trx('token_info').where('user_id', user_id).del();
+
+        const { emailCleaned: email_cleaned, emailKey: email_key } = genEmailKey(email);
+        if (!email_cleaned || !email_key) throw 'InvalidEmail';
+
+        // Reset the email
+        const updatedRows = await trx('users')
+            .where('password_reset_token', code)
+            .returning('*')
+            .update({
+                email_key,
+                email: email_cleaned,
+                password_reset_token: null,
+                updated: trx.fn.now()
+            });
+
+        if (updatedRows.length !== 1) throw 'UnexpectedError';
+
+        await trx.commit();
+
+        const user = updatedRows[0];
+
+        await sendEmailAlert({
+            use_handlebars: true,
+            user_id: user.user_id,
+            email: user.email,
+            device_location: ip,
+        });
+
+        return { status: 'Success' };
+    } catch (e) {
+        await trx.rollback();
+        if (e.code === '23505') {
+            if (e.constraint === 'users_email_key' || e.constraint === 'users_email_idx') return { status: 'EmailExists' };
+        }
+        if (typeof e === 'string') return { status: e };
+        return { status: 'UnexpectedError' };
+    }
 }
 
