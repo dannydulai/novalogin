@@ -244,9 +244,7 @@ export async function resetPassword1(email, from) {
         const updateResult = await knex.raw("UPDATE users SET password_reset_token = ? WHERE email_key = ?", [code, emailKey]);
         if (updateResult.rowCount !== 1) return { status: ResetPasswordResult.NotFound };
 
-        const reset_password_url = from === 'store'
-            ? `https://store.roonlabs.com/login.php?action=change_password&code=${code}`
-            : `${config.HOST}/reset-password?code=${code}`;
+        const reset_password_url = `${config.HOST}/reset-password?code=${code}`;
 
         await sendEmailAlert({
             use_handlebars: true,
@@ -279,7 +277,7 @@ export async function resetPassword2(code, password, ip) {
         await trx.raw("DELETE FROM tokens WHERE user_id = ?", [userId]);
         await trx.raw("DELETE FROM token_info WHERE user_id = ?", [userId]);
 
-        const salt = await bcrypt.genSalt(11, 'a');
+        const salt = await bcrypt.genSalt();
         const hashedPassword = await bcrypt.hash(password, salt);
         const updatedUser = await trx.raw("UPDATE users SET password = ?, password_reset_token = null WHERE password_reset_token = ?", [hashedPassword, code]);
 
