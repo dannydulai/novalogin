@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import tailwindcss from '@tailwindcss/vite'
+import 'dotenv/config'
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -8,6 +9,10 @@ export default defineConfig({
       tailwindcss(),
       vue()
   ],
+  define: {
+    AUTH_URL: JSON.stringify(process.env.AUTH_URL),
+    APP_ID: JSON.stringify(process.env.APP_ID)
+  },
   server: {
     proxy: {
         '/api': {

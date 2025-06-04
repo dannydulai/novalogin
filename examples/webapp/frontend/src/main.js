@@ -6,7 +6,10 @@ import router from './router'
 import NovaAuth from 'vue-nova-login'
 
 // Setup NovaAuth with the router
-NovaAuth.install(router)
+NovaAuth.install(router, {
+  loginUrl: AUTH_URL,
+  appId: APP_ID
+})
 
 const app = createApp(App)
 app.use(router)
