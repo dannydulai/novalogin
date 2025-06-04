@@ -101,7 +101,7 @@ export default {
       countdown: 3
     }
   },
-  async created() {
+  async mounted() {
     await this.fetchUser()
   },
   methods: {
@@ -111,6 +111,7 @@ export default {
       
       try {
         const response = await axios.get('/api/user')
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate network delay
         this.user = response.data
       } catch (err) {
         this.error = err.response?.data?.message || 'Failed to load user information'
