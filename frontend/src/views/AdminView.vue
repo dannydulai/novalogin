@@ -81,7 +81,7 @@
               <div>
                 <label class="block text-xs font-medium text-gray-500 mb-1">App ID</label>
                 <div class="flex items-center">
-                  <code class="text-sm bg-gray-100 px-2 py-1 rounded flex-1">{{ app.app_id }}</code>
+                  <code class="text-xs bg-gray-100 px-2 py-1 rounded flex-1">{{ app.app_id }}</code>
                   <button 
                     @click="copyToClipboard(app.app_id.toString())"
                     class="ml-2 text-cyan-600 hover:text-cyan-800"
@@ -95,7 +95,7 @@
               <div v-if="!app.login_callback">
                 <label class="block text-xs font-medium text-gray-500 mb-1">App Secret</label>
                 <div class="flex items-center">
-                  <code class="text-sm bg-gray-100 px-2 py-1 rounded flex-1">{{ app.secret }}</code>
+                  <code class="text-xs bg-gray-100 px-2 py-1 rounded flex-1">{{ app.secret }}</code>
                   <button 
                     @click="copyToClipboard(app.secret)"
                     class="ml-2 text-cyan-600 hover:text-cyan-800"
