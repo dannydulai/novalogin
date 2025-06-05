@@ -2,13 +2,13 @@
   <div>
     <!-- Loading state -->
     <div v-if="loading" class="flex justify-center py-12">
-      <div class="w-12 h-12 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
+      <div class="w-12 h-12 border-4 border-app-500 border-t-transparent rounded-full animate-spin"></div>
     </div>
 
     <!-- Enable 2FA Section -->
     <div v-else-if="state === 'add'" class="max-w-3xl mx-auto">
       <div class="mb-6">
-        <router-link to="/account" class="text-cyan-600 hover:text-cyan-800 flex items-center">
+        <router-link to="/account" class="text-app-600 hover:text-app-800 flex items-center">
           <span class="mdi mdi-arrow-left mr-2"></span>
           Back to account
         </router-link>
@@ -27,9 +27,9 @@
           <li>
             <p class="text-gray-600">
               Please install an authenticator app to your mobile device. You can use any popular authenticator app, such as 
-              <a href="https://support.google.com/accounts/answer/1066447?hl=en&ref_topic=2954345" class="text-cyan-600 hover:text-cyan-800">Google Authenticator</a> or 
-              <a href="https://www.microsoft.com/en-us/security/mobile-authenticator-app" class="text-cyan-600 hover:text-cyan-800">Microsoft Authenticator</a>, but we like 
-              <a href="https://ente.io/auth/" target="_blank" class="text-cyan-600 hover:text-cyan-800">Ente</a>.
+              <a href="https://support.google.com/accounts/answer/1066447?hl=en&ref_topic=2954345" class="text-app-600 hover:text-app-800">Google Authenticator</a> or 
+              <a href="https://www.microsoft.com/en-us/security/mobile-authenticator-app" class="text-app-600 hover:text-app-800">Microsoft Authenticator</a>, but we like 
+              <a href="https://ente.io/auth/" target="_blank" class="text-app-600 hover:text-app-800">Ente</a>.
             </p>
           </li>
           <li>
@@ -70,14 +70,14 @@
           <button 
             v-if="mode === 'qr'" 
             @click="mode = 'manual'" 
-            class="text-cyan-600 hover:text-cyan-800"
+            class="text-app-600 hover:text-app-800"
           >
             Set up manually instead
           </button>
           <button 
             v-else 
             @click="mode = 'qr'" 
-            class="text-cyan-600 hover:text-cyan-800"
+            class="text-app-600 hover:text-app-800"
           >
             Setup with QR code instead
           </button>
@@ -102,19 +102,19 @@
               id="token" 
               v-model="enableTFAToken" 
               required
-              class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm"
+              class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-app-500 focus:border-app-500 sm:text-sm"
             />
           </div>
           <div class="flex flex-col space-y-3">
             <button 
               type="submit" 
-              class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-cyan-600 hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500"
+              class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-app-600 hover:bg-app-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-app-500"
             >
               Submit
             </button>
             <router-link 
               to="/account" 
-              class="text-center text-cyan-600 hover:text-cyan-800"
+              class="text-center text-app-600 hover:text-app-800"
             >
               Cancel
             </router-link>
@@ -126,7 +126,7 @@
     <!-- Disable 2FA Section -->
     <div v-else-if="state === 'remove'" class="max-w-3xl mx-auto">
       <div class="mb-6">
-        <router-link to="/account" class="text-cyan-600 hover:text-cyan-800 flex items-center">
+        <router-link to="/account" class="text-app-600 hover:text-app-800 flex items-center">
           <span class="mdi mdi-arrow-left mr-2"></span>
           Back to account
         </router-link>
@@ -140,7 +140,7 @@
       
       <p class="text-center text-gray-600 mb-8">
         If you do not have access to your authenticator app, please 
-        <button @click="lostTfa" class="text-cyan-600 hover:text-cyan-800">contact us</button>.
+        <button @click="lostTfa" class="text-app-600 hover:text-app-800">contact us</button>.
       </p>
 
       <!-- Token input form -->
@@ -154,19 +154,19 @@
             id="disable-token" 
             v-model="disableTFAToken" 
             required
-            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm"
+            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-app-500 focus:border-app-500 sm:text-sm"
           />
         </div>
         <div class="flex flex-col space-y-3">
           <button 
             type="submit" 
-            class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-cyan-600 hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500"
+            class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-app-600 hover:bg-app-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-app-500"
           >
             Submit
           </button>
           <router-link 
             to="/account" 
-            class="text-center text-cyan-600 hover:text-cyan-800"
+            class="text-center text-app-600 hover:text-app-800"
           >
             Cancel
           </router-link>
