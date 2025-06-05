@@ -5,7 +5,7 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center py-6">
           <div class="flex items-center">
-            <span class="mdi mdi-shield-crown text-2xl text-cyan-600 mr-3"></span>
+            <span class="mdi mdi-shield-crown text-2xl text-app-600 mr-3"></span>
             <h1 class="text-2xl font-bold text-gray-900">Application Management</h1>
           </div>
           <div class="flex items-center space-x-4">
@@ -30,7 +30,7 @@
 
     <!-- Loading state -->
     <div v-if="loading" class="flex justify-center py-12">
-      <div class="w-12 h-12 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
+      <div class="w-12 h-12 border-4 border-app-500 border-t-transparent rounded-full animate-spin"></div>
     </div>
 
     <!-- Error message -->
@@ -84,7 +84,7 @@
                   <code class="text-xs bg-gray-100 px-2 py-1 rounded flex-1">{{ app.app_id }}</code>
                   <button 
                     @click="copyToClipboard(app.app_id.toString())"
-                    class="ml-2 text-cyan-600 hover:text-cyan-800 cursor-pointer"
+                    class="ml-2 text-app-600 hover:text-app-800 cursor-pointer"
                     title="Copy App ID"
                   >
                     <span class="mdi mdi-content-copy"></span>
@@ -98,7 +98,7 @@
                   <code class="text-xs bg-gray-100 px-2 py-1 rounded flex-1">{{ app.secret }}</code>
                   <button 
                     @click="copyToClipboard(app.secret)"
-                    class="ml-2 text-cyan-600 hover:text-cyan-800 cursor-pointer"
+                    class="ml-2 text-app-600 hover:text-app-800 cursor-pointer"
                     title="Copy App Secret"
                   >
                     <span class="mdi mdi-content-copy"></span>
@@ -111,7 +111,7 @@
                 <input 
                   type="text" 
                   v-model="app.name"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-app-500 focus:border-transparent"
                   placeholder="Enter app name"
                 />
               </div>
@@ -121,7 +121,7 @@
                 <input 
                   type="text" 
                   v-model="app.login_callback"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-app-500 focus:border-transparent"
                   placeholder="Enter callback URL"
                 />
               </div>
@@ -132,12 +132,12 @@
                   <span 
                     v-for="(group, index) in app.groups" 
                     :key="index"
-                    class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-cyan-100 text-cyan-800"
+                    class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-app-100 text-app-800"
                   >
                     {{ group }}
                     <button 
                       @click="removeGroup(app, index)"
-                      class="ml-1 text-cyan-600 hover:text-cyan-800 cursor-pointer"
+                      class="ml-1 text-app-600 hover:text-app-800 cursor-pointer"
                     >
                       <span class="mdi mdi-close text-xs"></span>
                     </button>
@@ -148,12 +148,12 @@
                     type="text" 
                     v-model="app.newGroup"
                     @keyup.enter="addGroup(app)"
-                    class="flex-1 px-3 py-2 border border-gray-300 rounded-l-md text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                    class="flex-1 px-3 py-2 border border-gray-300 rounded-l-md text-sm focus:outline-none focus:ring-2 focus:ring-app-500 focus:border-transparent"
                     placeholder="Add permission"
                   />
                   <button 
                     @click="addGroup(app)"
-                    class="px-3 py-2 bg-cyan-600 text-white rounded-r-md hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-cyan-500 cursor-pointer"
+                    class="px-3 py-2 bg-app-600 text-white rounded-r-md hover:bg-app-700 focus:outline-none focus:ring-2 focus:ring-app-500 cursor-pointer"
                   >
                     <span class="mdi mdi-plus"></span>
                   </button>
@@ -171,7 +171,7 @@
               </button>
               <button 
                 @click="saveApp(app)"
-                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-cyan-600 hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 cursor-pointer"
+                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-app-600 hover:bg-app-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-app-500 cursor-pointer"
               >
                 <span class="mdi mdi-content-save mr-1"></span>
                 Save
@@ -194,7 +194,7 @@
                 <input 
                   type="text" 
                   v-model="newApp.name"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-app-500 focus:border-transparent"
                   placeholder="Enter app name"
                   required
                 />
@@ -205,7 +205,7 @@
                 <select 
                   v-model="newApp.type"
                   @change="handleTypeChange"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-app-500 focus:border-transparent"
                 >
                   <option value="web">Web App</option>
                   <option value="app">Mobile/Desktop App</option>
@@ -217,7 +217,7 @@
                 <input 
                   type="text" 
                   v-model="newApp.login_callback"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-app-500 focus:border-transparent"
                   placeholder="Enter callback URL"
                 />
               </div>
@@ -228,12 +228,12 @@
                   <span 
                     v-for="(group, index) in newApp.groups" 
                     :key="index"
-                    class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-cyan-100 text-cyan-800"
+                    class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-app-100 text-app-800"
                   >
                     {{ group }}
                     <button 
                       @click="removeNewAppGroup(index)"
-                      class="ml-1 text-cyan-600 hover:text-cyan-800 cursor-pointer"
+                      class="ml-1 text-app-600 hover:text-app-800 cursor-pointer"
                     >
                       <span class="mdi mdi-close text-xs"></span>
                     </button>
@@ -244,12 +244,12 @@
                     type="text" 
                     v-model="newApp.newGroup"
                     @keyup.enter="addNewAppGroup"
-                    class="flex-1 px-3 py-2 border border-gray-300 rounded-l-md text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                    class="flex-1 px-3 py-2 border border-gray-300 rounded-l-md text-sm focus:outline-none focus:ring-2 focus:ring-app-500 focus:border-transparent"
                     placeholder="Add permission"
                   />
                   <button 
                     @click="addNewAppGroup"
-                    class="px-3 py-2 bg-cyan-600 text-white rounded-r-md hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-cyan-500 cursor-pointer"
+                    class="px-3 py-2 bg-app-600 text-white rounded-r-md hover:bg-app-700 focus:outline-none focus:ring-2 focus:ring-app-500 cursor-pointer"
                   >
                     <span class="mdi mdi-plus"></span>
                   </button>
@@ -261,7 +261,7 @@
               <button 
                 @click="createApp"
                 :disabled="!newApp.name"
-                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-cyan-600 hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-app-600 hover:bg-app-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-app-500 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
                 <span class="mdi mdi-plus mr-1"></span>
                 Create App
