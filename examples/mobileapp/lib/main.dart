@@ -24,12 +24,6 @@ class MyApp extends StatelessWidget {
 
 enum AppState { loading, error, loggedIn, loggingOut, notLoggedIn }
 
-class User {
-  final String userId;
-  
-  User({required this.userId});
-}
-
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
