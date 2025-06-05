@@ -5,7 +5,7 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center py-6">
           <div class="flex items-center">
-            <span class="mdi mdi-account-group text-2xl text-cyan-600 mr-3"></span>
+            <span class="mdi mdi-account-group text-2xl text-app-600 mr-3"></span>
             <h1 class="text-2xl font-bold text-gray-900">User Management</h1>
           </div>
           <div class="flex items-center space-x-4">
@@ -41,7 +41,7 @@
                 type="text"
                 v-model="searchQuery"
                 @input="debouncedSearch"
-                class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-cyan-500 focus:border-cyan-500"
+                class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-app-500 focus:border-app-500"
                 placeholder="Search by email, first name, or last name..."
               />
             </div>
@@ -56,7 +56,7 @@
 
       <!-- Loading state -->
       <div v-if="loading" class="flex justify-center py-12">
-        <div class="w-12 h-12 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
+        <div class="w-12 h-12 border-4 border-app-500 border-t-transparent rounded-full animate-spin"></div>
       </div>
 
       <!-- Error message -->
@@ -105,7 +105,7 @@
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div class="flex items-center">
                     <div class="flex-shrink-0 h-10 w-10">
-                      <div class="h-10 w-10 rounded-full bg-cyan-500 flex items-center justify-center text-white font-medium">
+                      <div class="h-10 w-10 rounded-full bg-app-500 flex items-center justify-center text-white font-medium">
                         {{ getUserInitials(user) }}
                       </div>
                     </div>
@@ -117,7 +117,7 @@
                         ID: {{ user.user_id }}
                         <button 
                           @click="copyToClipboard(user.user_id.toString())"
-                          class="ml-2 text-cyan-600 hover:text-cyan-800"
+                          class="ml-2 text-app-600 hover:text-app-800"
                           title="Copy User ID"
                         >
                           <span class="mdi mdi-content-copy"></span>
@@ -134,7 +134,7 @@
                     <span
                       v-for="group in (user.groups || [])"
                       :key="group"
-                      class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-cyan-100 text-cyan-800"
+                      class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-app-100 text-app-800"
                     >
                       {{ group }}
                     </span>
@@ -158,7 +158,7 @@
                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <button
                     @click="editUser(user)"
-                    class="text-cyan-600 hover:text-cyan-900 mr-3"
+                    class="text-app-600 hover:text-app-900 mr-3"
                     title="Edit user"
                   >
                     <span class="mdi mdi-pencil"></span>
@@ -215,7 +215,7 @@
                   :class="[
                     'relative inline-flex items-center px-4 py-2 border text-sm font-medium',
                     page === pagination.page
-                      ? 'z-10 bg-cyan-50 border-cyan-500 text-cyan-600'
+                      ? 'z-10 bg-app-50 border-app-500 text-app-600'
                       : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
                   ]"
                 >
@@ -252,7 +252,7 @@
               <input
                 type="text"
                 v-model="editingUser.firstname"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-app-500 focus:border-transparent"
                 placeholder="Enter first name"
               />
             </div>
@@ -262,7 +262,7 @@
               <input
                 type="text"
                 v-model="editingUser.lastname"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-app-500 focus:border-transparent"
                 placeholder="Enter last name"
               />
             </div>
@@ -272,7 +272,7 @@
               <input
                 type="email"
                 v-model="editingUser.email"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-app-500 focus:border-transparent"
                 placeholder="Enter email"
                 required
               />
@@ -284,13 +284,13 @@
                 <span
                   v-for="(group, index) in editingUser.groups"
                   :key="index"
-                  class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-cyan-100 text-cyan-800"
+                  class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-app-100 text-app-800"
                 >
                   {{ group }}
                   <button
                     type="button"
                     @click="removeGroup(index)"
-                    class="ml-1 text-cyan-600 hover:text-cyan-800"
+                    class="ml-1 text-app-600 hover:text-app-800"
                   >
                     <span class="mdi mdi-close text-xs"></span>
                   </button>
@@ -301,13 +301,13 @@
                   type="text"
                   v-model="newGroup"
                   @keyup.enter="addGroup"
-                  class="flex-1 px-3 py-2 border border-gray-300 rounded-l-md text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                  class="flex-1 px-3 py-2 border border-gray-300 rounded-l-md text-sm focus:outline-none focus:ring-2 focus:ring-app-500 focus:border-transparent"
                   placeholder="Add permission"
                 />
                 <button
                   type="button"
                   @click="addGroup"
-                  class="px-3 py-2 bg-cyan-600 text-white rounded-r-md hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  class="px-3 py-2 bg-app-600 text-white rounded-r-md hover:bg-app-700 focus:outline-none focus:ring-2 focus:ring-app-500"
                 >
                   <span class="mdi mdi-plus"></span>
                 </button>
@@ -325,7 +325,7 @@
               <button
                 type="submit"
                 :disabled="saving"
-                class="px-4 py-2 bg-cyan-600 text-white text-sm font-medium rounded-md hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-cyan-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                class="px-4 py-2 bg-app-600 text-white text-sm font-medium rounded-md hover:bg-app-700 focus:outline-none focus:ring-2 focus:ring-app-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <span v-if="saving" class="mdi mdi-loading mdi-spin mr-1"></span>
                 {{ saving ? 'Saving...' : 'Save' }}
