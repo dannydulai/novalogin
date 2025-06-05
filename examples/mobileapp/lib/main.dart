@@ -407,6 +407,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             fontWeight: FontWeight.bold,
             color: Color(0xFF1F2937), // gray-800
           ),
+          textAlign: TextAlign.center,
         ),
         const SizedBox(height: 12),
 
