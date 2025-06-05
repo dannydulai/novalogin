@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
     <div class="sm:mx-auto sm:w-full sm:max-w-md">
       <div class="flex justify-center">
-        <div class="w-12 h-12 bg-cyan-600 rounded-lg flex items-center justify-center">
+        <div class="w-12 h-12 bg-app-600 rounded-lg flex items-center justify-center">
           <span class="mdi mdi-email-edit text-white text-2xl"></span>
         </div>
       </div>
@@ -29,7 +29,7 @@
                 type="email"
                 autocomplete="email"
                 required
-                class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm"
+                class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-app-500 focus:border-app-500 sm:text-sm"
                 placeholder="Enter your email address"
               />
               <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
@@ -42,7 +42,7 @@
             <button
               type="submit"
               :disabled="loading"
-              class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-cyan-600 hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-app-600 hover:bg-app-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-app-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <span v-if="loading" class="mdi mdi-loading mdi-spin mr-2"></span>
               <span v-else class="mdi mdi-send mr-2"></span>
@@ -105,7 +105,7 @@
           <div class="mt-6">
             <router-link
               to="/login"
-              class="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500"
+              class="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-app-500"
             >
               <span class="mdi mdi-arrow-left mr-2"></span>
               Back to Sign In
