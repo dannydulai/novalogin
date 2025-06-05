@@ -2,7 +2,7 @@
   <div>
     <!-- Loading state -->
     <div v-if="loading" class="flex justify-center py-12">
-      <div class="w-12 h-12 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
+      <div class="w-12 h-12 border-4 border-app-500 border-t-transparent rounded-full animate-spin"></div>
     </div>
 
     <!-- Error message -->
@@ -29,7 +29,7 @@
             <h2 class="text-lg font-medium text-gray-900">Account Information</h2>
             <router-link 
               to="/account/edit-account" 
-              class="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-cyan-600 bg-cyan-50 hover:bg-cyan-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 cursor-pointer"
+              class="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-app-600 bg-app-50 hover:bg-app-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-app-500 cursor-pointer"
             >
               <span class="mdi mdi-pencil mr-1.5"></span>
               Edit
@@ -37,7 +37,7 @@
           </div>
           <div class="p-6">
             <div class="flex items-center mb-6">
-              <div class="bg-cyan-500 text-white h-16 w-16 rounded-full flex items-center justify-center text-2xl font-bold">
+              <div class="bg-app-500 text-white h-16 w-16 rounded-full flex items-center justify-center text-2xl font-bold">
                 {{ userInitials }}
               </div>
               <div class="ml-4">
@@ -61,7 +61,7 @@
                   <code class="text-sm bg-gray-100 px-2 py-1 rounded">{{ user.referral_code }}</code>
                   <button 
                     @click="copyToClipboard(user.referral_code)" 
-                    class="ml-2 text-cyan-600 hover:text-cyan-800 cursor-pointer"
+                    class="ml-2 text-app-600 hover:text-app-800 cursor-pointer"
                     title="Copy to clipboard"
                   >
                     <span class="mdi mdi-content-copy"></span>
@@ -100,7 +100,7 @@
                   <label 
                     for="tfa-toggle" 
                     class="block h-6 overflow-hidden rounded-full cursor-pointer"
-                    :class="user.tfa_enabled ? 'bg-cyan-500' : 'bg-gray-300'"
+                    :class="user.tfa_enabled ? 'bg-app-500' : 'bg-gray-300'"
                   >
                     <span 
                       class="block h-6 w-6 rounded-full transform transition-transform duration-200 ease-in-out bg-white shadow-md"
@@ -116,11 +116,11 @@
                   Manage your account security by updating your email or password. These changes require verification of your current credentials.
                 </p>
                 <div class="flex flex-col sm:flex-row gap-3">
-                  <a :href="`/change-email?email=${encodeURIComponent(user.email)}`" class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-xs font-medium rounded-md text-cyan-700 bg-cyan-100 hover:bg-cyan-200">
+                  <a :href="`/change-email?email=${encodeURIComponent(user.email)}`" class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-xs font-medium rounded-md text-app-700 bg-app-100 hover:bg-app-200">
                     <span class="mdi mdi-email-edit-outline mr-1.5"></span>
                     Change Email
                   </a>
-                  <a :href="`/reset-password?email=${encodeURIComponent(user.email)}`" class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-xs font-medium rounded-md text-cyan-700 bg-cyan-100 hover:bg-cyan-200">
+                  <a :href="`/reset-password?email=${encodeURIComponent(user.email)}`" class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-xs font-medium rounded-md text-app-700 bg-app-100 hover:bg-app-200">
                     <span class="mdi mdi-lock-reset mr-1.5"></span>
                     Change Password
                   </a>
@@ -291,7 +291,7 @@
                 </div>
                 <router-link 
                   to="/admin/users" 
-                  class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-cyan-600 hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500"
+                  class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-app-600 hover:bg-app-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-app-500"
                 >
                   <span class="mdi mdi-account-group mr-2"></span>
                   Manage Users
@@ -306,7 +306,7 @@
                 </div>
                 <router-link 
                   to="/admin" 
-                  class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-cyan-600 hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500"
+                  class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-app-600 hover:bg-app-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-app-500"
                 >
                   <span class="mdi mdi-shield-crown mr-2"></span>
                   Manage Apps

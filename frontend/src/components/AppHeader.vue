@@ -2,7 +2,7 @@
   <header class="bg-white shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
       <div class="flex items-center">
-        <span class="mdi mdi-key-variant text-2xl" :class="$config.primaryColorClass || 'text-cyan-500'"></span>
+        <span class="mdi mdi-key-variant text-2xl" :class="$config.primaryColorClass || 'text-app-500'"></span>
         <h1 class="ml-2 text-xl font-semibold text-gray-800">{{ $config.appName }}</h1>
       </div>
       <button 
