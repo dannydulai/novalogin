@@ -499,11 +499,14 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 size: 20,
               ),
               const SizedBox(width: 8),
-              Text(
-                _user!.userId,
-                style: TextStyle(
-                  color: Colors.grey.shade600,
-                  fontSize: 16,
+              Flexible(
+                child: Text(
+                  _user!.userId,
+                  style: TextStyle(
+                    color: Colors.grey.shade600,
+                    fontSize: 16,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
