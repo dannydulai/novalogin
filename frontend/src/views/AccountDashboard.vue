@@ -222,37 +222,40 @@
                       <div v-for="(session, index) in sessionList" :key="index" class="flex justify-between items-start" :class="{ 'mt-3 pt-3 border-t border-gray-100': index > 0 }">
                         <div class="flex-1">
                           <div class="flex items-center">
-                            <span 
-                              class="mdi text-lg mr-3" 
-                              :class="getBrowserIcon(session.browser)"
-                            ></span>
-                            <div>
-                              <p class="text-sm font-medium text-gray-900">
+                            <div class="ml-8">
+                              <p v-if="session.app_name != 'Account'" class="text-sm font-medium text-gray-900">
+                                {{ session.app_name }}
+                              </p>
+                              <p v-else class="text-sm font-medium text-gray-900">
                                 {{ session.browser }}
                               </p>
-                              <div class="flex items-center mt-1">
-                                <span 
-                                  v-if="isCurrentSession(session)" 
-                                  class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 mr-2"
-                                >
-                                  Current
-                                </span>
-                                <span class="text-xs text-gray-500">
-                                  {{ session.app_name }}
-                                </span>
-                              </div>
                             </div>
                           </div>
                           <div class="mt-2 ml-8 text-sm text-gray-500">
-                            <div class="flex items-center">
-                              <span class="mdi mdi-map-marker text-sm mr-1"></span>
+                            <div class="flex gap-4 flex-wrap items-center text-xs">
+                                <div class="shrink-0">
+                              <span class="mdi mdi-map-marker text-xs mr-1"></span>
                               <span>{{ session.location === 'Unknown' || !session.location ? 'Unknown location' : session.location }}</span>
-                              <span v-if="session.ip" class="mx-2">•</span>
-                              <span v-if="session.ip" class="mdi mdi-ip-network text-sm mr-1"></span>
+                                </div>
+                                <div>
+                              <span v-if="session.ip" class="mdi mdi-ip-network text-xs mr-1"></span>
                               <span v-if="session.ip">{{ session.ip }}</span>
-                              <span class="mx-2">•</span>
-                              <span class="mdi mdi-clock-outline text-sm mr-1"></span>
-                              <span>{{ formatDate(session.created) }}</span>
+                                </div>
+                                <div class="shrink-0">
+                                    <span class="mdi mdi-clock-outline text-xs mr-1"></span>
+                                    <span>{{ formatDate(session.created) }}</span>
+                                </div>
+                              <template v-if="session.app_name != 'Account'">
+                                  <div class="shrink-0">
+                                  <span 
+                                    class="mdi text-sm mr-1" 
+                                    :class="getBrowserIcon(session.browser)"
+                                  ></span>
+                                  <span class="text-xs text-gray-500">
+                                      {{ session.browser }}
+                                  </span>
+                                  </div>
+                              </template>
                             </div>
                           </div>
                         </div>
@@ -264,6 +267,12 @@
                         >
                           <span class="mdi mdi-close-circle text-lg"></span>
                         </button>
+                                <span 
+                                v-else
+                                  class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800"
+                                >
+                                  Current
+                                </span>
                       </div>
                     </div>
                   </div>
@@ -558,7 +567,6 @@ export default {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            session_token: session.session_token,
             logout_token: session.logout_token
           })
         });
