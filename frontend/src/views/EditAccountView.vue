@@ -1,7 +1,7 @@
 <template>
   <div class="max-w-3xl mx-auto">
     <div class="mb-6">
-      <router-link to="/account" class="text-cyan-600 hover:text-cyan-800 flex items-center">
+      <router-link to="/account" class="text-app-600 hover:text-app-800 flex items-center">
         <span class="mdi mdi-arrow-left mr-2"></span>
         Back to account
       </router-link>
@@ -19,7 +19,7 @@
                 type="text" 
                 id="firstname" 
                 v-model="accountForm.firstname" 
-                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm"
+                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-app-500 focus:border-app-500 sm:text-sm"
               />
             </div>
             <div>
@@ -28,19 +28,19 @@
                 type="text" 
                 id="lastname" 
                 v-model="accountForm.lastname" 
-                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm"
+                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-app-500 focus:border-app-500 sm:text-sm"
               />
             </div>
             <div class="flex justify-end space-x-3 pt-4">
               <router-link 
                 to="/account" 
-                class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 cursor-pointer"
+                class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-app-500 cursor-pointer"
               >
                 Cancel
               </router-link>
               <button 
                 type="submit" 
-                class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-cyan-600 hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 flex items-center cursor-pointer"
+                class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-app-600 hover:bg-app-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-app-500 flex items-center cursor-pointer"
                 :disabled="updateAccountLoading"
               >
                 <span v-if="!updateAccountLoading">Save Changes</span>
