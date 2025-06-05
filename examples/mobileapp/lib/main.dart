@@ -77,14 +77,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       if (_accessToken != null) {
         final isValid = await AuthService.verifyToken(_accessToken!);
         if (isValid) {
-          final user = await AuthService.getUserInfo(_accessToken!);
-          if (user != null) {
             setState(() {
-              _user = user;
               _state = AppState.loggedIn;
             });
             return;
-          }
         }
         // Token is invalid, clear it
         _accessToken = null;

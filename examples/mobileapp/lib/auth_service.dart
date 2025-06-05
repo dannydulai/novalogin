@@ -108,7 +108,6 @@ class AuthService {
       final response = await http.get(
         Uri.parse('$_baseUrl/api/login/verify-token').replace(queryParameters: {
           'token': token,
-          'secret': 'your-app-secret', // Replace with your actual app secret
         }),
       );
       
@@ -119,15 +118,6 @@ class AuthService {
       return false;
     } catch (e) {
       return false;
-    }
-  }
-
-  /// Get user information from token
-  static Future<User?> getUserInfo(String token) async {
-    try {
-      return User(userId: 'example_user_id'); // Replace with actual user fetching logic
-    } catch (e) {
-      return null;
     }
   }
 

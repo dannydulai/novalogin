@@ -76,7 +76,7 @@ export default function (app, logger) {
         const cookBI = utils.getCookie(req, config.COOKIE_NAME_BI);
 
         // Let's check if the user provided valid credentials, and then save the login session cookie.
-        const loginResponse = await auth.login(cookBI, req.get('User-Agent'), loginappinfo.id, loginappinfo.name, requestIp.getClientIp(req), authinfo);
+        const loginResponse = await auth.login(cookBI, req.get('User-Agent'), loginappinfo.app_id, loginappinfo.name, requestIp.getClientIp(req), authinfo);
 
         if (loginResponse.status != 'Success') return { loginResponse };
 
@@ -310,7 +310,7 @@ export default function (app, logger) {
             }
 
             if (appinfo.login_callback) {
-                if (!cookII.confirmed?.[appinfo.id]) {
+                if (!cookII.confirmed?.[appinfo.app_id]) {
                     return res.status(400).send({ status: "AppNotConfirmed" });
                 } else if (!req.query.challenge && !req.body.challenge) {
                     return res.status(400).send({ status: "BadRequest", field: "challenge" });
@@ -454,7 +454,7 @@ export default function (app, logger) {
                 return res.send({ status: "Success" });
 
             } else {
-                delete cookII.confirmed?.[appinfo.id];
+                delete cookII.confirmed?.[appinfo.app_id];
                 await saveCookLI(req, res, cookII);
 
                 let url = appinfo.login_callback;
@@ -474,10 +474,7 @@ export default function (app, logger) {
     // Verify token endpoint
     app.get("/api/login/verify-token", async (req, res) => {
         if (!req.query.token)  return res.status(400).send("Bad Request (missing token)");
-        if (!req.query.secret) return res.status(400).send("Bad Request (missing secret)");
         try {
-            const app = await db('apps').select('app_id').where({secret: req.query.secret}).first();
-            if (!app) return res.status(400).send("Bad Request (invalid secret)");
             const email = await auth.verify(req.query.token);
             if (!email) return res.status(401).send("Unauthorized (invalid token)");
             return res.status(200).send({ status: "Success" });
@@ -528,7 +525,7 @@ export default function (app, logger) {
                         const idTokenPayload = {
                             iss: config.HOST,
                             sub: cookII.user_id.toString(),
-                            aud: appinfo.id,
+                            aud: appinfo.app_id,
                             exp: Math.floor(Date.now() / 1000) + (60 * 60), // 1 hour
                             iat: Math.floor(Date.now() / 1000),
                             email: userInfo.email,

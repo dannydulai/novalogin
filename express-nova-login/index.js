@@ -56,10 +56,7 @@ module.exports = function(options) {
     async function validate_token(token) {
         try {
             const r = (await axios.get(verify_url, {
-                params: {
-                    token,
-                    secret: app_secret
-                }
+                params: { token }
             })).data;
             return (r.status === "Success");
         } catch (e) {

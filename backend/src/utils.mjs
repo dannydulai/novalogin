@@ -221,7 +221,7 @@ export async function lookupAppInfo(id) {
         // If no ID is provided, default to the account app
         if (!id) {
             return {
-                id: config.ACCOUNT_APP_ID,
+                app_id: config.ACCOUNT_APP_ID,
                 secret: config.ACCOUNT_APP_SECRET,
                 name: config.ACCOUNT_APP_NAME,
             };
@@ -233,7 +233,7 @@ export async function lookupAppInfo(id) {
         // the db
         if (id == config.ADMIN_APP_ID) {
             return {
-                id: config.ADMIN_APP_ID,
+                app_id: config.ADMIN_APP_ID,
                 secret: config.ADMIN_APP_SECRET,
                 name: config.ADMIN_APP_NAME,
             };
@@ -241,7 +241,7 @@ export async function lookupAppInfo(id) {
 
         if (id == config.ACCOUNT_APP_ID) {
             return {
-                id: config.ACCOUNT_APP_ID,
+                app_id: config.ACCOUNT_APP_ID,
                 secret: config.ACCOUNT_APP_SECRET,
                 name: config.ACCOUNT_APP_NAME,
             };

@@ -7,7 +7,8 @@
 [x] Change email / password flow
 [x] express login package + fastify login package.
 [x] Test web app with client_secret + express login package
-[ ] Test flutter app for PKCE
+[x] Test flutter app for PKCE
+[x] Mobile/Desktop verify token
 [ ] Example of how to connect open source app with oidc (use grist)
 [ ] How to test apple login? ngrok?
 [ ] Verify redirects carry url params properly
