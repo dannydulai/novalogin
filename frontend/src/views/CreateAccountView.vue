@@ -4,7 +4,7 @@
       <div class="text-center mb-6">
         <div class="flex justify-center mb-2">
           <img v-if="$config.appLogo" :src="$config.appLogo" alt="Logo" class="h-24 sm:h-28">
-          <span v-else class="mdi mdi-key-variant text-4xl sm:text-5xl" :class="$config.primaryColorClass || 'text-app-500'"></span>
+          <span v-else class="mdi mdi-key-variant text-4xl sm:text-5xl text-app-500"></span>
         </div>
         <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">Create your account</h1>
         <p class="text-gray-500 mt-2">Join {{ clientAppName || $config.appName }} today</p>

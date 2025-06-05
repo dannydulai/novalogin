@@ -59,7 +59,7 @@ function generateColorPalette(baseColor) {
 
 // Function to update main.css
 function updateMainCSS() {
-  const appColor = process.env.APP_PRIMARY_COLOR || '#4f46e5';
+  const appColor = process.env.APP_PRIMARY_COLOR || '#03DAC6';
   const palette = generateColorPalette(appColor);
   
   const cssContent = `@import "tailwindcss";
