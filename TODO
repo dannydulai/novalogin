@@ -9,6 +9,7 @@
 [x] Test web app with client_secret + express login package
 [x] Test flutter app for PKCE
 [x] Mobile/Desktop verify token
+[x] Email templates
 [ ] Example of how to connect open source app with oidc (use grist)
 [ ] How to test apple login? ngrok?
 [ ] Verify redirects carry url params properly
