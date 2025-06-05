@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
-enum AppState { loading, error, loggedIn, loggingOut }
+enum AppState { loading, error, loggedIn, loggingOut, notLoggedIn }
 
 class User {
   final String userId;
@@ -79,11 +79,21 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       // Simulate network delay
       await Future.delayed(const Duration(seconds: 1));
       
-      // Simulate successful user fetch
-      setState(() {
-        _user = User(userId: 'user@example.com');
-        _state = AppState.loggedIn;
-      });
+      // Simulate checking if user is logged in
+      // For demo purposes, randomly decide if user is logged in
+      final isLoggedIn = DateTime.now().millisecondsSinceEpoch % 2 == 0;
+      
+      if (isLoggedIn) {
+        setState(() {
+          _user = User(userId: 'user@example.com');
+          _state = AppState.loggedIn;
+        });
+      } else {
+        setState(() {
+          _user = null;
+          _state = AppState.notLoggedIn;
+        });
+      }
     } catch (e) {
       setState(() {
         _error = 'Failed to load user information';
@@ -117,19 +127,27 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   void _redirectToLogin() {
-    // Placeholder for login redirect
+    // Reset state and show login screen
+    setState(() {
+      _state = AppState.notLoggedIn;
+      _countdown = 3;
+      _user = null;
+    });
+    _progressController.reset();
+  }
+
+  void _signIn() {
+    // Placeholder for sign in action
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Redirecting to login...')),
+      const SnackBar(content: Text('Starting sign in flow...')),
     );
     
-    // Reset state for demo purposes
-    Future.delayed(const Duration(seconds: 1), () {
+    // For demo purposes, simulate successful login after delay
+    Future.delayed(const Duration(seconds: 2), () {
       setState(() {
-        _state = AppState.loading;
-        _countdown = 3;
+        _user = User(userId: 'user@example.com');
+        _state = AppState.loggedIn;
       });
-      _progressController.reset();
-      _fetchUser();
     });
   }
 
@@ -181,6 +199,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         return _buildErrorState();
       case AppState.loggedIn:
         return _buildUserProfile();
+      case AppState.notLoggedIn:
+        return _buildLoginScreen();
     }
   }
 
@@ -321,6 +341,84 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             ),
           ),
           child: const Text('Try Again'),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLoginScreen() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // App icon/logo
+        Container(
+          width: 80,
+          height: 80,
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFF818CF8), Color(0xFFA855F7)], // indigo-400 to purple-500
+            ),
+            shape: BoxShape.circle,
+          ),
+          child: const Icon(
+            Icons.security,
+            color: Colors.white,
+            size: 40,
+          ),
+        ),
+        const SizedBox(height: 24),
+
+        // Welcome message
+        const Text(
+          'Welcome to Nova Auth',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF1F2937), // gray-800
+          ),
+        ),
+        const SizedBox(height: 12),
+
+        // Description
+        Text(
+          'Secure authentication for your mobile applications',
+          style: TextStyle(
+            color: Colors.grey.shade600,
+            fontSize: 16,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 32),
+
+        // Sign in button
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            onPressed: _signIn,
+            icon: const Icon(Icons.login),
+            label: const Text('Sign In'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.indigo.shade600,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        // Additional info
+        Text(
+          'Tap "Sign In" to start the secure authentication flow',
+          style: TextStyle(
+            color: Colors.grey.shade500,
+            fontSize: 14,
+          ),
+          textAlign: TextAlign.center,
         ),
       ],
     );
