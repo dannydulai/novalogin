@@ -13,6 +13,7 @@ import jwksClient       from 'jwks-rsa';
 import nodemailer       from 'nodemailer';
 
 import { SESv2Client, SendEmailCommand }  from '@aws-sdk/client-sesv2';
+import { renderEmail }  from './emails.mjs';
 
 const logger = pino({ name: "account" });
 
@@ -105,19 +106,6 @@ export function isValidPassword(password) {
   return true;
 }
 
-/**
- * Placeholder function to render email content
- * @param {Object} opts - Email options
- * @returns {Object} - Email content with subject and body
- */
-function renderEmail(opts) {
-    // Placeholder implementation - will be implemented later
-    return {
-        subject: 'Email Alert',
-        text: `Email alert with options: ${JSON.stringify(opts, null, 2)}`,
-        html: `<p>Email alert with options:</p><pre>${JSON.stringify(opts, null, 2)}</pre>`
-    };
-}
 
 /**
  * Create email transporter based on configuration
@@ -158,7 +146,7 @@ function createEmailTransporter() {
 
 /**
  * Send email alert functionality
- * @param {Object} opts - Email options
+ * @param {Object} opts - Email options including id (template ID) and data
  */
 export async function sendEmailAlert(opts) {
     try {
@@ -166,22 +154,39 @@ export async function sendEmailAlert(opts) {
         
         if (!transporter) {
             // No email configuration - just log
-            console.log(`[EMAIL ALERT] Would send email with options:`, JSON.stringify(opts, null, 2));
+            console.log(`[EMAIL ALERT] Would send email with template '${opts.id}' and data:`, JSON.stringify(opts, null, 2));
             return;
         }
+
+        if (!opts.id) {
+            throw new Error('Email template ID is required');
+        }
+
+        // Get user email if user_id is provided but email is not
+        let email = opts.email;
+        if (!email && opts.user_id) {
+            const user = await knex('users').where({ user_id: opts.user_id }).select('email').first();
+            if (user) {
+                email = user.email;
+            }
+        }
+
+        if (!email) {
+            throw new Error('Email address is required');
+        }
         
-        const emailContent = renderEmail(opts);
+        const emailContent = renderEmail(opts.id, opts);
         
         const mailOptions = {
             from: `${config.FROM_NAME} <${config.FROM_EMAIL}>`,
-            to: opts.email,
+            to: email,
             subject: emailContent.subject,
             text: emailContent.text,
             html: emailContent.html
         };
         
         const result = await transporter.sendMail(mailOptions);
-        logger.info(`Email sent successfully to ${opts.email}`, { messageId: result.messageId });
+        logger.info(`Email sent successfully to ${email}`, { messageId: result.messageId, templateId: opts.id });
         
     } catch (e) {
         logger.error('Error sending email alert:', e);
@@ -322,7 +327,7 @@ export async function resetPassword1(email, from) {
         const reset_password_url = `${config.HOST}/reset-password-confirm?code=${code}`;
 
         await sendEmailAlert({
-            use_handlebars: true,
+            id: 'password-reset',
             user_id: user.user_id,
             email: user.email,
             reset_password_url,
@@ -361,11 +366,10 @@ export async function resetPassword2(code, password, ip) {
         await trx.commit();
 
         await sendEmailAlert({
-            use_handlebars: true,
+            id: 'password-reset-success',
             user_id: user.user_id,
             email: user.email,
             device_location: ip,
-            reset_password_url: `${config.HOST}/reset-password?email=` + encodeURIComponent(user.email),
         });
 
         return { status: ResetPasswordResult.Success };
@@ -406,7 +410,7 @@ export async function resetEmail1(email) {
         const user = updatedRows[0];
 
         await sendEmailAlert({
-            use_handlebars: true,
+            id: 'email-reset',
             user_id: user.user_id,
             email: user.email,
             reset_email_url: `${config.HOST}/reset-email-confirm?code=` + code,
@@ -462,7 +466,7 @@ export async function resetEmail2(email, code, ip) {
         const user = updatedRows[0];
 
         await sendEmailAlert({
-            use_handlebars: true,
+            id: 'email-reset-success',
             user_id: user.user_id,
             email: user.email,
             device_location: ip,

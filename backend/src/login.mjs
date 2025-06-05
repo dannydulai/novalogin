@@ -103,9 +103,9 @@ export default function (app, logger) {
         if (!cookII.temp.tfa.enabled) {
             utils.sendEmailAlert({
                 id: 'login-success',
-                use_handlebars: true,
                 user_id: cookII.user_id,
-                location: cookII.temp.location
+                location: cookII.temp.location,
+                app_name: loginappinfo.name
             });
         }
         
@@ -416,9 +416,9 @@ export default function (app, logger) {
 
             utils.sendEmailAlert({
                 id: 'login-success-tfa',
-                use_handlebars: true,
                 user_id: cookII.user_id,
-                location: cookII.temp.location
+                location: cookII.temp.location,
+                app_name: 'Nova Auth'
             });
             delete(cookII.temp.tfa);
             saveCookLI(req, res, cookII);

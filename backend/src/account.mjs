@@ -228,7 +228,7 @@ export default function(app, logger) {
             // Send welcome email
             setTimeout(() => {
                 utils.sendEmailAlert({
-                    use_handlebars: true,
+                    id: 'welcome',
                     user_id: user_id
                 });
             }, 1000);
