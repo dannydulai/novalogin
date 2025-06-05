@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center sm:p-4 relative">
     <div v-if="auth_state === 'checking'" class="bg-white sm:rounded-xl sm:shadow-lg p-6 sm:p-8 w-full sm:max-w-md md:max-w-lg">
       <div class="flex justify-center py-6">
-        <div class="w-8 h-8 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
+        <div class="w-8 h-8 border-4 border-app-500 border-t-transparent rounded-full animate-spin"></div>
       </div>
     </div>
 
@@ -15,7 +15,7 @@
       <div class="mb-4">
         <div @click="() => { auth_state = 'checking'; getLoginStatus() }" 
              class="flex items-center p-3 rounded-lg hover:bg-slate-50 transition cursor-pointer">
-          <div class="bg-cyan-500 text-white h-10 w-10 rounded-full flex items-center justify-center font-bold">
+          <div class="bg-app-500 text-white h-10 w-10 rounded-full flex items-center justify-center font-bold">
             {{(name || '').slice(0,1).toUpperCase()}}
           </div>
           <div class="ml-4">
@@ -61,14 +61,14 @@
             type="text" 
             id="token" 
             v-model="tfatoken"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-app-500"
             required
           />
         </div>
         
         <button 
           type="submit"
-          class="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-medium py-2 px-4 rounded-lg transition flex justify-center items-center"
+          class="w-full bg-app-600 hover:bg-app-700 text-white font-medium py-2 px-4 rounded-lg transition flex justify-center items-center"
         >
           <span v-if="loading.action !== 'enter-tfa'">Submit</span>
           <div v-else class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -101,7 +101,7 @@
       
       <button 
         @click="gotoaccount"
-        class="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-medium py-2 px-4 rounded-lg transition"
+        class="w-full bg-app-600 hover:bg-app-700 text-white font-medium py-2 px-4 rounded-lg transition"
       >
         Go to your account
       </button>
@@ -136,7 +136,7 @@
         
         <button 
           @click.prevent="confirmApp('confirmed')"
-          class="flex-1 bg-cyan-600 hover:bg-cyan-700 text-white font-medium py-2 px-4 rounded-lg transition flex justify-center items-center"
+          class="flex-1 bg-app-600 hover:bg-app-700 text-white font-medium py-2 px-4 rounded-lg transition flex justify-center items-center"
         >
           <span v-if="loading.action !== 'confirm-app'">Sign in</span>
           <div v-else class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -147,11 +147,11 @@
     <div v-else-if="auth_state === 'redirecting'" class="bg-white sm:rounded-xl sm:shadow-lg p-6 sm:p-8 w-full sm:max-w-md md:max-w-lg">
       <div class="text-center">
         <div class="flex justify-center mb-4">
-          <span class="mdi mdi-key-variant text-5xl text-cyan-500"></span>
+          <span class="mdi mdi-key-variant text-5xl text-app-500"></span>
         </div>
         <h2 class="text-xl font-medium text-gray-800 mb-4">Redirecting, please wait...</h2>
         <p class="text-gray-600">
-          <a :href="redirect_url" class="text-cyan-600 hover:text-cyan-800">
+          <a :href="redirect_url" class="text-app-600 hover:text-app-800">
             If this doesn't continue after a few seconds, click here to continue.
           </a>
         </p>
@@ -162,7 +162,7 @@
       <div class="text-center mb-6">
         <div class="flex justify-center mb-2">
           <img v-if="$config.appLogo" :src="$config.appLogo" alt="Logo" class="h-24 sm:h-28">
-          <span v-else class="mdi mdi-key-variant text-4xl sm:text-5xl" :class="$config.primaryColorClass || 'text-cyan-500'"></span>
+          <span v-else class="mdi mdi-key-variant text-4xl sm:text-5xl" :class="$config.primaryColorClass || 'text-app-500'"></span>
         </div>
         <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">
           {{ `Welcome to ${$config.appName}` }}
@@ -179,7 +179,7 @@
             id="email" 
             v-model="email"
             @input="error = ''"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-app-500"
             required
             autocomplete="email"
           />
@@ -194,7 +194,7 @@
             id="password" 
             v-model="password"
             @input="error = ''"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-app-500"
             required
             autocomplete="current-password"
           />
@@ -204,7 +204,7 @@
           ref="enterCredentialsBtn"
           type="submit"
           :disabled="!email || !password"
-          class="cursor-pointer bg-cyan-500 hover:bg-cyan-600 transition-colors w-full text-white font-medium py-2 px-4 rounded-lg transition flex justify-center items-center disabled:opacity-50 disabled:cursor-not-allowed"
+          class="cursor-pointer bg-app-500 hover:bg-app-600 transition-colors w-full text-white font-medium py-2 px-4 rounded-lg transition flex justify-center items-center disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <span v-if="loading.action !== 'enter-credentials'">Sign in</span>
           <div v-else class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -229,7 +229,7 @@
       
       <div class="text-center text-sm text-gray-600">
         Don't have an account? 
-        <router-link :to="'/create' + (qs.toString() ? `?${qs.toString()}` : '')" class="font-semibold text-cyan-500 hover:text-cyan-600">
+        <router-link :to="'/create' + (qs.toString() ? `?${qs.toString()}` : '')" class="font-semibold text-app-500 hover:text-app-600">
           Sign up
         </router-link>
       </div>
@@ -273,7 +273,7 @@
     <div v-if="!$config.hidePoweredBy" class="fixed bottom-4 w-full text-center">
       <div class="inline-flex items-center px-3 py-1 rounded-full bg-white/80 backdrop-blur-sm shadow-sm text-sm text-gray-600">
         <span>Powered by</span>
-        <a href="https://novalogin.io" target="_blank" rel="noopener"  class="font-medium ml-1 flex items-center hover:underline text-cyan-600">
+        <a href="https://novalogin.io" target="_blank" rel="noopener"  class="font-medium ml-1 flex items-center hover:underline text-app-600">
           <span class="mdi mdi-space-invaders text-xl mr-1"></span>
           NovaLogin
         </a>

@@ -4,7 +4,7 @@
       <div class="text-center mb-6">
         <div class="flex justify-center mb-2">
           <img v-if="$config.appLogo" :src="$config.appLogo" alt="Logo" class="h-24 sm:h-28">
-          <span v-else class="mdi mdi-key-variant text-4xl sm:text-5xl" :class="$config.primaryColorClass || 'text-cyan-500'"></span>
+          <span v-else class="mdi mdi-key-variant text-4xl sm:text-5xl" :class="$config.primaryColorClass || 'text-app-500'"></span>
         </div>
         <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">Create your account</h1>
         <p class="text-gray-500 mt-2">Join {{ clientAppName || $config.appName }} today</p>
@@ -21,7 +21,7 @@
               id="firstname" 
               v-model.trim="firstname"
               ref="firstname"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-app-500"
               required
               autocomplete="given-name"
             />
@@ -35,7 +35,7 @@
               id="lastname" 
               v-model.trim="lastname"
               ref="lastname"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-app-500"
               required
               autocomplete="family-name"
             />
@@ -51,7 +51,7 @@
             id="email" 
             v-model.trim="email"
             ref="email"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-app-500"
             required
             autocomplete="email"
           />
@@ -67,7 +67,7 @@
               id="password" 
               v-model="password1"
               ref="password1"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-app-500"
               required
               autocomplete="new-password"
               minlength="4"
@@ -82,7 +82,7 @@
               id="confirm-password" 
               v-model="password2"
               ref="password2"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-app-500"
               required
               autocomplete="new-password"
               minlength="4"
@@ -92,7 +92,7 @@
         
         <button 
           type="submit"
-          class="w-full bg-cyan-500 hover:bg-cyan-600 text-white font-medium py-2 px-4 rounded-lg transition flex justify-center items-center"
+          class="w-full bg-app-500 hover:bg-app-600 text-white font-medium py-2 px-4 rounded-lg transition flex justify-center items-center"
         >
           <span v-if="!loading">Create account</span>
           <div v-else class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -101,7 +101,7 @@
       
       <div class="text-center mt-4 text-sm text-gray-600">
         Already have an account? 
-        <a :href="signInUrl" class="font-semibold text-cyan-500 hover:text-cyan-600">
+        <a :href="signInUrl" class="font-semibold text-app-500 hover:text-app-600">
           Sign in
         </a>
       </div>
@@ -145,7 +145,7 @@
     <div v-if="!$config.hidePoweredBy" class="absolute bottom-2 w-full text-center">
       <div class="inline-flex items-center px-3 py-1 rounded-full bg-white/80 backdrop-blur-sm shadow-sm text-sm text-gray-600">
         <span>Powered by</span>
-        <a href="https://novalogin.io" target="_blank" rel="noopener"  class="font-medium ml-1 flex items-center hover:underline text-cyan-600">
+        <a href="https://novalogin.io" target="_blank" rel="noopener"  class="font-medium ml-1 flex items-center hover:underline text-app-600">
           <span class="mdi mdi-space-invaders text-xl mr-1"></span>
           NovaLogin
         </a>
