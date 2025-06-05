@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'auth_service.dart';
 
 void main() {
   runApp(const MyApp());
@@ -39,6 +40,8 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   AppState _state = AppState.loading;
   User? _user;
+  String? _accessToken;
+  String? _logoutToken;
   String? _error;
   int _countdown = 3;
   Timer? _countdownTimer;
@@ -76,27 +79,32 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     });
 
     try {
-      // Simulate network delay
-      await Future.delayed(const Duration(seconds: 1));
-      
-      // Simulate checking if user is logged in
-      // For demo purposes, randomly decide if user is logged in
-      final isLoggedIn = DateTime.now().millisecondsSinceEpoch % 2 == 0;
-      
-      if (isLoggedIn) {
-        setState(() {
-          _user = User(userId: 'user@example.com');
-          _state = AppState.loggedIn;
-        });
-      } else {
-        setState(() {
-          _user = null;
-          _state = AppState.notLoggedIn;
-        });
+      // Check if we have a stored access token (in a real app, you'd use secure storage)
+      if (_accessToken != null) {
+        final isValid = await AuthService.verifyToken(_accessToken!);
+        if (isValid) {
+          final user = await AuthService.getUserInfo(_accessToken!);
+          if (user != null) {
+            setState(() {
+              _user = user;
+              _state = AppState.loggedIn;
+            });
+            return;
+          }
+        }
+        // Token is invalid, clear it
+        _accessToken = null;
+        _logoutToken = null;
       }
+
+      // No valid token, show login screen
+      setState(() {
+        _user = null;
+        _state = AppState.notLoggedIn;
+      });
     } catch (e) {
       setState(() {
-        _error = 'Failed to load user information';
+        _error = 'Failed to load user information: $e';
         _state = AppState.error;
       });
     }
@@ -106,13 +114,18 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     await _fetchUser();
   }
 
-  void _logout() {
+  Future<void> _logout() async {
     setState(() {
       _state = AppState.loggingOut;
       _countdown = 3;
     });
 
     _progressController.forward();
+
+    // Perform logout in background
+    if (_logoutToken != null) {
+      AuthService.logout(_logoutToken);
+    }
 
     _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
@@ -127,28 +140,50 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   void _redirectToLogin() {
-    // Reset state and show login screen
+    // Clear all auth state and show login screen
     setState(() {
       _state = AppState.notLoggedIn;
       _countdown = 3;
       _user = null;
+      _accessToken = null;
+      _logoutToken = null;
     });
     _progressController.reset();
   }
 
-  void _signIn() {
-    // Placeholder for sign in action
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Starting sign in flow...')),
-    );
-    
-    // For demo purposes, simulate successful login after delay
-    Future.delayed(const Duration(seconds: 2), () {
-      setState(() {
-        _user = User(userId: 'user@example.com');
-        _state = AppState.loggedIn;
-      });
+  Future<void> _signIn() async {
+    setState(() {
+      _state = AppState.loading;
     });
+
+    try {
+      final result = await AuthService.authenticate();
+      
+      if (result.success) {
+        setState(() {
+          _accessToken = result.accessToken;
+          _logoutToken = result.logoutToken;
+          _user = User(userId: result.userId ?? 'Unknown User');
+          _state = AppState.loggedIn;
+        });
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Successfully signed in!')),
+          );
+        }
+      } else {
+        setState(() {
+          _error = result.error ?? 'Authentication failed';
+          _state = AppState.error;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _error = 'Authentication failed: $e';
+        _state = AppState.error;
+      });
+    }
   }
 
   @override
