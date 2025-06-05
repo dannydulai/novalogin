@@ -1,4 +1,4 @@
-import pkceChallenge    from 'pkce-challenge';
+import * as pkceChallenge from 'pkce-challenge';
 import axios            from 'axios';
 import requestIp        from 'request-ip';
 import { OAuth2Client } from 'google-auth-library';
@@ -54,7 +54,7 @@ export default function (app, logger) {
             if (opts.verifier) {
                 return JSON.parse((await db.raw(`DELETE FROM codes WHERE code = :code AND challenge = :challenge RETURNING value`, { 
                     code, 
-                    challenge: "PKCE-" + pkceChallenge.generateChallenge(opts.verifier) 
+                    challenge: "PKCE-" + (await pkceChallenge.generateChallenge(opts.verifier))
                 })).rows[0].value);
             } else {
                 return JSON.parse((await db.raw(`DELETE FROM codes WHERE code = :code AND challenge = :challenge RETURNING value`, { 
@@ -449,7 +449,7 @@ export default function (app, logger) {
             // mobile/desktop app, we need to confirm the user is allowed to connect the app
             if (req.body.confirmapp_result === 'confirmed') {
                 cookII.confirmed = cookII.confirmed || {};
-                cookII.confirmed[appinfo.id] = true;
+                cookII.confirmed[appinfo.app_id] = true;
                 await saveCookLI(req, res, cookII);
                 return res.send({ status: "Success" });
 
@@ -504,7 +504,7 @@ export default function (app, logger) {
                 let { cookII, appinfo, ua } = result;
 
                 if (appinfo.login_callback) {
-                    const loginResponse = await auth.login({ session: cookII.session }, ua, appinfo.id, appinfo.name, requestIp.getClientIp(req), {
+                    const loginResponse = await auth.login({ session: cookII.session }, ua, appinfo.app_id, appinfo.name, requestIp.getClientIp(req), {
                         token: cookII.access_token,
                         session: cookII.session,
                     });

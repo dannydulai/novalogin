@@ -6,8 +6,8 @@ import 'package:http/http.dart' as http;
 
 class AuthService {
   static const String _baseUrl = 'http://localhost:5173';
-  static const String _appId = 'mobile-demo-app'; // Replace with your actual app ID
-  static const String _callbackUrl = 'com.example.mobileapp://auth';
+  static const String _appId = '3a47f051-9004-4722-8c36-c07cbd7c757f'; // Replace with your actual app ID
+  static const String _callbackUrl = 'com.novalogin.mobileapp://auth';
 
   /// Generate a cryptographically secure random string
   static String _generateRandomString(int length) {
@@ -46,7 +46,7 @@ class AuthService {
       // Launch the web auth flow
       final result = await FlutterWebAuth2.authenticate(
         url: authUrl.toString(),
-        callbackUrlScheme: 'com.example.mobileapp',
+        callbackUrlScheme: 'com.novalogin.mobileapp',
       );
 
       // Parse the callback URL
@@ -125,21 +125,7 @@ class AuthService {
   /// Get user information from token
   static Future<User?> getUserInfo(String token) async {
     try {
-      // In a real implementation, you might want to call a userinfo endpoint
-      // For now, we'll use the verify endpoint to get basic info
-      final response = await http.get(
-        Uri.parse('$_baseUrl/api/login/verify-token').replace(queryParameters: {
-          'token': token,
-          'secret': 'your-app-secret', // Replace with your actual app secret
-        }),
-      );
-      
-      if (response.statusCode == 200) {
-        // For demo purposes, extract email from token verification
-        // In production, you'd want a dedicated userinfo endpoint
-        return User(userId: 'user@example.com'); // Placeholder
-      }
-      return null;
+      return User(userId: 'example_user_id'); // Replace with actual user fetching logic
     } catch (e) {
       return null;
     }
