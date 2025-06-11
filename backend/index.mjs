@@ -109,6 +109,7 @@ async function insertDefaultAdminUser() {
       .first();
 
     if (existingUser) {
+      // After startup, admin user can reset their password if they want to change it
       console.log('Admin user already exists, skipping creation');
       return;
     }
