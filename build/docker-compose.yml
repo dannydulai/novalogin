@@ -1,6 +1,7 @@
 services:
   # NovaAuth Application (Frontend + Backend + Nginx)
   novaauth:
+    container_name: novaauth
     build:
       context: ..
       dockerfile: build/Dockerfile
