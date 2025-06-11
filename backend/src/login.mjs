@@ -81,7 +81,7 @@ export default function (app, logger) {
         if (loginResponse.status != 'Success') return { loginResponse };
 
         const cookII = { 
-            v: config.LOGIN_COOKIE_VERSION,
+            v: config.COOKIE_VERSION,
             user_id: loginResponse.user_id,
             groups: loginResponse.groups,
             access_token: loginResponse.access_token,
@@ -98,7 +98,7 @@ export default function (app, logger) {
             },
         };
         
-        utils.setCookie(res, config.COOKIE_NAME_BI, { v: config.LOGIN_COOKIE_VERSION, session: loginResponse.session });
+        utils.setCookie(res, config.COOKIE_NAME_BI, { v: config.COOKIE_VERSION, session: loginResponse.session });
         
         if (!cookII.temp.tfa.enabled) {
             utils.sendEmailAlert({
@@ -232,7 +232,7 @@ export default function (app, logger) {
             const cookBI = utils.getCookie(req, config.COOKIE_NAME_BI);
 
             // If no BI or BI is outdated, clear cookies and force login
-            if (!cookBI || cookBI.v != config.LOGIN_COOKIE_VERSION) {
+            if (!cookBI || cookBI.v != config.COOKIE_VERSION) {
                 utils.clearCookie(res, config.COOKIE_NAME_BI);
                 utils.clearCookie(res, config.COOKIE_NAME_II);
                 utils.clearCookie(res, config.COOKIE_NAME_LI);
@@ -243,7 +243,7 @@ export default function (app, logger) {
             const cookII = utils.getCookie(req, config.COOKIE_NAME_II) || utils.getCookie(req, config.COOKIE_NAME_LI);
 
             // If II is outdated, clear cookies and force login
-            if (!cookII || cookII.v != config.LOGIN_COOKIE_VERSION) {
+            if (!cookII || cookII.v != config.COOKIE_VERSION) {
                 utils.clearCookie(res, config.COOKIE_NAME_II);
                 utils.clearCookie(res, config.COOKIE_NAME_LI);
                 return res.send({ state: "login"});

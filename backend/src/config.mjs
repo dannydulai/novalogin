@@ -11,7 +11,7 @@ export default {
   HOST: process.env.HOST || 'localhost',
   
   // Login settings
-  LOGIN_COOKIE_VERSION: process.env.LOGIN_COOKIE_VERSION || '1',
+  COOKIE_VERSION: process.env.COOKIE_VERSION || '1',
   SESSION_SECRET: process.env.SESSION_SECRET || 'secret',
   
   // App IDs

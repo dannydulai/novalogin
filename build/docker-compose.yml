@@ -34,7 +34,7 @@ services:
       HOST: "localhost"
       
       # Login settings
-      LOGIN_COOKIE_VERSION: "1"
+      COOKIE_VERSION: "1"
       
       # Environment
       NODE_ENV: "production"

@@ -178,7 +178,7 @@ export default function(app, logger) {
             }
 
             const cookieBI = {
-                v: config.LOGIN_COOKIE_VERSION,
+                v: config.COOKIE_VERSION,
                 session: cookieLI.session,
             };
 
@@ -363,7 +363,7 @@ export default function(app, logger) {
                 });
 
                     const cookieLI = {
-                        v: config.LOGIN_COOKIE_VERSION,
+                        v: config.COOKIE_VERSION,
                         user_id: user.user_id,
                         session: session_token,
                         groups: [],
