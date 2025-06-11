@@ -168,7 +168,8 @@ export default {
       status: null,
       loading: false,
       qs: {},
-      clientAppName: ''
+      clientAppName: '',
+      loadedGrecaptcha: false
     }
   },
   computed: {
@@ -185,8 +186,11 @@ export default {
     // Load recaptcha if site key is available
     if (this.$config.recaptchaSiteKey) {
       const script = document.createElement('script');
+      script.onload = () => { this.loadedGrecaptcha = true; };
       script.src = `https://www.google.com/recaptcha/api.js?render=${this.$config.recaptchaSiteKey}`;
       document.head.appendChild(script);
+    } else {
+        this.loadedGrecaptcha = true; // No recaptcha configured, skip loading
     }
 
     // Build query string parameters
@@ -317,11 +321,11 @@ export default {
       if (!this.$config.recaptchaSiteKey) {
         return null;
       }
-      
-      // For development/testing, return a dummy token if recaptcha is not available
+
+      while (!this.loadedGrecaptcha) await new Promise(r => setTimeout(r, 100));
+
       if (!window.grecaptcha || !window.grecaptcha.ready) {
-        console.warn('Recaptcha not available, using dummy token');
-        return 'dummy-recaptcha-token-for-development';
+        return null;
       }
       
       return new Promise((resolve, reject) => {
