@@ -19,7 +19,7 @@ exports.up = async function(knex) {
             firstname text,
             lastname text,
             referred_by uuid REFERENCES users(user_id) ON DELETE SET NULL,
-            referral_code text UNIQUE NOT NULL,
+            referral_code text UNIQUE,
             utm_data jsonb DEFAULT '{}'::jsonb,
             groups text[] DEFAULT '{}',
             tfa_enabled boolean DEFAULT false,

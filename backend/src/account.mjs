@@ -274,14 +274,14 @@ export default function(app, logger) {
             }
 
             let user_id = uuidv4();
-            let new_referral_code = utils.getReferralCode();
+            let new_referral_code = config.HIDE_REFERRAL_CODE ? null : utils.getReferralCode();
 
             while (true) {
                 const txn = await db.transaction();
                 try {
                     let referrer = null;
 
-                    if (referral_code) {
+                    if (!config.HIDE_REFERRAL_CODE && referral_code) {
                         const result = await txn.raw("SELECT firstname, user_id FROM users WHERE referral_code = ?", [referral_code]);
                         if (result.rowCount === 0) {
                             await txn.commit();

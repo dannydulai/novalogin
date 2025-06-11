@@ -73,6 +73,7 @@ export default {
   
   // Whether to hide the "Powered by Keyflow" footer
   hidePoweredBy: import.meta.env.HIDE_POWERED_BY === 'true',
+  hideReferralCode: import.meta.env.HIDE_REFERRAL_CODE === 'true',
   
   googleClientId: import.meta.env.GOOGLE_CLIENT_ID || '',
   appleClientId: import.meta.env.APPLE_CLIENT_ID || '',
