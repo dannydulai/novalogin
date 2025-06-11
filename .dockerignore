@@ -1,0 +1,23 @@
+# Ignore all hidden files and directories
+.*
+
+# But allow specific files we might need
+!.gitkeep
+
+# Ignore common development files
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Ignore build outputs
+dist
+build
+
+# Ignore IDE files
+.vscode
+.idea
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
