@@ -18,7 +18,8 @@ export default defineConfig({
     'import.meta.env.HIDE_POWERED_BY': JSON.stringify(process.env.HIDE_POWERED_BY || 'false'),
     'import.meta.env.GOOGLE_CLIENT_ID': JSON.stringify(process.env.GOOGLE_CLIENT_ID || ''),
     'import.meta.env.APPLE_CLIENT_ID': JSON.stringify(process.env.APPLE_CLIENT_ID || ''),
-    'import.meta.env.RECAPTCHA_SITE_KEY': JSON.stringify(process.env.RECAPTCHA_SITE_KEY || '')
+    'import.meta.env.RECAPTCHA_SITE_KEY': JSON.stringify(process.env.RECAPTCHA_SITE_KEY || ''),
+    'import.meta.env.HIDE_REFERRAL_CODE': JSON.stringify(process.env.HIDE_REFERRAL_CODE || 'false')
   },
   resolve: {
     alias: {

@@ -55,7 +55,7 @@
                 <p class="text-sm font-medium text-gray-500">Last updated</p>
                 <p class="mt-1 text-sm text-gray-900">{{ formatDate(user.updated) }}</p>
               </div>
-              <div v-if="user.referral_code">
+              <div v-if="user.referral_code && !$config.hideReferralCode">
                 <p class="text-sm font-medium text-gray-500">Referral code</p>
                 <div class="mt-1 flex items-center">
                   <code class="text-sm bg-gray-100 px-2 py-1 rounded">{{ user.referral_code }}</code>
