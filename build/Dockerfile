@@ -1,18 +1,18 @@
 # Multi-stage build for NovaAuth single container
 
 # Stage 1: Build the frontend
-FROM node:18-alpine as frontend-build
+FROM node:18-alpine AS frontend-build
 
 WORKDIR /app/frontend
 
 # Copy frontend package files
-COPY ../frontend/package*.json ./
+COPY frontend/package*.json ./
 
 # Install frontend dependencies
 RUN npm ci
 
 # Copy frontend source code
-COPY ../frontend/ ./
+COPY frontend/ ./
 
 # Build the frontend
 RUN npm run build
@@ -27,13 +27,13 @@ RUN apk add --no-cache nginx supervisor
 WORKDIR /app
 
 # Copy backend package files
-COPY ../backend/package*.json ./
+COPY backend/package*.json ./
 
 # Install backend dependencies
 RUN npm ci --only=production
 
 # Copy backend source code
-COPY ../backend/ ./
+COPY backend/ ./
 
 # Copy built frontend from previous stage
 COPY --from=frontend-build /app/frontend/dist /usr/share/nginx/html
