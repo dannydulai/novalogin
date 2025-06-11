@@ -1,0 +1,109 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: novalogin
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres123
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Backend Service
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      # Database
+      DATABASE_URL: postgresql://postgres:postgres123@postgres:5432/novalogin
+      
+      # Cookie settings
+      COOKIE_NAME_BI: bi
+      COOKIE_NAME_II: ii
+      COOKIE_NAME_LI: li
+      COOKIE_DOMAIN: ""
+      
+      # Host settings
+      HOST: localhost
+      
+      # Login settings
+      LOGIN_COOKIE_VERSION: "1"
+      SESSION_SECRET: your-session-secret-change-this-in-production
+      
+      # App IDs and secrets
+      ADMIN_APP_ID: 550e8400-e29b-41d4-a716-446655440000
+      ACCOUNT_APP_ID: 550e8400-e29b-41d4-a716-446655440001
+      ADMIN_APP_NAME: Admin
+      ACCOUNT_APP_NAME: Account
+      ADMIN_APP_SECRET: admin-secret-change-this-in-production
+      ACCOUNT_APP_SECRET: account-secret-change-this-in-production
+      
+      # Google OAuth
+      GOOGLE_CLIENT_ID: your-google-client-id
+      GOOGLE_CLIENT_SECRET: your-google-client-secret
+      
+      # Recaptcha
+      RECAPTCHA_SECRET: your-recaptcha-secret-key
+      
+      # Services
+      GEOIP_SERVICE_URL: ""
+      
+      # Environment
+      NODE_ENV: production
+      
+      # Email configuration - SMTP
+      SMTP_HOST: smtp.gmail.com
+      SMTP_PORT: "587"
+      SMTP_SECURE: "false"
+      SMTP_USER: your-email@gmail.com
+      SMTP_PASS: your-email-password
+      
+      # Email configuration - AWS SES
+      AWS_REGION: us-east-1
+      AWS_ACCESS_KEY_ID: your-aws-access-key
+      AWS_SECRET_ACCESS_KEY: your-aws-secret-key
+      
+      # Email settings
+      FROM_EMAIL: noreply@yourdomain.com
+      FROM_NAME: Your App Name
+      
+      # Feature flags
+      HIDE_REFERRAL_CODE: "false"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+
+  # Frontend Service with Nginx
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        # Frontend environment variables
+        APP_NAME: NovaLogin
+        APP_LOGO: ""
+        APP_PRIMARY_COLOR: "#4f46e5"
+        HIDE_POWERED_BY: "false"
+        HIDE_REFERRAL_CODE: "false"
+        GOOGLE_CLIENT_ID: your-google-client-id
+        APPLE_CLIENT_ID: your-apple-client-id
+        RECAPTCHA_SITE_KEY: your-recaptcha-site-key
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
