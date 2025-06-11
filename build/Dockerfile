@@ -20,8 +20,8 @@ RUN npm run build
 # Stage 2: Setup backend and final image
 FROM node:18-alpine
 
-# Install nginx and supervisor
-RUN apk add --no-cache nginx supervisor
+# Install nginx, supervisor, and bash for debugging
+RUN apk add --no-cache nginx supervisor bash
 
 # Create app directory
 WORKDIR /app
