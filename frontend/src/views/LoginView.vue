@@ -526,8 +526,10 @@ export default {
           this.email = email;
           this.name = name;
           
-          this.auth_state = 'loggedin';
-          return;
+          if (this._id) {
+              this.auth_state = 'loggedin';
+              return;
+          }
         }
 
         if (state === 'loggedin') {

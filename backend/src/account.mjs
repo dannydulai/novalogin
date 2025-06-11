@@ -261,11 +261,12 @@ export default function(app, logger) {
     }) {
         // Extract UTM parameters from query string
         const utmData = {};
-        Object.keys(req.query).forEach(key => {
-            if (key.startsWith('utm_')) {
-                utmData[key] = req.query[key];
-            }
-        });
+        utmData.utm_source   = req.query?.utm_source   || req.body?.utm_source   || null;
+        utmData.utm_medium   = req.query?.utm_medium   || req.body?.utm_medium   || null;
+        utmData.utm_campaign = req.query?.utm_campaign || req.body?.utm_campaign || null;
+        utmData.utm_term     = req.query?.utm_term     || req.body?.utm_term     || null;
+        utmData.utm_content  = req.query?.utm_content  || req.body?.utm_content  || null;
+
         try {
             const { emailCleaned: validatedEmail, emailKey, success } = utils.genEmailKey(email);
             if (!success) {
@@ -375,7 +376,7 @@ export default function(app, logger) {
                 } catch (e) {
                     await txn.rollback();
 
-                    if (e.constraint === "users_email_key" || e.constraint === "users_email_key_idx") {
+                    if (e.constraint === "users_email_key_key" || e.constraint === "users_email_key") {
                         return { status: "EmailExists" };
                     }
 
@@ -384,7 +385,7 @@ export default function(app, logger) {
                         continue;
                     }
 
-                    if (e.constraint === "referral_code_idx") {
+                    if (e.constraint === "referral_code_key") {
                         new_referral_code = utils.getReferralCode();
                         continue;
                     }

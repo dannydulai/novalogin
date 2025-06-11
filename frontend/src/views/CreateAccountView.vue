@@ -261,6 +261,7 @@ export default {
         
         // Prepare request data
         const requestData = {
+          ...this.qs,
           firstname: this.firstname,
           lastname: this.lastname,
           email: this.email,

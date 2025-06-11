@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 
 class AuthService {
   static const String _baseUrl = 'http://localhost:5173';
-  static const String _appId = '3a47f051-9004-4722-8c36-c07cbd7c757f'; // Replace with your actual app ID
+  static const String _appId = 'e43d74f0-f02c-42f8-95db-0a969bfd52a5'; // Replace with your actual app ID
   static const String _callbackUrl = 'com.novalogin.mobileapp://auth';
 
   /// Generate a cryptographically secure random string
