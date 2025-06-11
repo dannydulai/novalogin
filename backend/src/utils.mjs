@@ -385,9 +385,15 @@ export async function resetEmail1(email) {
     const code = uuidv4();
     email = email.toLowerCase();
     try {
+
+        // Cannot reset email for the default admin user
+        if (email === config.ADMIN_USER) {
+            throw 'NotFound';
+        }
+
         if (!isValidEmail(email)) throw 'NotFound';
 
-        const { emailCleaned: email_cleaned, emailKey: email_key } = genEmailKey(email, { skipBadEmailDomains: config.ADMIN_USER === email });
+        const { emailCleaned: email_cleaned, emailKey: email_key } = genEmailKey(email);
         if (!email_cleaned || !email_key) throw 'NotFound';
 
         const userInfo = await knex('users')
@@ -427,6 +433,12 @@ export async function resetEmail1(email) {
 export async function resetEmail2(email, code, ip) {
     const trx = await knex.transaction();
     try {
+
+        // Cannot reset email for the default admin user
+        if (email === config.ADMIN_USER) {
+            throw 'NotFound';
+        }
+
         if (!isValidEmail(email)) throw 'InvalidEmail';
 
         let oldemail;
@@ -445,7 +457,7 @@ export async function resetEmail2(email, code, ip) {
         await trx('tokens').where('user_id', user_id).del();
         await trx('token_info').where('user_id', user_id).del();
 
-        const { emailCleaned: email_cleaned, emailKey: email_key } = genEmailKey(email, { skipBadEmailDomains: config.ADMIN_USER === email });
+        const { emailCleaned: email_cleaned, emailKey: email_key } = genEmailKey(email);
         if (!email_cleaned || !email_key) throw 'InvalidEmail';
 
         // Reset the email
