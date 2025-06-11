@@ -139,16 +139,16 @@
           <p>Create an account failed: InvalidRequest. Please try again.</p>
         </div>
       </div>
-    </div>
-    
-    <!-- Powered by NovaLogin footer -->
-    <div v-if="!$config.hidePoweredBy" class="absolute bottom-2 w-full text-center">
-      <div class="inline-flex items-center px-3 py-1 rounded-full bg-white/80 backdrop-blur-sm shadow-sm text-sm text-gray-600">
-        <span>Powered by</span>
-        <a href="https://novalogin.io" target="_blank" rel="noopener"  class="font-medium ml-1 flex items-center hover:underline text-app-600">
-          <span class="mdi mdi-space-invaders text-xl mr-1"></span>
-          NovaLogin
-        </a>
+
+      <!-- Powered by NovaLogin footer -->
+      <div v-if="!$config.hidePoweredBy" class="text-center mt-6">
+        <div class="inline-flex items-center px-3 py-1 rounded-full bg-gray-50 text-sm text-gray-600">
+          <span>Powered by</span>
+          <a href="https://novalogin.io" target="_blank" rel="noopener"  class="font-medium ml-1 flex items-center hover:underline text-app-600">
+            <span class="mdi mdi-space-invaders text-xl mr-1"></span>
+            NovaLogin
+          </a>
+        </div>
       </div>
     </div>
   </div>
