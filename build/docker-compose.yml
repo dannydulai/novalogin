@@ -8,30 +8,27 @@ services:
       dockerfile: build/Dockerfile
       args:
         # Frontend build-time environment variables
-        APP_NAME: "NovaAuth"
-        APP_LOGO: ""
-        APP_PRIMARY_COLOR: "#4f46e5"
-        HIDE_POWERED_BY: "false"
+        APP_NAME:           "NovaAuth"
+        APP_PRIMARY_COLOR:  "#4f46e5"
+        HIDE_POWERED_BY:    "false"
         HIDE_REFERRAL_CODE: "false"
-        GOOGLE_CLIENT_ID: ""
-        APPLE_CLIENT_ID: ""
-        RECAPTCHA_SITE_KEY: ""
     environment:
       # Database connection (point to external postgres)
-      DATABASE_URL: ""
+      DB_USER: "postgres"
+      DB_PASSWORD: "postgres"
+      DB_HOST: "docker.for.mac.localhost"
+      DB_PORT: "5432"
+      DB_NAME: "novaauth"
       
-      # Required secrets
-      SESSION_SECRET: ""
-      ADMIN_APP_ID: ""
-      ACCOUNT_APP_ID: ""
-      ADMIN_APP_SECRET: ""
-      ACCOUNT_APP_SECRET: ""
+      # Required application settings
+      ADMIN_APP_ID:       "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+      ADMIN_APP_SECRET:   "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+      ACCOUNT_APP_ID:     "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"
+      ACCOUNT_APP_SECRET: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"
       
       # Cookie settings
-      COOKIE_NAME_BI: "bi"
-      COOKIE_NAME_II: "ii"
-      COOKIE_NAME_LI: "li"
-      COOKIE_DOMAIN: ""
+      COOKIE_DOMAIN:  "localhost"
+      SESSION_SECRET: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
       
       # Host settings
       HOST: "localhost"
@@ -39,37 +36,8 @@ services:
       # Login settings
       LOGIN_COOKIE_VERSION: "1"
       
-      # App names
-      ADMIN_APP_NAME: "Admin"
-      ACCOUNT_APP_NAME: "Account"
-      
-      # OAuth configuration
-      GOOGLE_CLIENT_SECRET: ""
-      
-      # Recaptcha
-      RECAPTCHA_SECRET: ""
-      
-      # Services
-      GEOIP_SERVICE_URL: ""
-      
       # Environment
       NODE_ENV: "production"
-      
-      # Email configuration - SMTP
-      SMTP_HOST: ""
-      SMTP_PORT: "587"
-      SMTP_SECURE: "false"
-      SMTP_USER: ""
-      SMTP_PASS: ""
-      
-      # Email configuration - AWS SES
-      AWS_REGION: "us-east-1"
-      AWS_ACCESS_KEY_ID: ""
-      AWS_SECRET_ACCESS_KEY: ""
-      
-      # Email settings
-      FROM_EMAIL: "noreply@example.com"
-      FROM_NAME: "NovaAuth"
     ports:
       - "8080:80"
     restart: unless-stopped
