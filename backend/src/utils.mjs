@@ -33,7 +33,7 @@ export function getUAInfo(useragent) {
 
 
 let badEmailDomains = null;
-export function genEmailKey(email) {
+export function genEmailKey(email, opts = {}) {
   if (badEmailDomains === null) {
       badEmailDomains = new Set(fs.readFileSync(path.join(path.dirname('.'), '/src/bad-email-domains.txt'), 'utf-8').split('\n'));
   }
@@ -49,7 +49,7 @@ export function genEmailKey(email) {
 
   if (domain.indexOf('.') === -1) return { success: false };
   if (domain.indexOf('..') !== -1) return { success: false };
-  if (badEmailDomains.has(domain)) return { success: false };
+  if (!opts.skipBadEmailDomains && badEmailDomains.has(domain)) return { success: false };
 
   user = user.replace(/\./g, '');
   if (['gmail.com', 'googlemail.com', 'google.com'].includes(domain)) {
@@ -313,7 +313,7 @@ export async function resetPassword1(email, from) {
     try {
         if (!isValidEmail(email)) return { status: ResetPasswordResult.NotFound };
 
-        const { success, emailCleaned, emailKey } = genEmailKey(email);
+        const { success, emailCleaned, emailKey } = genEmailKey(email, { skipBadEmailDomains: config.ADMIN_USER === email });
         if (!success) return { status: ResetPasswordResult.NotFound };
 
         const [user] = (await knex.raw("SELECT user_id, email, is_fraud FROM users WHERE email_key = ?", [emailKey])).rows;
@@ -387,7 +387,7 @@ export async function resetEmail1(email) {
     try {
         if (!isValidEmail(email)) throw 'NotFound';
 
-        const { emailCleaned: email_cleaned, emailKey: email_key } = genEmailKey(email);
+        const { emailCleaned: email_cleaned, emailKey: email_key } = genEmailKey(email, { skipBadEmailDomains: config.ADMIN_USER === email });
         if (!email_cleaned || !email_key) throw 'NotFound';
 
         const userInfo = await knex('users')
@@ -445,7 +445,7 @@ export async function resetEmail2(email, code, ip) {
         await trx('tokens').where('user_id', user_id).del();
         await trx('token_info').where('user_id', user_id).del();
 
-        const { emailCleaned: email_cleaned, emailKey: email_key } = genEmailKey(email);
+        const { emailCleaned: email_cleaned, emailKey: email_key } = genEmailKey(email, { skipBadEmailDomains: config.ADMIN_USER === email });
         if (!email_cleaned || !email_key) throw 'InvalidEmail';
 
         // Reset the email

@@ -98,7 +98,7 @@ async function insertDefaultAdminUser() {
       throw new Error('ADMIN_PASSWORD must be at least 4 characters long');
     }
 
-    const { success, emailCleaned, emailKey } = genEmailKey(config.ADMIN_USER);
+    const { success, emailCleaned, emailKey } = genEmailKey(config.ADMIN_USER, { skipBadEmailDomains: true });
     if (!success) {
       throw new Error('Invalid admin email format');
     }

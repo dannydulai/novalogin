@@ -241,7 +241,7 @@ async function loginEmailPassword({
             throw 'Unauthorized';
         }
 
-        const { success, emailCleaned, emailKey } = genEmailKey(email);
+        const { success, emailCleaned, emailKey } = genEmailKey(email, { skipBadEmailDomains: config.ADMIN_USER === email });
         if (!success) throw 'NotFound';
 
         email = emailCleaned;
