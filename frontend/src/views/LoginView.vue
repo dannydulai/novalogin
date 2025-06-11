@@ -309,11 +309,15 @@ export default {
     };
   },
   mounted() {
-    this.loadedGrecaptcha = true;
-    //const grepcaptchasrc = document.createElement('script');
-    //grepcaptchasrc.onload = () => { this.loadedGrecaptcha = true; };
-    //grepcaptchasrc.setAttribute('src', 'https://www.google.com/recaptcha/api.js?render=xxx');
-    //document.head.appendChild(grepcaptchasrc);
+    // Load recaptcha if site key is available
+    if (this.$config.recaptchaSiteKey) {
+      const script = document.createElement('script');
+      script.onload = () => { this.loadedGrecaptcha = true; };
+      script.src = `https://www.google.com/recaptcha/api.js?render=${this.$config.recaptchaSiteKey}`;
+      document.head.appendChild(script);
+    } else {
+      this.loadedGrecaptcha = true;
+    }
 
     // Pick out any params
     this.mapQSToState();
@@ -416,7 +420,7 @@ export default {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            recaptcha: await this.recaptcha('keyflow_login_exchange_google_code'),
+            recaptcha: await this.recaptcha('novaauth_login_exchange_google_code'),
             id_token: creds.credential,
             id: this._id,
           })
@@ -447,7 +451,7 @@ export default {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            recaptcha: await this.recaptcha('keyflow_login_enter_credentials_apple'),
+            recaptcha: await this.recaptcha('novaauth_login_enter_credentials_apple'),
             code,
             id_token,
             nonce: this._nonce,
@@ -478,11 +482,20 @@ export default {
       return nonce;
     },
     async recaptcha(action) {
+      // Return null if no recaptcha site key is configured
+      if (!this.$config.recaptchaSiteKey) {
+        return null;
+      }
+      
       while (!this.loadedGrecaptcha) await new Promise(r => setTimeout(r, 100));
-        return null
+      
+      if (!window.grecaptcha || !window.grecaptcha.ready) {
+        return null;
+      }
+      
       const p = new Promise((resolve, reject) => {
         grecaptcha.ready(() => {
-          grecaptcha.execute("xxx", { action })
+          grecaptcha.execute(this.$config.recaptchaSiteKey, { action })
             .then(r => {
               resolve(r);
             })
@@ -536,7 +549,7 @@ export default {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               id: this._id,
-              recaptcha: await this.recaptcha('keyflow_login_setup_token'),
+              recaptcha: await this.recaptcha('novaauth_login_setup_token'),
               cb: this.cb,
               challenge: this.challenge,
               state: this.state
@@ -592,7 +605,7 @@ export default {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             id: this._id,
-            recaptcha: await this.recaptcha('keyflow_login_enter_credentials'),
+            recaptcha: await this.recaptcha('novaauth_login_enter_credentials'),
             email: this.email,
             password: this.password,
           })
@@ -619,7 +632,7 @@ export default {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             id: this._id,
-            recaptcha: await this.recaptcha('keyflow_login_enter_tfa'),
+            recaptcha: await this.recaptcha('novaauth_login_enter_tfa'),
             tfa: 'goback',
           })
         });
@@ -644,7 +657,7 @@ export default {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             id: this._id,
-            recaptcha: await this.recaptcha('keyflow_login_enter_tfa'),
+            recaptcha: await this.recaptcha('novaauth_login_enter_tfa'),
             tfa: this.tfatoken,
           })
         });
@@ -669,7 +682,7 @@ export default {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             id: this._id,
-            recaptcha: await this.recaptcha('keyflow_login_confirm_app'),
+            recaptcha: await this.recaptcha('novaauth_login_confirm_app'),
             confirmapp_result
           })
         });

@@ -182,6 +182,13 @@ export default {
     }
   },
   mounted() {
+    // Load recaptcha if site key is available
+    if (this.$config.recaptchaSiteKey) {
+      const script = document.createElement('script');
+      script.src = `https://www.google.com/recaptcha/api.js?render=${this.$config.recaptchaSiteKey}`;
+      document.head.appendChild(script);
+    }
+
     // Build query string parameters
     const querystring = window.location.search;
     const pairs = (querystring[0] === "?" ? querystring.substr(1) : querystring).split("&");
@@ -257,7 +264,7 @@ export default {
         }
 
         // Get recaptcha token
-        const recaptchaToken = await this.recaptcha('login_create_account');
+        const recaptchaToken = await this.recaptcha('novaauth_create_account');
         
         // Prepare request data
         const requestData = {
@@ -306,6 +313,11 @@ export default {
       }
     },
     async recaptcha(action) {
+      // Return null if no recaptcha site key is configured
+      if (!this.$config.recaptchaSiteKey) {
+        return null;
+      }
+      
       // For development/testing, return a dummy token if recaptcha is not available
       if (!window.grecaptcha || !window.grecaptcha.ready) {
         console.warn('Recaptcha not available, using dummy token');
@@ -314,7 +326,7 @@ export default {
       
       return new Promise((resolve, reject) => {
         grecaptcha.ready(() => {
-          grecaptcha.execute(config.recaptchaSiteKey || "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI", { action })
+          grecaptcha.execute(this.$config.recaptchaSiteKey, { action })
             .then(resolve)
             .catch(error => {
               console.error('Recaptcha error:', error);

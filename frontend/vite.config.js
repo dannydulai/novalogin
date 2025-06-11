@@ -17,7 +17,8 @@ export default defineConfig({
     'import.meta.env.APP_PRIMARY_COLOR': JSON.stringify(process.env.APP_PRIMARY_COLOR || '#8ac7da'),
     'import.meta.env.HIDE_POWERED_BY': JSON.stringify(process.env.HIDE_POWERED_BY || 'false'),
     'import.meta.env.GOOGLE_CLIENT_ID': JSON.stringify(process.env.GOOGLE_CLIENT_ID || ''),
-    'import.meta.env.APPLE_CLIENT_ID': JSON.stringify(process.env.APPLE_CLIENT_ID || '')
+    'import.meta.env.APPLE_CLIENT_ID': JSON.stringify(process.env.APPLE_CLIENT_ID || ''),
+    'import.meta.env.RECAPTCHA_SITE_KEY': JSON.stringify(process.env.RECAPTCHA_SITE_KEY || '')
   },
   resolve: {
     alias: {
