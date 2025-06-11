@@ -39,9 +39,9 @@ COPY backend/ ./
 COPY --from=frontend-build /app/frontend/dist /usr/share/nginx/html
 
 # Copy configuration files
-COPY nginx.conf /etc/nginx/nginx.conf
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-COPY start.sh /start.sh
+COPY build/nginx.conf /etc/nginx/nginx.conf
+COPY build/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY build/start.sh /start.sh
 
 # Make startup script executable
 RUN chmod +x /start.sh
