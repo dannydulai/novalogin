@@ -525,11 +525,8 @@ export default {
         if (getinfo && email && name) {
           this.email = email;
           this.name = name;
-          
-          if (this._id) {
-              this.auth_state = 'loggedin';
-              return;
-          }
+          this.auth_state = 'loggedin';
+          return;
         }
 
         if (state === 'loggedin') {

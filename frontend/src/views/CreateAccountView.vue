@@ -285,12 +285,8 @@ export default {
         const data = await response.json();
 
         if (data.status === "Success") {
-          // Redirect to login page or account page
-          if (this.qs && this.qs.cb) {
-            window.location.href = this.qs.cb;
-          } else {
-            window.location.href = this.signInUrl;
-          }
+          // Redirect to login page
+          window.location.href = this.signInUrl;
         } else if (data.status === "EmailExists") {
           this.status = 'error_account_exists';
         } else if (data.status === "InvalidName") {
