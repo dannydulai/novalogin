@@ -3,6 +3,16 @@
 # Stage 1: Build the frontend
 FROM node:18-alpine AS frontend-build
 
+# Build arguments for frontend environment variables
+ARG APP_NAME
+ARG APP_LOGO
+ARG APP_PRIMARY_COLOR
+ARG HIDE_POWERED_BY
+ARG HIDE_REFERRAL_CODE
+ARG GOOGLE_CLIENT_ID
+ARG APPLE_CLIENT_ID
+ARG RECAPTCHA_SITE_KEY
+
 WORKDIR /app/frontend
 
 # Copy frontend package files
@@ -13,6 +23,16 @@ RUN npm ci
 
 # Copy frontend source code
 COPY frontend/ ./
+
+# Set environment variables for build
+ENV APP_NAME=$APP_NAME
+ENV APP_LOGO=$APP_LOGO
+ENV APP_PRIMARY_COLOR=$APP_PRIMARY_COLOR
+ENV HIDE_POWERED_BY=$HIDE_POWERED_BY
+ENV HIDE_REFERRAL_CODE=$HIDE_REFERRAL_CODE
+ENV GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID
+ENV APPLE_CLIENT_ID=$APPLE_CLIENT_ID
+ENV RECAPTCHA_SITE_KEY=$RECAPTCHA_SITE_KEY
 
 # Build the frontend with variables
 RUN npm run build
