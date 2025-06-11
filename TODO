@@ -1,22 +1,4 @@
-[x] OIDC routes
-[x] Admin app
-[x] User mgmt system
-[x] Link Google
-[x] Apple accounts
-[x] SES for emails
-[x] Change email / password flow
-[x] express login package + fastify login package.
-[x] Test web app with client_secret + express login package
-[x] Test flutter app for PKCE
-[x] Mobile/Desktop verify token
-[x] Email templates
-[x] Verify redirects carry url params properly
-    ----> option to save query params when creating user
-    ---->add json dump of utm tags to user
-[x] Conditional referral codes (hide / not generate, etc)
-
 ----- nice to haves
 [ ] Example of how to connect open source app with oidc (use grist)
 [ ] How to test apple login? ngrok?
 [ ] docs on everything
-[ ] docker image standalone to run and try it out
