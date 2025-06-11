@@ -21,6 +21,8 @@ import loginRoutes from './src/login.mjs';
 import accountRoutes from './src/account.mjs';
 import account2faRoutes from './src/account2fa.mjs';
 import adminRoutes from './src/admin.mjs';
+import bcrypt from 'bcrypt';
+import { genEmailKey, getReferralCode, isValidEmail, isValidPassword } from './src/utils.mjs';
 
 /**
  * Create and configure the login router
@@ -77,6 +79,64 @@ async function insertDefaultApps() {
 }
 
 /**
+ * Insert default admin user into the database
+ */
+async function insertDefaultAdminUser() {
+  try {
+    // Check if admin user credentials are provided
+    if (!config.ADMIN_USER || !config.ADMIN_PASSWORD) {
+      console.log('ADMIN_USER and ADMIN_PASSWORD not provided, skipping admin user creation');
+      return;
+    }
+
+    // Validate admin credentials
+    if (!isValidEmail(config.ADMIN_USER)) {
+      throw new Error('ADMIN_USER must be a valid email address');
+    }
+
+    if (!isValidPassword(config.ADMIN_PASSWORD)) {
+      throw new Error('ADMIN_PASSWORD must be at least 4 characters long');
+    }
+
+    const { success, emailCleaned, emailKey } = genEmailKey(config.ADMIN_USER);
+    if (!success) {
+      throw new Error('Invalid admin email format');
+    }
+
+    // Check if admin user already exists
+    const existingUser = await db('users')
+      .where({ email_key: emailKey })
+      .first();
+
+    if (existingUser) {
+      console.log('Admin user already exists, skipping creation');
+      return;
+    }
+
+    // Create admin user
+    const hashedPassword = await bcrypt.hash(config.ADMIN_PASSWORD, await bcrypt.genSalt());
+    const referralCode = getReferralCode();
+
+    await db('users').insert({
+      email: emailCleaned,
+      email_key: emailKey,
+      password: hashedPassword,
+      firstname: 'Admin',
+      lastname: 'User',
+      referral_code: referralCode,
+      groups: ['admin'],
+      class: 'Admin'
+    });
+
+    console.log('Admin user created successfully with email:', emailCleaned);
+
+  } catch (error) {
+    console.error('Error inserting default admin user:', error);
+    throw error; // Re-throw to stop application startup
+  }
+}
+
+/**
  * Expire old codes in the database
  */
 async function expireOldCodes() {
@@ -126,6 +186,9 @@ async function setupApp(app, options = {}) {
   
   // Insert default apps into the database
   await insertDefaultApps();
+  
+  // Insert default admin user into the database
+  await insertDefaultAdminUser();
   
   // Set up interval to expire old codes every minute
   if (!disableCodeExpiration) {

@@ -38,6 +38,10 @@ services:
       
       # Environment
       NODE_ENV: "production"
+      
+      # Admin user configuration
+      ADMIN_USER: "admin@example.com"
+      ADMIN_PASSWORD: "admin123"
     ports:
       - "8080:80"
     restart: unless-stopped

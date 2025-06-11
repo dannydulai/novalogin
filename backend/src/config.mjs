@@ -59,4 +59,8 @@ export default {
   GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET || '',
 
   HIDE_REFERRAL_CODE: process.env.HIDE_REFERRAL_CODE === 'true',
+
+  // Admin user configuration
+  ADMIN_USER: process.env.ADMIN_USER || '',
+  ADMIN_PASSWORD: process.env.ADMIN_PASSWORD || '',
 };
