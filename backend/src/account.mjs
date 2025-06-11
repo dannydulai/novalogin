@@ -80,6 +80,7 @@ export default function(app, logger) {
                     'created',
                     'updated',
                     'referral_code',
+                    'utm_data',
                     'groups',
                     'tfa_enabled',
                     'class'
@@ -258,6 +259,13 @@ export default function(app, logger) {
         password,
         referral_code
     }) {
+        // Extract UTM parameters from query string
+        const utmData = {};
+        Object.keys(req.query).forEach(key => {
+            if (key.startsWith('utm_')) {
+                utmData[key] = req.query[key];
+            }
+        });
         try {
             const { emailCleaned: validatedEmail, emailKey, success } = utils.genEmailKey(email);
             if (!success) {
@@ -285,10 +293,10 @@ export default function(app, logger) {
                     const [user] = (await txn.raw(
                         `INSERT INTO users (
                         user_id, email, email_key, referral_code, password,
-                        firstname, lastname
+                        firstname, lastname, utm_data
                     ) VALUES (
                         :user_id, :email, :email_key, :referral_code, :password,
-                        :firstname, :lastname
+                        :firstname, :lastname, :utm_data
                     ) RETURNING *`,
                         {
                             user_id,
@@ -298,6 +306,7 @@ export default function(app, logger) {
                             email_key: emailKey,
                             referral_code: new_referral_code,
                             password: await bcrypt.hash(password, await bcrypt.genSalt()),
+                            utm_data: JSON.stringify(utmData),
                         }
                     )).rows;
 
