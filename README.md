@@ -7,8 +7,7 @@ NovaAuth is a modern, self-hosted authentication service that provides login flo
 **This is designed to be forked and customized** - take this project, make it your own, and build the authentication system that perfectly fits your needs.
 
 ## ✨ Features
-
-- **OAuth-style Authentication Flow** - PKCE-based authentication with callback URLs
+- **Permission restricted flows** - Require different permissions for certain users to access applications
 - **Multi-Factor Authentication** - Built-in 2FA support with TOTP
 - **Social Login** - Google and Apple Sign-In integration
 - **Admin Dashboard** - Manage users, apps, and authentication settings
