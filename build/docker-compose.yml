@@ -9,7 +9,7 @@ services:
       args:
         # Frontend build-time environment variables
         APP_NAME:           "NovaAuth"
-        APP_PRIMARY_COLOR:  "#4f46e5"
+        APP_PRIMARY_COLOR:  "#00CC99"
         HIDE_POWERED_BY:    "false"
         HIDE_REFERRAL_CODE: "false"
     environment:

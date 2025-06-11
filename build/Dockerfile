@@ -14,7 +14,7 @@ RUN npm ci
 # Copy frontend source code
 COPY frontend/ ./
 
-# Build the frontend
+# Build the frontend with variables
 RUN npm run build
 
 # Stage 2: Setup backend and final image

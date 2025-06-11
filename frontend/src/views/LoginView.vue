@@ -322,7 +322,7 @@ export default {
     // Pick out any params
     this.mapQSToState();
     
-    if (typeof AppleID !== 'undefined') {
+    if (this.$config.appleClientId && typeof AppleID !== 'undefined') {
       AppleID.auth.init({
         clientId: this.$config.appleClientId,
         scope: 'name email',
@@ -333,7 +333,7 @@ export default {
       });
     }
     
-    if (typeof google !== 'undefined' && this.$config.googleClientId) { 
+    if (this.$config.googleClientId && typeof google !== 'undefined') { 
       google.accounts.id.initialize({
         client_id: this.$config.googleClientId,
         callback: this.signInWithGoogle
@@ -341,11 +341,11 @@ export default {
     }
 
     this.$nextTick(() => {
-      if (typeof AppleID !== 'undefined') {
+      if (this.$config.appleClientId  && typeof AppleID !== 'undefined') {
         AppleID.auth.renderButton();
       }
       
-      if (typeof google !== 'undefined' && this.auth_state === 'login' && this.$config.googleClientId) {
+      if (this.$config.googleClientId && typeof google !== 'undefined' && this.auth_state === 'login') {
         google.accounts.id.renderButton(
           document.getElementById("google-signin"),
           { theme: "outline", size: "large", width: "100%" }
@@ -354,7 +354,7 @@ export default {
       }
     });
 
-    if (typeof AppleID !== 'undefined') {
+    if (this.$config.appleClientId && typeof AppleID !== 'undefined') {
       document.addEventListener('AppleIDSignInOnSuccess', async (event) => {
         this.loading.action = 'checking';
         await this.signInWithApple(event.detail.authorization);
@@ -374,11 +374,11 @@ export default {
     auth_state(val) {
       if (this.auth_state === 'login') {
         this.$nextTick(() => {
-          if (typeof AppleID !== 'undefined') {
+          if (this.$config.appleClientId && typeof AppleID !== 'undefined') {
             AppleID.auth.renderButton();
           }
           
-          if (typeof google !== 'undefined') {
+          if (this.$config.googleClientId && typeof google !== 'undefined') {
             google.accounts.id.renderButton(
               document.getElementById("google-signin"),
               { theme: "outline", size: "large", width: 400 }
