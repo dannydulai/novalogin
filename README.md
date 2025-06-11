@@ -1,6 +1,8 @@
 # NovaAuth 🚀
 
-A modern, self-hosted authentication service that provides OAuth-style login flows for your applications. NovaAuth handles user registration, authentication, two-factor authentication, and session management so you can focus on building your app.
+**This is NOT OAuth** - it's a streamlined alternative! No complex scopes, no token refresh headaches, just clean authentication that works.
+
+NovaAuth is a modern, self-hosted authentication service that provides login flows for your applications. NovaAuth handles user registration, authentication, two-factor authentication, and session management so you can focus on building your app. It supports login through client_id / client_secret exchange for your self hosted backends, OIDC support for third party applications, and PKCE authentication for mobile / desktop apps.
 
 **This is designed to be forked and customized** - take this project, make it your own, and build the authentication system that perfectly fits your needs.
 
@@ -10,11 +12,10 @@ A modern, self-hosted authentication service that provides OAuth-style login flo
 - **Multi-Factor Authentication** - Built-in 2FA support with TOTP
 - **Social Login** - Google and Apple Sign-In integration
 - **Admin Dashboard** - Manage users, apps, and authentication settings
-- **Email Verification** - Automated email workflows for account verification
 - **Session Management** - Secure cookie-based sessions with configurable expiration
 - **Referral System** - Built-in user referral tracking with UTM data capture
 - **Customizable UI** - Brand your login pages with custom colors and logos
-- **reCAPTCHA Protection** - Spam and bot protection
+- **Google reCAPTCHA Support** - Spam and bot protection
 - **Docker Ready** - Single container deployment with PostgreSQL support
 - **Extensible Schema** - Add your own user data fields and customize as needed
 
@@ -146,8 +147,6 @@ This repository contains several components:
 ## 🔗 Integrating Your Applications
 
 NovaAuth uses a **PKCE-based authentication flow** that's similar to OAuth but simpler. It works perfectly with PKCE libraries like the one used in our Flutter example.
-
-**This is NOT OAuth** - it's a streamlined alternative! No complex scopes, no token refresh headaches, just clean authentication that works.
 
 ### 1. Register Your Application
 
